@@ -66,7 +66,7 @@ int main() {
             }
         al_clear_to_color(al_map_rgb(255, 255, 255));
         al_draw_bitmap(bg, 0, 0, 0);
-        al_draw_text(fonte, al_map_rgb(0, 0, 0), 100, 100, 0, "Horario: 15:30");
+        al_draw_text(fonte, al_map_rgb(0, 0, 0), 100, 100, 0, "Anoitecer");
         al_flip_display();
     }
 
@@ -80,9 +80,12 @@ int main() {
 }
 
 
-//(Linux) -> sudo "..." -S github-cli
+//(Linux) -> sudo "..." github-cli
 //(Linux) -> gh auth login - faz o login
 //(Linux) -> git clone https://github.com/pedrogabrielfernandes/jogo
+//(Linux) -> cd jogo/ - na pasta "jogo" 
+//gcc main.c -o teste -lallegro -lallegro_main -lallegro_ttf -lallegro_font -lallegro_image -> compilar o codigo
+//./teste -> executa o codigo
 //após cada alteração que fizerem dê ctrl+s atualizem o repositório do github
 //exemplo: 
 //git add .
