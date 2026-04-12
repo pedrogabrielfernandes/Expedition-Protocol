@@ -79,16 +79,28 @@ int main() {
     //matheus
 }
 
+/*
+(Linux) -> sudo "..." github-cli
+(Linux) -> gh auth login - faz o login
+(Linux) -> git clone https://github.com/pedrogabrielfernandes/jogo
+(Linux) -> cd jogo/ - na pasta "jogo" 
+gcc main.c -o teste -lallegro -lallegro_main -lallegro_ttf -lallegro_font -lallegro_image -> compilar o codigo
+./teste -> executa o codigo
 
-//(Linux) -> sudo "..." github-cli
-//(Linux) -> gh auth login - faz o login
-//(Linux) -> git clone https://github.com/pedrogabrielfernandes/jogo
-//(Linux) -> cd jogo/ - na pasta "jogo" 
-//gcc main.c -o teste -lallegro -lallegro_main -lallegro_ttf -lallegro_font -lallegro_image -> compilar o codigo
-//./teste -> executa o codigo
-//após cada alteração que fizerem dê ctrl+s atualizem o repositório do github
-//exemplo: 
-//git add .
-//git commit -m "o que você alterou"
-//git push
-//logo após atualize seu repositorio e seu gitclone
+após cada alteração que fizerem dê ctrl+s atualizem o repositório do github
+exemplo: 
+git add .
+git commit -m "o que você alterou"
+git push
+logo após atualize seu repositorio e seu gitclone
+
+** SEU TERMINAL -> PESSOAL
+(dentro da pasta jogo)
+git stash
+git pull --rebase origin main
+git stash pop
+
+*Atualizou ->
+gcc main.c -o teste -lallegro -lallegro_main -lallegro_ttf -lallegro_font -lallegro_image -> compilar o codigo atualizado
+./teste -> executar o codigo atualizado
+*/
