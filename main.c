@@ -76,5 +76,16 @@ int main() {
     al_destroy_event_queue(queue);
     //destroi a janela
     return 0;
+    //matheus
 }
-//vpu me matar
+
+
+//após cada alteração que fizerem dê ctrl+s atualizem o repositório do github
+//exemplo: 
+//git add .
+//git commit -m "o que você alterou"
+//git push
+//logo após atualize seu repositorio e seu gitclone
+//(Linux) -> sudo "..." -S github-cli
+//(Linux) -> gh auth login - faz o login
+//(Linux) -> git clone https://github.com/pedrogabrielfernandes/jogo
