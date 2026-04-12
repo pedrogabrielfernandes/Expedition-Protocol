@@ -79,7 +79,7 @@ int main() {
     al_destroy_event_queue(queue);
     //destroi a janela
     return 0;
-    //matheus
+    
 }
 
 /*
@@ -92,7 +92,7 @@ int main() {
     (Linux) -> cd jogo/ - na pasta "jogo" 
     
     *Comando Universal ->
-    gcc main.c -o teste -lallegro -lallegro_main -lallegro_ttf -lallegro_font -lallegro_image -> compilar o codigo
+    gcc main.c -o teste -lallegro -lagit llegro_main -lallegro_ttf -lallegro_font -lallegro_image -> compilar o codigo
     ./teste -> executa o codigo
 
     após cada alteração que fizerem dê ctrl+s atualizem o repositório do github, exemplo: 
@@ -103,7 +103,7 @@ int main() {
     
     logo após atualize seu repositorio e atualize o seu gitclone
 
-    ** SEU TERMINAL -> PESSOAL
+    ** SEU TERMINAL -> PESSOAL (atualizar o seu gitclone)
     (dentro da pasta jogo)
     git stash  -> salva suas alterações
     git pull --rebase origin main  -> puxa as alterações do main original
