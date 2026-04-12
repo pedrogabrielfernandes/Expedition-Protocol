@@ -69,7 +69,7 @@ int main() {
             }
         al_clear_to_color(al_map_rgb(255, 255, 255));
         al_draw_bitmap(bg, 0, 0, 0);
-        al_draw_text(fonte, al_map_rgb(0, 0, 0), 100, 100, 0, "Anoitecer");
+        al_draw_text(fonte, al_map_rgb(0, 0, 0), 100, 100, 0, "Entardecer");
         al_flip_display();
     }
 
@@ -83,6 +83,9 @@ int main() {
 }
 
 /*
+    se mexer no github dê no terminal zsh: git pull origin main --rebase
+    isso vai sincronizar os arquivos do vscode com o github.
+
     (Linux) -> sudo "..." github-cli
     (Linux) -> gh auth login - faz o login
     (Linux) -> git clone https://github.com/pedrogabrielfernandes/jogo
@@ -102,11 +105,12 @@ int main() {
 
     ** SEU TERMINAL -> PESSOAL
     (dentro da pasta jogo)
-    git stash
-    git pull --rebase origin main
-    git stash pop
+    git stash  -> salva suas alterações
+    git pull --rebase origin main  -> puxa as alterações do main original
+    git stash pop  -> implementa o main original e volta com suas alterações pessoais
 
     *Atualizou ->
     gcc main.c -o teste -lallegro -lallegro_main -lallegro_ttf -lallegro_font -lallegro_image -> compilar o codigo atualizado
     ./teste -> executar o codigo atualizado
+    
 */
