@@ -14,15 +14,15 @@
 int main() {
     //iniciando e verificando o programa, fontes e imagens
     if (!al_init()){
-        printf("falha na inicialização do jogo.");
+        printf("falha na inicializaÃÂ§ÃÂ£o do jogo.");
         return 1;
     }
     if (!al_init_font_addon()){
-        printf("falha na inicialização das fontes automáticas");
+        printf("falha na inicializaÃÂ§ÃÂ£o das fontes automÃÂ¡ticas");
         return 1;
     }
     if (!al_init_ttf_addon()) {
-        printf("falha na inicialização das fontes");
+        printf("falha na inicializaÃÂ§ÃÂ£o das fontes");
         return 1;
     }
     if (!al_init_image_addon()) {
@@ -34,7 +34,7 @@ int main() {
     ALLEGRO_EVENT_QUEUE *queue = al_create_event_queue();
     ALLEGRO_FONT *fonte = al_load_ttf_font("assets/arial.ttf", 24, 0);
         if (!fonte) {
-            printf("falha na inicialização da fonte arial");
+            printf("falha na inicializaÃÂ§ÃÂ£o da fonte arial");
             return 1;
         }
 
@@ -48,17 +48,17 @@ int main() {
     //definindo o background e verificando ele
     ALLEGRO_BITMAP *bg = al_load_bitmap("assets/background.png");
     if (!bg) {
-        printf("falha na inicialização do background");
+        printf("falha na inicializaÃÂ§ÃÂ£o do background");
         return 1;
     }
 
     //um evento
     ALLEGRO_EVENT evento;
 
-    //criando um inteiro para o laço de repetição
+    //criando um inteiro para o laÃÂ§o de repetiÃÂ§ÃÂ£o
     int rodando = 1;
 
-    //o laço de repetição que vai fazer o jogo rodar até fechar
+    //o laÃÂ§o de repetiÃÂ§ÃÂ£o que vai fazer o jogo rodar atÃÂ© fechar
     while (rodando){
             al_wait_for_event(queue, &evento);
             if (evento.type == ALLEGRO_EVENT_DISPLAY_CLOSE) {
@@ -77,3 +77,4 @@ int main() {
     //destroi a janela
     return 0;
 }
+//vou me matar de 00:00
