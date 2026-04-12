@@ -7,10 +7,14 @@
 
 #### Bacharelado Interdisciplinar em Tecnologia da Informação - UFERSA
 
-<p align="center">
-Repositório destinado ao desenvolvimento e armazenamento do projeto de criação de jogo da disciplina de Algoritmos e Estrutura de Dados I.
-</p>
-
+<table align="center">
+  <tr>
+    <td align="center">
+      Repositório destinado ao desenvolvimento e armazenamento do projeto de criação de jogo da disciplina de Algoritmos e Estrutura de Dados I.
+    </td>
+  </tr>
+</table>
+  
 ## 👨‍💻 Projeto
 
 Este repositório reúne os arquivos, códigos e materiais desenvolvidos para o projeto de criação de um jogo, proposto na disciplina de Algoritmos e Estrutura de Dados I.
