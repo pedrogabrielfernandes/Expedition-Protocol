@@ -11,6 +11,9 @@
 #include <allegro5/allegro_image.h>
 #include <stdio.h>
 
+#define altura 720
+#define largura 1280
+
 int main() {
     //iniciando e verificando o programa, fontes e imagens
     if (!al_init()){
@@ -40,7 +43,7 @@ int main() {
 
     //definindo o tamanho da janela e onde ela vai aparecer
     al_set_new_window_position(320, 180);
-    ALLEGRO_DISPLAY *display = al_create_display(1280, 720);
+    ALLEGRO_DISPLAY *display = al_create_display(largura, altura);
 
     //registrando novo evento
     al_register_event_source(queue, al_get_display_event_source(display));
@@ -80,27 +83,30 @@ int main() {
 }
 
 /*
-(Linux) -> sudo "..." github-cli
-(Linux) -> gh auth login - faz o login
-(Linux) -> git clone https://github.com/pedrogabrielfernandes/jogo
-(Linux) -> cd jogo/ - na pasta "jogo" 
-gcc main.c -o teste -lallegro -lallegro_main -lallegro_ttf -lallegro_font -lallegro_image -> compilar o codigo
-./teste -> executa o codigo
+    (Linux) -> sudo "..." github-cli
+    (Linux) -> gh auth login - faz o login
+    (Linux) -> git clone https://github.com/pedrogabrielfernandes/jogo
+    (Linux) -> cd jogo/ - na pasta "jogo" 
+    
+    *Comando Universal ->
+    gcc main.c -o teste -lallegro -lallegro_main -lallegro_ttf -lallegro_font -lallegro_image -> compilar o codigo
+    ./teste -> executa o codigo
 
-após cada alteração que fizerem dê ctrl+s atualizem o repositório do github
-exemplo: 
-git add .
-git commit -m "o que você alterou"
-git push
-logo após atualize seu repositorio e seu gitclone
+    após cada alteração que fizerem dê ctrl+s atualizem o repositório do github, exemplo: 
 
-** SEU TERMINAL -> PESSOAL
-(dentro da pasta jogo)
-git stash
-git pull --rebase origin main
-git stash pop
+    git add .
+    git commit -m "o que você alterou"
+    git push
+    
+    logo após atualize seu repositorio e atualize o seu gitclone
 
-*Atualizou ->
-gcc main.c -o teste -lallegro -lallegro_main -lallegro_ttf -lallegro_font -lallegro_image -> compilar o codigo atualizado
-./teste -> executar o codigo atualizado
+    ** SEU TERMINAL -> PESSOAL
+    (dentro da pasta jogo)
+    git stash
+    git pull --rebase origin main
+    git stash pop
+
+    *Atualizou ->
+    gcc main.c -o teste -lallegro -lallegro_main -lallegro_ttf -lallegro_font -lallegro_image -> compilar o codigo atualizado
+    ./teste -> executar o codigo atualizado
 */
