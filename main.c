@@ -14,15 +14,15 @@
 int main() {
     //iniciando e verificando o programa, fontes e imagens
     if (!al_init()){
-        printf("falha na inicializaÃÂ§ÃÂ£o do jogo.");
+        printf("falha na inicialização do jogo.");
         return 1;
     }
     if (!al_init_font_addon()){
-        printf("falha na inicializaÃÂ§ÃÂ£o das fontes automÃÂ¡ticas");
+        printf("falha na inicialização das fontes automaticas");
         return 1;
     }
     if (!al_init_ttf_addon()) {
-        printf("falha na inicializaÃÂ§ÃÂ£o das fontes");
+        printf("falha na inicialização das fontes");
         return 1;
     }
     if (!al_init_image_addon()) {
@@ -34,7 +34,7 @@ int main() {
     ALLEGRO_EVENT_QUEUE *queue = al_create_event_queue();
     ALLEGRO_FONT *fonte = al_load_ttf_font("assets/arial.ttf", 24, 0);
         if (!fonte) {
-            printf("falha na inicializaÃÂ§ÃÂ£o da fonte arial");
+            printf("falha na inicialização da fonte arial");
             return 1;
         }
 
@@ -48,17 +48,17 @@ int main() {
     //definindo o background e verificando ele
     ALLEGRO_BITMAP *bg = al_load_bitmap("assets/background.png");
     if (!bg) {
-        printf("falha na inicializaÃÂ§ÃÂ£o do background");
+        printf("falha na inicialização do background");
         return 1;
     }
 
     //um evento
     ALLEGRO_EVENT evento;
 
-    //criando um inteiro para o laÃÂ§o de repetiÃÂ§ÃÂ£o
+    //criando um inteiro para o laço de repetição
     int rodando = 1;
 
-    //o laÃÂ§o de repetiÃÂ§ÃÂ£o que vai fazer o jogo rodar atÃÂ© fechar
+    //o laco de repeticao que vai fazer o jogo rodar ate fechar
     while (rodando){
             al_wait_for_event(queue, &evento);
             if (evento.type == ALLEGRO_EVENT_DISPLAY_CLOSE) {
@@ -69,7 +69,6 @@ int main() {
         al_draw_text(fonte, al_map_rgb(0, 0, 0), 100, 100, 0, "Horario: 15:30");
         al_flip_display();
     }
-    //SIXX AND SEVENNN, ZÉ DA MANGA, AMOSTRADINHO, BORA BILL, CALABRESO, SANDALIO, SANSUMGO
 
     al_destroy_bitmap(bg);
     al_destroy_display(display);
