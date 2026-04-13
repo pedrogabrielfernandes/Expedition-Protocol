@@ -14,6 +14,8 @@
 #define altura 720
 #define largura 1280
 
+//spirte personagem: x = 96 y = 84
+
 int main() {
     //iniciando e verificando o programa, fontes e imagens
     if (!al_init()){
@@ -48,6 +50,12 @@ int main() {
     //registrando novo evento
     al_register_event_source(queue, al_get_display_event_source(display));
 
+    //definindo o fps
+    ALLEGRO_TIMER *timer = al_create_timer(1.0/30.0);
+    al_register_event_source(queue, al_get_timer_event_source(timer));
+    al_start_timer(timer);
+    
+
     //definindo o background e verificando ele
     ALLEGRO_BITMAP *bg = al_load_bitmap("assets/background.png");
     if (!bg) {
@@ -55,11 +63,19 @@ int main() {
         return 1;
     }
 
+    //definindo os sprites do personagem
+    ALLEGRO_BITMAP *idle = al_load_bitmap("assets/sprites/IDLE.png");
+
     //um evento
     ALLEGRO_EVENT evento;
 
     //criando um inteiro para o laço de repetição
     int rodando = 1;
+
+    float frame = 0.f;
+    int pos_x = 0;
+    int pos_y = 560;
+    int current_frame_y = 0;
 
     //o laco de repeticao que vai fazer o jogo rodar ate fechar
     while (rodando){
@@ -67,12 +83,23 @@ int main() {
             if (evento.type == ALLEGRO_EVENT_DISPLAY_CLOSE) {
                 rodando = 0;
             }
-        al_clear_to_color(al_map_rgb(255, 255, 255));
-        al_draw_bitmap(bg, 0, 0, 0);
-        al_draw_text(fonte, al_map_rgb(0, 0, 0), 100, 100, 0, "Entardecer");
-        al_flip_display();
-    }
+            if (evento.type == ALLEGRO_EVENT_TIMER){
+                frame += 0.3f;
 
+                if (frame > 7){
+                    frame -= 7;
+                }
+                
+
+                al_clear_to_color(al_map_rgb(255, 255, 255));    
+                al_draw_bitmap(bg, 0, 0, 0);
+                //al_draw_bitmap(idle, 0, 560, 0);
+                al_draw_bitmap_region(idle, 96 * (int) frame, current_frame_y, 96, 84, pos_x, pos_y, 0);
+                al_draw_text(fonte, al_map_rgb(0, 0, 0), 100, 100, 0, "Entardecer");
+                al_flip_display();
+            }
+    }
+    al_destroy_bitmap(idle);
     al_destroy_bitmap(bg);
     al_destroy_display(display);
     al_destroy_font(fonte);
@@ -92,7 +119,7 @@ int main() {
     (Linux) -> cd jogo/ - na pasta "jogo" 
     
     *Comando Universal ->
-    gcc main.c -o teste -lallegro -lagit llegro_main -lallegro_ttf -lallegro_font -lallegro_image -> compilar o codigo
+    gcc main.c -o teste -lallegro -lallegro_main -lallegro_ttf -lallegro_font -lallegro_image -> compilar o codigo
     ./teste -> executa o codigo
 
     após cada alteração que fizerem dê ctrl+s atualizem o repositório do github, exemplo: 
