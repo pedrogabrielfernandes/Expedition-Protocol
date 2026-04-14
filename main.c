@@ -70,6 +70,7 @@ int main() {
         al_clear_to_color(al_map_rgb(255, 255, 255));
         al_draw_bitmap(bg, 0, 0, 0);
         al_draw_text(fonte, al_map_rgb(0, 0, 0), 100, 100, 0, "Entardecer");
+        al_set_window_title(display, "Expedition");
         al_flip_display();
     }
 
