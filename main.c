@@ -74,6 +74,7 @@ int main() {
     int pos_x = 462;
     int pos_y = 707;
     int current_frame_y = 0;
+    int direcao;
     ALLEGRO_KEYBOARD_STATE state;
 
     al_set_window_title(display, "Expedition");
@@ -95,11 +96,13 @@ int main() {
             if (al_key_down(&state, ALLEGRO_KEY_D)){
                 if (frame > 8) frame -= 8;
                 pos_x += 5;
+                direcao = 0;
                 al_draw_bitmap_region(run, 96 * (int)frame, current_frame_y, 96, 84, pos_x, pos_y, 0);
             }
             else if (al_key_down(&state, ALLEGRO_KEY_A)){
                 if (frame > 8) frame -= 8;
                 pos_x -= 5;
+                direcao = ALLEGRO_FLIP_HORIZONTAL;
                 al_draw_bitmap_region(run, 96 * (int)frame, current_frame_y, 96, 84, pos_x, pos_y, 0);
             }
             else if (al_key_down(&state, ALLEGRO_KEY_W)){
