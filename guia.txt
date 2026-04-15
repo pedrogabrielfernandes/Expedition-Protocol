@@ -15,13 +15,16 @@
     git push
     
     logo após atualize seu repositorio e atualize o seu gitclone
-    
-    ** SEU TERMINAL -> PESSOAL
-    (dentro da pasta jogo)
-    git stash  -> salva suas alterações
-    git pull --rebase origin main  -> puxa as alterações do main original
-    git stash pop  -> implementa o main original e volta com suas alterações pessoais
+
+    USE ISSO PARA SEMPRE ESTAR ATUALIZADO E MANDAR AS ATUALIZAÇÕES CORRETAMENTE
+    git pull   # pega atualizações
+    # trabalha no código
+    git add .
+    git commit -m "mensagem"
+    git push   # envia pro GitHub
     
     *Atualizou ->
     gcc main.c -o jogo $(pkg-config --cflags --libs allegro-5 allegro_font-5 allegro_ttf-5 allegro_image-5) -> compilar o codigo atualizado
     ./teste -> executar o codigo atualizado
+
+    Novo código compilador universal -> gcc main.c -o jogo $(pkg-config --cflags --libs allegro-5 allegro_font-5 allegro_ttf-5 allegro_image-5) 
