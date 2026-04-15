@@ -97,23 +97,23 @@ int main() {
                 if (frame > 8) frame -= 8;
                 pos_x += 5;
                 direcao = 0;
-                al_draw_bitmap_region(run, 96 * (int)frame, current_frame_y, 96, 84, pos_x, pos_y, 0);
+                al_draw_bitmap_region(run, 96 * (int)frame, current_frame_y, 96, 84, pos_x, pos_y, direcao);
             }
             else if (al_key_down(&state, ALLEGRO_KEY_A)){
                 if (frame > 8) frame -= 8;
                 pos_x -= 5;
                 direcao = ALLEGRO_FLIP_HORIZONTAL;
-                al_draw_bitmap_region(run, 96 * (int)frame, current_frame_y, 96, 84, pos_x, pos_y, 0);
+                al_draw_bitmap_region(run, 96 * (int)frame, current_frame_y, 96, 84, pos_x, pos_y, direcao);
             }
             else if (al_key_down(&state, ALLEGRO_KEY_W)){
                 if (frame > 5) frame -= 5;
                 pos_y -= 40;
-                al_draw_bitmap_region(jump, 96 * (int)frame, current_frame_y, 96, 84, pos_x, pos_y, 0);
+                al_draw_bitmap_region(jump, 96 * (int)frame, current_frame_y, 96, 84, pos_x, pos_y, direcao);
                 pos_y = 707;
             }
             else{
                 if (frame > 7) frame -= 7;
-                al_draw_bitmap_region(idle, 96 * (int)frame, current_frame_y, 96, 84, pos_x, pos_y, 0);
+                al_draw_bitmap_region(idle, 96 * (int)frame, current_frame_y, 96, 84, pos_x, pos_y, direcao);
             }
 
             al_draw_text(fonte, al_map_rgb(0, 0, 0), 1750, 104, 0, "HORARIO");
