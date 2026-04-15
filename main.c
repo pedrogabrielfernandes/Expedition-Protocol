@@ -74,7 +74,7 @@ int main() {
     int pos_x = 462;
     int pos_y = 707;
     int current_frame_y = 0;
-    int direcao;
+    int direcao = 0;
     float vel_y = 0;
     int no_chao = 1;
     int movendo = 0;
@@ -94,6 +94,8 @@ int main() {
         if (evento.type == ALLEGRO_EVENT_TIMER){
             frame += 0.3f;
 
+            movendo = 0;
+
             al_clear_to_color(al_map_rgb(255, 255, 255));
             al_draw_bitmap(bg, 0, 0, 0);
             al_get_keyboard_state(&state);
@@ -108,7 +110,6 @@ int main() {
                 pos_x -= 5;
                 movendo = 1;
                 direcao = ALLEGRO_FLIP_HORIZONTAL;
-                al_draw_bitmap_region(run, 96 * (int)frame, current_frame_y, 96, 84, pos_x, pos_y, direcao);
             }
             if (al_key_down(&state, ALLEGRO_KEY_W) && no_chao){
                 vel_y = forca_pulo;
@@ -126,15 +127,15 @@ int main() {
 
 
             if (!no_chao){
-                if (frame > 5) frame -= 5;
+                if (frame >= 5) frame = 0;
                 al_draw_bitmap_region(jump, 96 * (int)frame, current_frame_y, 96, 84, pos_x, pos_y, direcao);
             }
             else if (movendo){
-                if (frame > 8) frame -= 8;
+                if (frame >= 8) frame = 0;
                 al_draw_bitmap_region(run, 96 * (int)frame, current_frame_y, 96, 84, pos_x, pos_y, direcao);
             }
             else{
-                if (frame > 7) frame -= 7;
+                if (frame >= 7) frame = 0;
                 al_draw_bitmap_region(idle, 96 * (int)frame, current_frame_y, 96, 84, pos_x, pos_y, direcao);
             }
 
