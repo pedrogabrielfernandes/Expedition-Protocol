@@ -92,17 +92,17 @@ int main() {
             al_draw_bitmap(bg, 0, 0, 0);
             al_get_keyboard_state(&state);
 
-            if (al_key_down(&state, ALLEGRO_KEY_RIGHT)){
+            if (al_key_down(&state, ALLEGRO_KEY_D)){
                 if (frame > 8) frame -= 8;
                 pos_x += 5;
                 al_draw_bitmap_region(run, 96 * (int)frame, current_frame_y, 96, 84, pos_x, pos_y, 0);
             }
-            else if (al_key_down(&state, ALLEGRO_KEY_LEFT)){
+            else if (al_key_down(&state, ALLEGRO_KEY_A)){
                 if (frame > 8) frame -= 8;
                 pos_x -= 5;
                 al_draw_bitmap_region(run, 96 * (int)frame, current_frame_y, 96, 84, pos_x, pos_y, 0);
             }
-            else if (al_key_down(&state, ALLEGRO_KEY_SPACE)){
+            else if (al_key_down(&state, ALLEGRO_KEY_W)){
                 if (frame > 5) frame -= 5;
                 pos_y -= 40;
                 al_draw_bitmap_region(jump, 96 * (int)frame, current_frame_y, 96, 84, pos_x, pos_y, 0);
@@ -113,7 +113,7 @@ int main() {
                 al_draw_bitmap_region(idle, 96 * (int)frame, current_frame_y, 96, 84, pos_x, pos_y, 0);
             }
 
-            al_draw_text(fonte, al_map_rgb(0, 0, 0), 100, 100, 0, "Entardecer");
+            al_draw_text(fonte, al_map_rgb(0, 0, 0), 100, 100, 0, "");
             al_flip_display();
         }
     }
