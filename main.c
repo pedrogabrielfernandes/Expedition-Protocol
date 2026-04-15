@@ -11,8 +11,8 @@
 #include <allegro5/allegro_image.h>
 #include <stdio.h>
 
-#define altura 720
-#define largura 1280
+#define altura 1080
+#define largura 1920
 
 //spirte personagem: x = 96 y = 84
 
@@ -44,7 +44,7 @@ int main() {
         return 1;
     }
 
-    al_set_new_window_position(320, 180);
+    al_set_new_window_position(0, 0);
     ALLEGRO_DISPLAY *display = al_create_display(largura, altura);
 
     al_register_event_source(queue, al_get_display_event_source(display));
@@ -128,10 +128,6 @@ int main() {
 
     return 0;
 }
- 
-//git add .
-//git commit -m "mensagem do commit"
-//git push
 
 //se tem duvidas, leia as instuções na pasta do jogo.
 
