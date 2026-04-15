@@ -11,9 +11,9 @@
 #include <allegro5/allegro_image.h>
 #include <stdio.h>
 
-#define altura 1080
 #define largura 1920
-
+#define altura 1080
+#define FPS 30
 //spirte personagem: x = 96 y = 84
 
 int main() {
@@ -49,7 +49,7 @@ int main() {
 
     al_register_event_source(queue, al_get_display_event_source(display));
 
-    ALLEGRO_TIMER *timer = al_create_timer(1.0/30.0);
+    ALLEGRO_TIMER *timer = al_create_timer(1.0/FPS);
     al_register_event_source(queue, al_get_timer_event_source(timer));
     al_register_event_source(queue, al_get_keyboard_event_source());
     al_start_timer(timer);
