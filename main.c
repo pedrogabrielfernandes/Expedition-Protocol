@@ -13,7 +13,7 @@
 
 #define largura 1920
 #define altura 1080
-#define FPS 30
+#define FPS 60
 //spirte personagem: x = 96 y = 84
 
 int main() {
@@ -92,7 +92,7 @@ int main() {
         }
 
         if (evento.type == ALLEGRO_EVENT_TIMER){
-            frame += 0.3f;
+            frame += 0.15f;
 
             movendo = 0;
 
