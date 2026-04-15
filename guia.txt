@@ -24,7 +24,7 @@
     git push   # envia pro GitHub
     
     *Atualizou ->
-    gcc main.c -o jogo $(pkg-config --cflags --libs allegro-5 allegro_font-5 allegro_ttf-5 allegro_image-5) -> compilar o codigo atualizado
+    gcc main.c -o teste $(pkg-config --cflags --libs allegro-5 allegro_font-5 allegro_ttf-5 allegro_image-5) -> compilar o codigo atualizado
     ./teste -> executar o codigo atualizado
 
     Novo código compilador universal -> gcc main.c -o jogo $(pkg-config --cflags --libs allegro-5 allegro_font-5 allegro_ttf-5 allegro_image-5) 
