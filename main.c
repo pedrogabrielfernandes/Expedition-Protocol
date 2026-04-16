@@ -7,7 +7,7 @@
 
 #define LARGURA 1920
 #define ALTURA 1080
-#define FPS 30
+#define FPS 60
 
 // tamanho original do sprite
 #define SPRITE_SRC_W 96
@@ -21,17 +21,17 @@
 
 // hitbox proporcional 
 #define HITBOX_W 35
-#define HITBOX_H 75
+#define HITBOX_H 80
 
 #define HITBOX_OFFSET_X 66
-#define HITBOX_OFFSET_Y 48
+#define HITBOX_OFFSET_Y 42
 
-#define VELOCIDADE 5.8f
+#define VELOCIDADE 5.0f
 #define GRAVIDADE 1.0f
 #define FORCA_PULO -15.05f
 #define MAX_QUEDA 18.0f
 
-// PRETO = sólido
+// PRETO = sï¿½lido
 bool pixel_solido(ALLEGRO_BITMAP *mapa, int x, int y) {
     if (x < 0 || y < 0 || x >= al_get_bitmap_width(mapa) || y >= al_get_bitmap_height(mapa))
         return true;
@@ -83,7 +83,7 @@ int main() {
     al_register_event_source(queue, al_get_keyboard_event_source());
 
     ALLEGRO_BITMAP *bg   = al_load_bitmap("assets/background.png");
-    ALLEGRO_BITMAP *mapa = al_load_bitmap("assets/colisao.png");
+    ALLEGRO_BITMAP *mapa = al_load_bitmap("assets/colisao2.png");
 
     ALLEGRO_BITMAP *idle = al_load_bitmap("assets/sprites/IDLE.png");
     ALLEGRO_BITMAP *run  = al_load_bitmap("assets/sprites/RUN.png");
@@ -117,7 +117,7 @@ int main() {
 
         if (ev.type == ALLEGRO_EVENT_TIMER) {
 
-            frame += 0.3;
+            frame += 0.15;
             movendo = 0;
 
             al_get_keyboard_state(&state);
