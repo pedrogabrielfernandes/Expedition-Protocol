@@ -1,179 +1,189 @@
 #include <allegro5/allegro.h>
-#include <allegro5/bitmap.h>
-#include <allegro5/bitmap_draw.h>
-#include <allegro5/bitmap_io.h>
-#include <allegro5/color.h>
-#include <allegro5/display.h>
+#include <allegro5/allegro_image.h>
 #include <allegro5/allegro_font.h>
 #include <allegro5/allegro_ttf.h>
-#include <allegro5/events.h>
-#include <allegro5/system.h>
-#include <allegro5/allegro_image.h>
 #include <stdio.h>
+#include <stdbool.h>
 
-#define largura 1920
-#define altura 1080
+#define LARGURA 1920
+#define ALTURA 1080
 #define FPS 30
-//sprite personagem: x = 96 y = 84
+
+// tamanho original do sprite
+#define SPRITE_SRC_W 96
+#define SPRITE_SRC_H 84
+
+// ESCALA
+#define SPRITE_SCALE 1.95f
+
+#define DRAW_W (SPRITE_SRC_W * SPRITE_SCALE)
+#define DRAW_H (SPRITE_SRC_H * SPRITE_SCALE)
+
+// hitbox proporcional 
+#define HITBOX_W 35
+#define HITBOX_H 75
+
+#define HITBOX_OFFSET_X 66
+#define HITBOX_OFFSET_Y 48
+
+#define VELOCIDADE 5.8f
+#define GRAVIDADE 1.0f
+#define FORCA_PULO -15.05f
+#define MAX_QUEDA 18.0f
+
+// PRETO = sólido
+bool pixel_solido(ALLEGRO_BITMAP *mapa, int x, int y) {
+    if (x < 0 || y < 0 || x >= al_get_bitmap_width(mapa) || y >= al_get_bitmap_height(mapa))
+        return true;
+
+    ALLEGRO_COLOR cor = al_get_pixel(mapa, x, y);
+    unsigned char r, g, b;
+    al_unmap_rgb(cor, &r, &g, &b);
+
+    return (r < 50 && g < 50 && b < 50);
+}
+
+bool colide_mapa(ALLEGRO_BITMAP *mapa, float x, float y) {
+    int left   = (int)x;
+    int right  = (int)x + HITBOX_W - 1;
+    int top    = (int)y;
+    int bottom = (int)y + HITBOX_H - 1;
+
+    return pixel_solido(mapa, left, top) ||
+           pixel_solido(mapa, right, top) ||
+           pixel_solido(mapa, left, bottom) ||
+           pixel_solido(mapa, right, bottom);
+}
+
+bool esta_no_chao(ALLEGRO_BITMAP *mapa, float x, float y) {
+    int left  = (int)x + 4;
+    int right = (int)x + HITBOX_W - 4;
+    int foot  = (int)y + HITBOX_H;
+
+    return pixel_solido(mapa, left, foot) ||
+           pixel_solido(mapa, right, foot);
+}
 
 int main() {
-    if (!al_init()){
-        printf("falha na inicialização do jogo.");
-        return 1;
-    }
-    if (!al_init_font_addon()){
-        printf("falha na inicialização das fontes automaticas");
-        return 1;
-    }
-    if (!al_init_ttf_addon()) {
-        printf("falha na inicialização das fontes");
-        return 1;
-    }
-    if (!al_init_image_addon()) {
-        printf("falha no carramento da imagem");
-        return 1;
-    }
-    if (!al_install_keyboard()){
-        printf("falha na inicializaÃ§Ã£o do teclado.");
-    }
+    if (!al_init()) return 1;
+    if (!al_install_keyboard()) return 1;
+    if (!al_init_image_addon()) return 1;
+
+    al_init_font_addon();
+    al_init_ttf_addon();
+
+    ALLEGRO_DISPLAY *display = al_create_display(LARGURA, ALTURA);
+    if (!display) return 1;
 
     ALLEGRO_EVENT_QUEUE *queue = al_create_event_queue();
-    ALLEGRO_FONT *fonte = al_load_ttf_font("assets/arial.ttf", 24, 0);
-        if (!fonte) {
-            printf("falha na inicialização da fonte arial");
-            return 1;
-        }
-
-    //definindo o tamanho da janela e onde ela vai aparecer
-    al_set_new_window_position(320, 180);
-    ALLEGRO_DISPLAY *display = al_create_display(1920, 1080);
+    ALLEGRO_TIMER *timer = al_create_timer(1.0 / FPS);
 
     al_register_event_source(queue, al_get_display_event_source(display));
-
-    ALLEGRO_TIMER *timer = al_create_timer(1.0/FPS);
     al_register_event_source(queue, al_get_timer_event_source(timer));
     al_register_event_source(queue, al_get_keyboard_event_source());
-    al_start_timer(timer);
 
-    ALLEGRO_BITMAP *bg = al_load_bitmap("assets/background.png");
-    if (!bg) {
-        printf("falha na inicialização do background");
+    ALLEGRO_BITMAP *bg   = al_load_bitmap("assets/background.png");
+    ALLEGRO_BITMAP *mapa = al_load_bitmap("assets/colisao.png");
+
+    ALLEGRO_BITMAP *idle = al_load_bitmap("assets/sprites/IDLE.png");
+    ALLEGRO_BITMAP *run  = al_load_bitmap("assets/sprites/RUN.png");
+    ALLEGRO_BITMAP *jump = al_load_bitmap("assets/sprites/JUMP.png");
+
+    if (!bg || !mapa || !idle || !run || !jump) {
+        printf("Erro ao carregar arquivos\n");
         return 1;
     }
 
-    //um evento
-    ALLEGRO_EVENT evento;
+    float x = 60;
+    float y = 253;
 
-    //criando um inteiro para o laço de repetição
-    int rodando = 1;
-
-    //o laco de repeticao que vai fazer o jogo rodar ate fechar
-    while (rodando){
-            al_wait_for_event(queue, &evento);
-            if (evento.type == ALLEGRO_EVENT_DISPLAY_CLOSE) {
-                rodando = 0;
-            }
-        al_clear_to_color(al_map_rgb(255, 255, 255));
-        al_draw_bitmap(bg, 0, 0, 0);
-        al_draw_text(fonte, al_map_rgb(0, 0, 0), 100, 100, 0, "Horario: 15:30");
-        al_flip_display();
-    }
-
-    ALLEGRO_EVENT evento;
-    int rodando = 1;
-    float frame = 0.f;
-    int pos_x = 462;
-    int pos_y = 707;
-    int current_frame_y = 0;
-    int direcao = 0;
     float vel_y = 0;
-    int no_chao = 1;
+    int no_chao = 0;
+    int direcao = 0;
     int movendo = 0;
-    float gravidade = 1.0;
-    float forca_pulo =  -15;
+    float frame = 0;
+
+    ALLEGRO_EVENT ev;
     ALLEGRO_KEYBOARD_STATE state;
+    int rodando = 1;
 
-    al_set_window_title(display, "Expedition");
+    al_start_timer(timer);
 
-    while (rodando){
-        al_wait_for_event(queue, &evento);
+    while (rodando) {
+        al_wait_for_event(queue, &ev);
 
-        if (evento.type == ALLEGRO_EVENT_DISPLAY_CLOSE) {
+        if (ev.type == ALLEGRO_EVENT_DISPLAY_CLOSE)
             rodando = 0;
-        }
 
-        if (evento.type == ALLEGRO_EVENT_TIMER){
-            frame += 0.3f;
+        if (ev.type == ALLEGRO_EVENT_TIMER) {
 
+            frame += 0.3;
             movendo = 0;
 
-            al_clear_to_color(al_map_rgb(255, 255, 255));
-            al_draw_bitmap(bg, 0, 0, 0);
             al_get_keyboard_state(&state);
 
-            if (al_key_down(&state, ALLEGRO_KEY_D)){
-                pos_x += 5;
-                movendo = 1;
+            no_chao = esta_no_chao(mapa, x, y);
+
+            float novo_x = x;
+
+            if (al_key_down(&state, ALLEGRO_KEY_D)) {
+                novo_x += VELOCIDADE;
                 direcao = 0;
-                
-            }
-            if (al_key_down(&state, ALLEGRO_KEY_A)){
-                pos_x -= 5;
                 movendo = 1;
+            }
+
+            if (al_key_down(&state, ALLEGRO_KEY_A)) {
+                novo_x -= VELOCIDADE;
                 direcao = ALLEGRO_FLIP_HORIZONTAL;
+                movendo = 1;
             }
-            if (al_key_down(&state, ALLEGRO_KEY_W) && no_chao){
-                vel_y = forca_pulo;
-                no_chao = 0;
-            }
-                vel_y += gravidade;
-                pos_y += vel_y;
 
-            
-                if (pos_y >= 707){
-                    pos_y = 707;
-                    vel_y = 0;
-                    no_chao = 1;
+            if (!colide_mapa(mapa, novo_x, y)) {
+                x = novo_x;
+            }
+
+            if (al_key_down(&state, ALLEGRO_KEY_W) && no_chao) {
+                vel_y = FORCA_PULO;
+            }
+
+            vel_y += GRAVIDADE;
+            if (vel_y > MAX_QUEDA) vel_y = MAX_QUEDA;
+
+            float novo_y = y + vel_y;
+
+            if (!colide_mapa(mapa, x, novo_y)) {
+                y = novo_y;
+            } else {
+                if (vel_y > 0) {
+                    while (!colide_mapa(mapa, x, y + 1)) y++;
+                } else if (vel_y < 0) {
+                    while (!colide_mapa(mapa, x, y - 1)) y--;
                 }
+                vel_y = 0;
+            }
 
+            no_chao = esta_no_chao(mapa, x, y);
 
-            if (!no_chao){
+            float draw_x = x - HITBOX_OFFSET_X;
+            float draw_y = y - HITBOX_OFFSET_Y;
+
+            al_clear_to_color(al_map_rgb(255,255,255));
+            al_draw_bitmap(bg, 0, 0, 0);
+
+            if (!no_chao) {
                 if (frame >= 5) frame = 0;
-                al_draw_bitmap_region(jump, 96 * (int)frame, current_frame_y, 96, 84, pos_x, pos_y, direcao);
-            }
-            else if (movendo){
+                al_draw_scaled_bitmap(jump, 96*(int)frame, 0, 96, 84, draw_x, draw_y, DRAW_W, DRAW_H, direcao);
+            } else if (movendo) {
                 if (frame >= 8) frame = 0;
-                al_draw_bitmap_region(run, 96 * (int)frame, current_frame_y, 96, 84, pos_x, pos_y, direcao);
-            }
-            else{
+                al_draw_scaled_bitmap(run, 96*(int)frame, 0, 96, 84, draw_x, draw_y, DRAW_W, DRAW_H, direcao);
+            } else {
                 if (frame >= 7) frame = 0;
-                al_draw_bitmap_region(idle, 96 * (int)frame, current_frame_y, 96, 84, pos_x, pos_y, direcao);
+                al_draw_scaled_bitmap(idle, 96*(int)frame, 0, 96, 84, draw_x, draw_y, DRAW_W, DRAW_H, direcao);
             }
 
-            al_draw_text(fonte, al_map_rgb(0, 0, 0), 1750, 104, 0, "HORARIO");
             al_flip_display();
         }
     }
 
-    al_destroy_bitmap(idle);
-    al_destroy_bitmap(run);
-    al_destroy_bitmap(jump);
-    al_destroy_bitmap(bg);
-    al_destroy_display(display);
-    al_destroy_font(fonte);
-    al_destroy_event_queue(queue);
-
     return 0;
 }
-
-//se tem duvidas, leia as instuÃ§Ãµes na pasta do jogo.
-
-//(Linux) -> sudo "..." -S github-cli
-//(Linux) -> gh auth login - faz o login
-//(Linux) -> git clone https://github.com/pedrogabrielfernandes/jogo
-//após cada alteração que fizerem dê ctrl+s atualizem o repositório do github
-//exemplo: 
-//git add .
-//git commit -m "o que você alterou"
-//git push
-//logo após atualize seu repositorio e seu gitclone
