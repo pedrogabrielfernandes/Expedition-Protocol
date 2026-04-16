@@ -52,6 +52,87 @@ typedef struct {
     int    ativo;
 } Temporizador;
 
+int executar_menu(ALLEGRO_EVENT_QUEUE *queue,
+                  ALLEGRO_BITMAP *bg_menu,
+                  ALLEGRO_FONT *fonte)
+{
+    ALLEGRO_EVENT ev;
+    int opcao = 0;
+
+    
+    while (1)
+    {
+        al_wait_for_event(queue, &ev);
+
+        if (ev.type == ALLEGRO_EVENT_DISPLAY_CLOSE)
+            return 1;
+
+        if (ev.type == ALLEGRO_EVENT_KEY_DOWN)
+        {
+            if (ev.keyboard.keycode == ALLEGRO_KEY_A ||
+                ev.keyboard.keycode == ALLEGRO_KEY_LEFT)
+                opcao = 0;
+
+            if (ev.keyboard.keycode == ALLEGRO_KEY_D ||
+                ev.keyboard.keycode == ALLEGRO_KEY_RIGHT)
+                opcao = 1;
+
+            if (ev.keyboard.keycode == ALLEGRO_KEY_ENTER ||
+                ev.keyboard.keycode == ALLEGRO_KEY_SPACE)
+                return opcao;
+        }
+
+        if (ev.type == ALLEGRO_EVENT_TIMER)
+        {
+            char jogar[50];
+            char sair[50];
+
+            if (opcao == 0)
+            {
+                sprintf(jogar, "> JOGAR <");
+                sprintf(sair, "SAIR");
+            }
+            else
+            {
+                sprintf(jogar, "JOGAR");
+                sprintf(sair, "> SAIR <");
+            }
+
+            al_clear_to_color(al_map_rgb(0,0,0));
+
+            al_draw_scaled_bitmap(
+                bg_menu,
+                0,0,
+                al_get_bitmap_width(bg_menu),
+                al_get_bitmap_height(bg_menu),
+                0,0,
+                LARGURA,ALTURA,
+                0
+            );
+
+            al_draw_text(
+                fonte,
+                al_map_rgb(255,255,255),
+                LARGURA/2.4,
+                990,
+                ALLEGRO_ALIGN_CENTER,
+                jogar
+            );
+
+            al_draw_text(
+                fonte,
+                al_map_rgb(255,255,255),
+                LARGURA/1.6,
+                990,
+                ALLEGRO_ALIGN_CENTER,
+                sair
+            );
+
+            al_flip_display();
+        }
+    }
+}
+
 bool pixel_solido(ALLEGRO_BITMAP *mapa, int x, int y) {
     if (x < 0 || y < 0 ||
         x >= al_get_bitmap_width(mapa) ||
@@ -97,6 +178,7 @@ int main(void) {
     ALLEGRO_DISPLAY *display = al_create_display(LARGURA, ALTURA);
     if (!display) { printf("Erro: al_create_display\n"); return 1; }
 
+    ALLEGRO_FONT *fonte = al_load_ttf_font("assets/arial.ttf", 48, 0);
     ALLEGRO_EVENT_QUEUE *queue = al_create_event_queue();
     ALLEGRO_TIMER       *timer = al_create_timer(1.0 / FPS);
 
@@ -105,6 +187,17 @@ int main(void) {
     al_register_event_source(queue, al_get_display_event_source(display));
     al_register_event_source(queue, al_get_timer_event_source(timer));
     al_register_event_source(queue, al_get_keyboard_event_source());
+    
+    ALLEGRO_BITMAP *bg_menu =
+        al_load_bitmap("assets/cenarios/background1.png");
+
+    al_start_timer(timer);
+
+    int escolha =
+        executar_menu(queue, bg_menu, fonte);
+
+    if (escolha == 1)
+        return 0;
 
     ALLEGRO_BITMAP *bg   = al_load_bitmap("assets/cenarios/background2.png");
     ALLEGRO_BITMAP *mapa = al_load_bitmap("assets/cenarios/colisao2.png");
@@ -112,7 +205,6 @@ int main(void) {
     ALLEGRO_BITMAP *run  = al_load_bitmap("assets/sprites/RUN.png");
     ALLEGRO_BITMAP *jump = al_load_bitmap("assets/sprites/JUMP.png");
 
-    ALLEGRO_FONT *fonte = al_create_builtin_font();
 
     if (!bg || !mapa || !idle || !run || !jump) {
         printf("Erro ao carregar bitmaps\n");
