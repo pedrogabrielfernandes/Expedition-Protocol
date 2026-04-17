@@ -7,6 +7,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 
 #define LARGURA 1920
 #define ALTURA  1080
@@ -36,6 +37,11 @@
 #define MAX_VIDAS 5
 
 typedef struct {
+    int ativa;
+    char status[20];
+} VidaStatus;
+
+typedef struct {
     float x;
     float y;
     float vel_y;
@@ -61,181 +67,130 @@ typedef enum {
     MENU_SAIR  = 1
 } OpcaoMenu;
 
-OpcaoMenu executar_menu(ALLEGRO_EVENT_QUEUE *queue,
-                        ALLEGRO_TIMER *timer,
-                        ALLEGRO_BITMAP *bg_menu,
-                        ALLEGRO_FONT *fonte)
-{
+int** criar_matriz_decorativa(int linhas, int colunas) {
+    int **mat = (int**) malloc(linhas * sizeof(int*));
+    for(int i = 0; i < linhas; i++) {
+        mat[i] = (int*) malloc(colunas * sizeof(int));
+        for(int j = 0; j < colunas; j++) {
+            // Preenche com 0 ou 1 aleatoriamente
+            mat[i][j] = rand() % 2; 
+        }
+    }
+    return mat;
+}
+
+void desenhar_matriz_fundo(int **mat, int linhas, int colunas) {
+    for(int i = 0; i < linhas; i++) {
+        for(int j = 0; j < colunas; j++) {
+            if(mat[i][j] == 1) {
+                al_draw_filled_rectangle(j*100, i*100, j*100 + 3, i*100 + 3, al_map_rgba(255,255,255, 40));
+            }
+        }
+    }
+}
+
+void liberar_matriz(int **mat, int linhas) {
+    for(int i = 0; i < linhas; i++) {
+        free(mat[i]);
+    }
+    free(mat);
+}
+
+OpcaoMenu executar_menu(ALLEGRO_EVENT_QUEUE *queue, ALLEGRO_TIMER *timer, ALLEGRO_BITMAP *bg_menu, ALLEGRO_FONT *fonte) {
     ALLEGRO_EVENT ev;
     OpcaoMenu opcao = MENU_JOGAR;
 
-    while (1)
-    {
+    while (1) {
         al_wait_for_event(queue, &ev);
 
-        if (ev.type == ALLEGRO_EVENT_DISPLAY_CLOSE)
-            return MENU_SAIR;
+        if (ev.type == ALLEGRO_EVENT_DISPLAY_CLOSE) return MENU_SAIR;
 
-        if (ev.type == ALLEGRO_EVENT_KEY_DOWN)
-        {
-            if (ev.keyboard.keycode == ALLEGRO_KEY_A ||
-                ev.keyboard.keycode == ALLEGRO_KEY_LEFT)
-                opcao = MENU_JOGAR;
-
-            if (ev.keyboard.keycode == ALLEGRO_KEY_D ||
-                ev.keyboard.keycode == ALLEGRO_KEY_RIGHT)
-                opcao = MENU_SAIR;
-
-            if (ev.keyboard.keycode == ALLEGRO_KEY_ENTER ||
-                ev.keyboard.keycode == ALLEGRO_KEY_SPACE)
-                return opcao;
+        if (ev.type == ALLEGRO_EVENT_KEY_DOWN) {
+            if (ev.keyboard.keycode == ALLEGRO_KEY_A || ev.keyboard.keycode == ALLEGRO_KEY_LEFT) opcao = MENU_JOGAR;
+            if (ev.keyboard.keycode == ALLEGRO_KEY_D || ev.keyboard.keycode == ALLEGRO_KEY_RIGHT) opcao = MENU_SAIR;
+            if (ev.keyboard.keycode == ALLEGRO_KEY_ENTER || ev.keyboard.keycode == ALLEGRO_KEY_SPACE) return opcao;
         }
 
-        if (ev.type == ALLEGRO_EVENT_TIMER)
-        {
+        if (ev.type == ALLEGRO_EVENT_TIMER) {
             const char *jogar = (opcao == MENU_JOGAR) ? "> JOGAR <" : "JOGAR";
             const char *sair  = (opcao == MENU_SAIR)  ? "> SAIR <"  : "SAIR";
 
             al_clear_to_color(al_map_rgb(0, 0, 0));
 
-            al_draw_scaled_bitmap(
-                bg_menu,
-                0, 0,
-                al_get_bitmap_width(bg_menu),
-                al_get_bitmap_height(bg_menu),
-                0, 0,
-                LARGURA, ALTURA,
-                0
-            );
-
-            al_draw_text(
-                fonte,
-                al_map_rgb(255,255,255),
-                LARGURA / 2.4,
-                990,
-                ALLEGRO_ALIGN_CENTER,
-                jogar
-            );
-
-            al_draw_text(
-                fonte,
-                al_map_rgb(255,255,255),
-                LARGURA / 1.6,
-                990,
-                ALLEGRO_ALIGN_CENTER,
-                sair
-            );
+            al_draw_scaled_bitmap(bg_menu, 0, 0, al_get_bitmap_width(bg_menu), al_get_bitmap_height(bg_menu), 0, 0, LARGURA, ALTURA, 0);
+            al_draw_text(fonte, al_map_rgb(255,255,255), LARGURA / 2.4, 990, ALLEGRO_ALIGN_CENTER, jogar);
+            al_draw_text(fonte, al_map_rgb(255,255,255), LARGURA / 1.6, 990, ALLEGRO_ALIGN_CENTER, sair);
 
             al_flip_display();
         }
     }
 }
 
-bool pixel_solido(ALLEGRO_BITMAP *mapa, int x, int y)
-{
-    if (x < 0 || y < 0 ||
-        x >= al_get_bitmap_width(mapa) ||
-        y >= al_get_bitmap_height(mapa))
-        return true;
-
+bool pixel_solido(ALLEGRO_BITMAP *mapa, int x, int y) {
+    if (x < 0 || y < 0 || x >= al_get_bitmap_width(mapa) || y >= al_get_bitmap_height(mapa)) return true;
     ALLEGRO_COLOR cor = al_get_pixel(mapa, x, y);
     unsigned char r, g, b;
     al_unmap_rgb(cor, &r, &g, &b);
-
     return (r < 50 && g < 50 && b < 50);
 }
 
-bool colide_mapa(ALLEGRO_BITMAP *mapa, float x, float y)
-{
+bool colide_mapa(ALLEGRO_BITMAP *mapa, float x, float y) {
     int left   = (int)x;
     int right  = (int)x + HITBOX_W - 1;
     int top    = (int)y;
     int bottom = (int)y + HITBOX_H - 1;
-
-    return pixel_solido(mapa, left,  top)    ||
-           pixel_solido(mapa, right, top)    ||
-           pixel_solido(mapa, left,  bottom) ||
-           pixel_solido(mapa, right, bottom);
+    return pixel_solido(mapa, left, top) || pixel_solido(mapa, right, top) || pixel_solido(mapa, left, bottom) || pixel_solido(mapa, right, bottom);
 }
 
-bool esta_no_chao(ALLEGRO_BITMAP *mapa, float x, float y)
-{
+bool esta_no_chao(ALLEGRO_BITMAP *mapa, float x, float y) {
     int left  = (int)x + 4;
     int right = (int)x + HITBOX_W - 4;
     int foot  = (int)y + HITBOX_H;
-
-    return pixel_solido(mapa, left,  foot) ||
-           pixel_solido(mapa, right, foot);
+    return pixel_solido(mapa, left, foot) || pixel_solido(mapa, right, foot);
 }
 
-void desenhar_vidas(int vida[], ALLEGRO_BITMAP *coracao)
-{
-    for(int i = 0; i < MAX_VIDAS; i++)
-    {
+// Modificado para receber o vetor de estruturas
+void desenhar_vidas(VidaStatus *vidas, ALLEGRO_BITMAP *coracao) {
+    for(int i = 0; i < MAX_VIDAS; i++) {
         float x = 20 + i * 60;
         float y = 80;
 
-        if(vida[i] == 1)
+        if(vidas[i].ativa == 1)
             al_draw_bitmap(coracao, x, y, 0);
         else
             al_draw_tinted_bitmap(coracao, al_map_rgba(100,100,100,120), x, y, 0);
     }
 }
 
-void perder_vida(int vida[])
-{
-    for(int i = MAX_VIDAS - 1; i >= 0; i--)
-    {
-        if(vida[i] == 1)
-        {
-            vida[i] = 0;
+void perder_vida(VidaStatus *vidas) {
+    for(int i = MAX_VIDAS - 1; i >= 0; i--) {
+        if(vidas[i].ativa == 1) {
+            vidas[i].ativa = 0;
+            strcpy(vidas[i].status, "Perdida");
             break;
         }
     }
 }
 
-int main(void)
-{
-    if (!al_init()) {
-        printf("Erro: al_init\n");
-        return 1;
-    }
+int main(void) {
+    srand(time(NULL));
 
-    if (!al_init_primitives_addon()) {
-    printf("Erro: al_init_primitives_addon\n");
-    return 1;
-    }
-
-    if (!al_install_keyboard()) {
-        printf("Erro: al_install_keyboard\n");
-        return 1;
-    }
-
-    if (!al_init_image_addon()) {
-        printf("Erro: al_init_image_addon\n");
-        return 1;
-    }
+    if (!al_init()) { printf("Erro: al_init\n"); return 1; }
+    if (!al_init_primitives_addon()) { printf("Erro: al_init_primitives_addon\n"); return 1; }
+    if (!al_install_keyboard()) { printf("Erro: al_install_keyboard\n"); return 1; }
+    if (!al_init_image_addon()) { printf("Erro: al_init_image_addon\n"); return 1; }
 
     al_init_font_addon();
     al_init_ttf_addon();
 
     ALLEGRO_DISPLAY *display = al_create_display(LARGURA, ALTURA);
-    if (!display) {
-        printf("Erro: al_create_display\n");
-        return 1;
-    }
+    if (!display) { printf("Erro: al_create_display\n"); return 1; }
 
     ALLEGRO_EVENT_QUEUE *queue = al_create_event_queue();
-    if (!queue) {
-        printf("Erro: al_create_event_queue\n");
-        return 1;
-    }
+    if (!queue) { printf("Erro: al_create_event_queue\n"); return 1; }
 
     ALLEGRO_TIMER *timer = al_create_timer(1.0 / FPS);
-    if (!timer) {
-        printf("Erro: al_create_timer\n");
-        return 1;
-    }
+    if (!timer) { printf("Erro: al_create_timer\n"); return 1; }
 
     ALLEGRO_FONT *fonte = al_load_ttf_font("assets/arial.ttf", 48, 0);
     if (!fonte) {
@@ -249,10 +204,7 @@ int main(void)
     al_register_event_source(queue, al_get_keyboard_event_source());
 
     ALLEGRO_BITMAP *bg_menu = al_load_bitmap("assets/cenarios/background1.png");
-    if (!bg_menu) {
-        printf("Erro ao carregar background do menu\n");
-        return 1;
-    }
+    if (!bg_menu) { printf("Erro ao carregar background do menu\n"); return 1; }
 
     al_start_timer(timer);
 
@@ -293,9 +245,15 @@ int main(void)
 
     char mensagem_final[100] = "";
 
-    int vida[MAX_VIDAS];
-    for(int i = 0; i < MAX_VIDAS; i++)
-        vida[i] = 1;
+    VidaStatus *vetor_vidas = (VidaStatus*) malloc(MAX_VIDAS * sizeof(VidaStatus));
+    for(int i = 0; i < MAX_VIDAS; i++) {
+        vetor_vidas[i].ativa = 1;
+        strcpy(vetor_vidas[i].status, "Inteira"); // Manipulação inicial da string
+    }
+
+    int linhas_matriz = ALTURA / 100 + 1;
+    int colunas_matriz = LARGURA / 100 + 1;
+    int **matriz_decorativa = criar_matriz_decorativa(linhas_matriz, colunas_matriz);
 
     int rodando = 1;
     ALLEGRO_EVENT ev;
@@ -357,7 +315,7 @@ int main(void)
 
             if (jogador.mov.y > ALTURA + 200)
             {
-                perder_vida(vida);
+                perder_vida(vetor_vidas);
                 jogador.mov.x = 60;
                 jogador.mov.y = 253;
                 jogador.mov.vel_y = 0;
@@ -368,7 +326,6 @@ int main(void)
                 tempo.fim   = al_get_time();
                 tempo.atual = tempo.fim - tempo.inicio;
                 tempo.ativo = 0;
-
             }
 
             float draw_x = jogador.mov.x - HITBOX_OFFSET_X;
@@ -376,21 +333,20 @@ int main(void)
 
             al_clear_to_color(al_map_rgb(255, 255, 255));
             al_draw_bitmap(bg, 0, 0, 0);
+            
+            desenhar_matriz_fundo(matriz_decorativa, linhas_matriz, colunas_matriz);
 
             if (!jogador.no_chao) {
                 if (jogador.frame >= FRAMES_JUMP) jogador.frame = 0;
-                al_draw_scaled_bitmap(jump, 96 * (int)jogador.frame, 0, 96, 84,
-                                      draw_x, draw_y, DRAW_W, DRAW_H, jogador.direcao);
+                al_draw_scaled_bitmap(jump, 96 * (int)jogador.frame, 0, 96, 84, draw_x, draw_y, DRAW_W, DRAW_H, jogador.direcao);
             }
             else if (jogador.movendo) {
                 if (jogador.frame >= FRAMES_RUN) jogador.frame = 0;
-                al_draw_scaled_bitmap(run, 96 * (int)jogador.frame, 0, 96, 84,
-                                      draw_x, draw_y, DRAW_W, DRAW_H, jogador.direcao);
+                al_draw_scaled_bitmap(run, 96 * (int)jogador.frame, 0, 96, 84, draw_x, draw_y, DRAW_W, DRAW_H, jogador.direcao);
             }
             else {
                 if (jogador.frame >= FRAMES_IDLE) jogador.frame = 0;
-                al_draw_scaled_bitmap(idle, 96 * (int)jogador.frame, 0, 96, 84,
-                                      draw_x, draw_y, DRAW_W, DRAW_H, jogador.direcao);
+                al_draw_scaled_bitmap(idle, 96 * (int)jogador.frame, 0, 96, 84, draw_x, draw_y, DRAW_W, DRAW_H, jogador.direcao);
             }
 
             char texto[50];
@@ -399,18 +355,18 @@ int main(void)
             al_draw_filled_rectangle(10, 10, 340, 70, al_map_rgb(255,255,255));
             al_draw_text(fonte, al_map_rgb(0,0,0), 20, 20, 0, texto);
 
-            desenhar_vidas(vida, coracao);
+            desenhar_vidas(vetor_vidas, coracao);
 
             if (!tempo.ativo) {
-                al_draw_text(fonte, al_map_rgb(255,215,0),
-                             LARGURA / 2.0, ALTURA / 3.0,
-                             ALLEGRO_ALIGN_CENTER,
-                             mensagem_final);
+                al_draw_text(fonte, al_map_rgb(255,215,0), LARGURA / 2.0, ALTURA / 3.0, ALLEGRO_ALIGN_CENTER, mensagem_final);
             }
 
             al_flip_display();
         }
     }
+
+    free(vetor_vidas);
+    liberar_matriz(matriz_decorativa, linhas_matriz);
 
     al_destroy_bitmap(bg_menu);
     al_destroy_bitmap(bg);
