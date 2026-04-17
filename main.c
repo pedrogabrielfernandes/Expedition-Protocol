@@ -52,30 +52,34 @@ typedef struct {
     int    ativo;
 } Temporizador;
 
-int executar_menu(ALLEGRO_EVENT_QUEUE *queue,
+typedef enum {
+    MENU_JOGAR = 0,
+    MENU_SAIR = 1
+} OpcaoMenu;
+
+OpcaoMenu executar_menu(ALLEGRO_EVENT_QUEUE *queue,
                   ALLEGRO_BITMAP *bg_menu,
                   ALLEGRO_FONT *fonte)
 {
     ALLEGRO_EVENT ev;
-    int opcao = 0;
+    OpcaoMenu opcao = MENU_JOGAR;
 
-    
     while (1)
     {
         al_wait_for_event(queue, &ev);
 
         if (ev.type == ALLEGRO_EVENT_DISPLAY_CLOSE)
-            return 1;
+            return MENU_SAIR;
 
         if (ev.type == ALLEGRO_EVENT_KEY_DOWN)
         {
             if (ev.keyboard.keycode == ALLEGRO_KEY_A ||
                 ev.keyboard.keycode == ALLEGRO_KEY_LEFT)
-                opcao = 0;
+                opcao = MENU_JOGAR;
 
             if (ev.keyboard.keycode == ALLEGRO_KEY_D ||
                 ev.keyboard.keycode == ALLEGRO_KEY_RIGHT)
-                opcao = 1;
+                opcao = MENU_SAIR;
 
             if (ev.keyboard.keycode == ALLEGRO_KEY_ENTER ||
                 ev.keyboard.keycode == ALLEGRO_KEY_SPACE)
@@ -87,7 +91,7 @@ int executar_menu(ALLEGRO_EVENT_QUEUE *queue,
             char jogar[50];
             char sair[50];
 
-            if (opcao == 0)
+            if (opcao == MENU_JOGAR)
             {
                 sprintf(jogar, "> JOGAR <");
                 sprintf(sair, "SAIR");
@@ -193,10 +197,9 @@ int main(void) {
 
     al_start_timer(timer);
 
-    int escolha =
-        executar_menu(queue, bg_menu, fonte);
+    OpcaoMenu escolha = executar_menu(queue, bg_menu, fonte);
 
-    if (escolha == 1)
+    if (escolha == MENU_SAIR)
         return 0;
 
     ALLEGRO_BITMAP *bg   = al_load_bitmap("assets/cenarios/background2.png");
