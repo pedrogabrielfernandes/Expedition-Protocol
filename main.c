@@ -14,25 +14,25 @@
 #define FPS     60
 
 #define SPRITE_SRC_W 96
-#define SPRITE_SRC_H 84
+#define SPRITE_SRC_H 60
 
 #define SPRITE_SCALE 1.95f
 #define DRAW_W (SPRITE_SRC_W * SPRITE_SCALE)
 #define DRAW_H (SPRITE_SRC_H * SPRITE_SCALE)
 
-#define HITBOX_W        35
-#define HITBOX_H        80
+#define HITBOX_W        40
+#define HITBOX_H        45
 #define HITBOX_OFFSET_X 66
-#define HITBOX_OFFSET_Y 42
+#define HITBOX_OFFSET_Y 76
 
 #define VELOCIDADE  5.0f
 #define GRAVIDADE   1.0f
 #define FORCA_PULO -15.05f
 #define MAX_QUEDA   18.0f
 
-#define FRAMES_IDLE 7
+#define FRAMES_IDLE 6
 #define FRAMES_RUN  8
-#define FRAMES_JUMP 5
+#define FRAMES_JUMP 12
 
 #define MAX_VIDAS 5
 
@@ -72,7 +72,6 @@ int** criar_matriz_decorativa(int linhas, int colunas) {
     for(int i = 0; i < linhas; i++) {
         mat[i] = (int*) malloc(colunas * sizeof(int));
         for(int j = 0; j < colunas; j++) {
-            // Preenche com 0 ou 1 aleatoriamente
             mat[i][j] = rand() % 2; 
         }
     }
@@ -149,7 +148,6 @@ bool esta_no_chao(ALLEGRO_BITMAP *mapa, float x, float y) {
     return pixel_solido(mapa, left, foot) || pixel_solido(mapa, right, foot);
 }
 
-// Modificado para receber o vetor de estruturas
 void desenhar_vidas(VidaStatus *vidas, ALLEGRO_BITMAP *coracao) {
     for(int i = 0; i < MAX_VIDAS; i++) {
         float x = 20 + i * 60;
@@ -216,11 +214,11 @@ int main(void) {
 
     al_flush_event_queue(queue);
 
-    ALLEGRO_BITMAP *bg   = al_load_bitmap("assets/cenarios/background4.png");
-    ALLEGRO_BITMAP *mapa = al_load_bitmap("assets/cenarios/colisao4.png");
-    ALLEGRO_BITMAP *idle = al_load_bitmap("assets/sprites/IDLE.png");
-    ALLEGRO_BITMAP *run  = al_load_bitmap("assets/sprites/RUN.png");
-    ALLEGRO_BITMAP *jump = al_load_bitmap("assets/sprites/JUMP.png");
+    ALLEGRO_BITMAP *bg   = al_load_bitmap("assets/cenarios/background2.png");
+    ALLEGRO_BITMAP *mapa = al_load_bitmap("assets/cenarios/colisao2.png");
+    ALLEGRO_BITMAP *idle = al_load_bitmap("assets/sprites/Samurai/Idle.png");
+    ALLEGRO_BITMAP *run  = al_load_bitmap("assets/sprites/Samurai/Run.png");
+    ALLEGRO_BITMAP *jump = al_load_bitmap("assets/sprites/Samurai/Jump.png");
     ALLEGRO_BITMAP *coracao = al_load_bitmap("assets/itens/vida.png");
 
     if (!bg || !mapa || !idle || !run || !jump || !coracao) {
@@ -248,7 +246,7 @@ int main(void) {
     VidaStatus *vetor_vidas = (VidaStatus*) malloc(MAX_VIDAS * sizeof(VidaStatus));
     for(int i = 0; i < MAX_VIDAS; i++) {
         vetor_vidas[i].ativa = 1;
-        strcpy(vetor_vidas[i].status, "Inteira"); // Manipulação inicial da string
+        strcpy(vetor_vidas[i].status, "Inteira");
     }
 
     int linhas_matriz = ALTURA / 100 + 1;
@@ -336,17 +334,18 @@ int main(void) {
             
             desenhar_matriz_fundo(matriz_decorativa, linhas_matriz, colunas_matriz);
 
+
             if (!jogador.no_chao) {
-                if (jogador.frame >= FRAMES_JUMP) jogador.frame = 0;
-                al_draw_scaled_bitmap(jump, 96 * (int)jogador.frame, 0, 96, 84, draw_x, draw_y, DRAW_W, DRAW_H, jogador.direcao);
+                int f = (int)jogador.frame % FRAMES_JUMP;
+                al_draw_scaled_bitmap(jump, 128 * f, 0, 128, 128, (int)draw_x, (int)draw_y, DRAW_W, DRAW_H, jogador.direcao);
             }
             else if (jogador.movendo) {
-                if (jogador.frame >= FRAMES_RUN) jogador.frame = 0;
-                al_draw_scaled_bitmap(run, 96 * (int)jogador.frame, 0, 96, 84, draw_x, draw_y, DRAW_W, DRAW_H, jogador.direcao);
+                int f = (int)jogador.frame % FRAMES_RUN;
+                al_draw_scaled_bitmap(run, 128 * f, 0, 128, 128, (int)draw_x, (int)draw_y, DRAW_W, DRAW_H, jogador.direcao);
             }
             else {
-                if (jogador.frame >= FRAMES_IDLE) jogador.frame = 0;
-                al_draw_scaled_bitmap(idle, 96 * (int)jogador.frame, 0, 96, 84, draw_x, draw_y, DRAW_W, DRAW_H, jogador.direcao);
+                int f = (int)jogador.frame % FRAMES_IDLE;
+                al_draw_scaled_bitmap(idle, 128 * f, 0, 128, 128, (int)draw_x, (int)draw_y, DRAW_W, DRAW_H, jogador.direcao);
             }
 
             char texto[50];
