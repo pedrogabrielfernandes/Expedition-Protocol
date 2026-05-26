@@ -25,9 +25,9 @@
 #define HITBOX_OFFSET_X 66
 #define HITBOX_OFFSET_Y 76
 
-#define VELOCIDADE  5.0f
-#define GRAVIDADE   1.0f
-#define FORCA_PULO -15.05f
+#define VELOCIDADE  4.0f
+#define GRAVIDADE   0.7f
+#define FORCA_PULO -13.05f
 #define MAX_QUEDA   18.0f
 
 #define FRAMES_IDLE 6
@@ -35,6 +35,8 @@
 #define FRAMES_JUMP 12
 
 #define MAX_VIDAS 5
+
+unsigned char colisao[ALTURA][3000];
 
 typedef struct {
     int ativa;
@@ -125,20 +127,53 @@ OpcaoMenu executar_menu(ALLEGRO_EVENT_QUEUE *queue, ALLEGRO_TIMER *timer, ALLEGR
     }
 }
 
-bool pixel_solido(ALLEGRO_BITMAP *mapa, int x, int y) {
-    if (x < 0 || y < 0 || x >= al_get_bitmap_width(mapa) || y >= al_get_bitmap_height(mapa)) return true;
-    ALLEGRO_COLOR cor = al_get_pixel(mapa, x, y);
-    unsigned char r, g, b;
-    al_unmap_rgb(cor, &r, &g, &b);
-    return (r < 50 && g < 50 && b < 50);
+bool pixel_solido(ALLEGRO_BITMAP *mapa, int x, int y)
+{
+    if (x < 0 || y < 0 ||
+        x >= 3000 || y >= ALTURA)
+    {
+        return true;
+    }
+
+    return colisao[y][x];
 }
 
-bool colide_mapa(ALLEGRO_BITMAP *mapa, float x, float y) {
+bool colide_mapa(ALLEGRO_BITMAP *mapa, float x, float y)
+{
     int left   = (int)x;
     int right  = (int)x + HITBOX_W - 1;
     int top    = (int)y;
     int bottom = (int)y + HITBOX_H - 1;
-    return pixel_solido(mapa, left, top) || pixel_solido(mapa, right, top) || pixel_solido(mapa, left, bottom) || pixel_solido(mapa, right, bottom);
+
+    // topo
+    for (int px = left; px <= right; px += 4)
+    {
+        if (pixel_solido(mapa, px, top))
+            return true;
+    }
+
+    // baixo
+    for (int px = left; px <= right; px += 4)
+    {
+        if (pixel_solido(mapa, px, bottom))
+            return true;
+    }
+
+    // esquerda
+    for (int py = top; py <= bottom; py += 4)
+    {
+        if (pixel_solido(mapa, left, py))
+            return true;
+    }
+
+    // direita
+    for (int py = top; py <= bottom; py += 4)
+    {
+        if (pixel_solido(mapa, right, py))
+            return true;
+    }
+
+    return false;
 }
 
 bool esta_no_chao(ALLEGRO_BITMAP *mapa, float x, float y) {
@@ -168,6 +203,29 @@ void perder_vida(VidaStatus *vidas) {
             break;
         }
     }
+}
+
+void gerar_mapa_colisao(ALLEGRO_BITMAP *mapa)
+{
+    al_lock_bitmap(mapa, ALLEGRO_PIXEL_FORMAT_ANY, ALLEGRO_LOCK_READONLY);
+
+    for(int y = 0; y < al_get_bitmap_height(mapa); y++)
+    {
+        for(int x = 0; x < al_get_bitmap_width(mapa); x++)
+        {
+            ALLEGRO_COLOR cor = al_get_pixel(mapa, x, y);
+
+            unsigned char r, g, b;
+
+            al_unmap_rgb(cor, &r, &g, &b);
+
+            int brilho = (r + g + b) / 3;
+
+            colisao[y][x] = (brilho < 120);
+        }
+    }
+
+    al_unlock_bitmap(mapa);
 }
 
 int main(void) {
@@ -216,6 +274,7 @@ int main(void) {
 
     ALLEGRO_BITMAP *bg   = al_load_bitmap("assets/cenarios/background2.png");
     ALLEGRO_BITMAP *mapa = al_load_bitmap("assets/cenarios/colisao2.png");
+    gerar_mapa_colisao(mapa);
     ALLEGRO_BITMAP *idle = al_load_bitmap("assets/sprites/Samurai/Idle.png");
     ALLEGRO_BITMAP *run  = al_load_bitmap("assets/sprites/Samurai/Run.png");
     ALLEGRO_BITMAP *jump = al_load_bitmap("assets/sprites/Samurai/Jump.png");
@@ -257,112 +316,199 @@ int main(void) {
     ALLEGRO_EVENT ev;
     ALLEGRO_KEYBOARD_STATE state;
 
-    while (rodando)
+ while (rodando)
+{
+    al_wait_for_event(queue, &ev);
+
+    if (ev.type == ALLEGRO_EVENT_DISPLAY_CLOSE)
+        rodando = 0;
+
+    if (ev.type == ALLEGRO_EVENT_TIMER)
     {
-        al_wait_for_event(queue, &ev);
+        jogador.frame += 0.15f;
+        jogador.movendo = 0;
 
-        if (ev.type == ALLEGRO_EVENT_DISPLAY_CLOSE)
-            rodando = 0;
+        al_get_keyboard_state(&state);
 
-        if (ev.type == ALLEGRO_EVENT_TIMER)
-        {
-            jogador.frame += 0.15f;
-            jogador.movendo = 0;
+        if (tempo.ativo)
+            tempo.atual = al_get_time() - tempo.inicio;
 
-            al_get_keyboard_state(&state);
+        jogador.no_chao = esta_no_chao(mapa, jogador.mov.x, jogador.mov.y);
 
-            if (tempo.ativo)
-                tempo.atual = al_get_time() - tempo.inicio;
+        // =========================
+        // MOVIMENTAÇÃO HORIZONTAL
+        // =========================
 
-            jogador.no_chao = esta_no_chao(mapa, jogador.mov.x, jogador.mov.y);
+        float novo_x = jogador.mov.x;
 
-            float novo_x = jogador.mov.x;
-
-            if (al_key_down(&state, ALLEGRO_KEY_D)) {
-                novo_x += VELOCIDADE;
-                jogador.direcao = 0;
-                jogador.movendo = 1;
-            }
-
-            if (al_key_down(&state, ALLEGRO_KEY_A)) {
-                novo_x -= VELOCIDADE;
-                jogador.direcao = ALLEGRO_FLIP_HORIZONTAL;
-                jogador.movendo = 1;
-            }
-
-            if (!colide_mapa(mapa, novo_x, jogador.mov.y))
-                jogador.mov.x = novo_x;
-
-            if (al_key_down(&state, ALLEGRO_KEY_W) && jogador.no_chao)
-                jogador.mov.vel_y = FORCA_PULO;
-
-            jogador.mov.vel_y += GRAVIDADE;
-
-            if (jogador.mov.vel_y > MAX_QUEDA)
-                jogador.mov.vel_y = MAX_QUEDA;
-
-            float novo_y = jogador.mov.y + jogador.mov.vel_y;
-
-            if (!colide_mapa(mapa, jogador.mov.x, novo_y)) {
-                jogador.mov.y = novo_y;
-            } else {
-                jogador.mov.vel_y = 0;
-            }
-
-            jogador.no_chao = esta_no_chao(mapa, jogador.mov.x, jogador.mov.y);
-
-            if (jogador.mov.y > ALTURA + 200)
-            {
-                perder_vida(vetor_vidas);
-                jogador.mov.x = 60;
-                jogador.mov.y = 253;
-                jogador.mov.vel_y = 0;
-            }
-
-            if (jogador.mov.x > 2400 && tempo.ativo)
-            {
-                tempo.fim   = al_get_time();
-                tempo.atual = tempo.fim - tempo.inicio;
-                tempo.ativo = 0;
-            }
-
-            float draw_x = jogador.mov.x - HITBOX_OFFSET_X;
-            float draw_y = jogador.mov.y - HITBOX_OFFSET_Y;
-
-            al_clear_to_color(al_map_rgb(255, 255, 255));
-            al_draw_bitmap(bg, 0, 0, 0);
-            
-            desenhar_matriz_fundo(matriz_decorativa, linhas_matriz, colunas_matriz);
-
-
-            if (!jogador.no_chao) {
-                int f = (int)jogador.frame % FRAMES_JUMP;
-                al_draw_scaled_bitmap(jump, 128 * f, 0, 128, 128, (int)draw_x, (int)draw_y, DRAW_W, DRAW_H, jogador.direcao);
-            }
-            else if (jogador.movendo) {
-                int f = (int)jogador.frame % FRAMES_RUN;
-                al_draw_scaled_bitmap(run, 128 * f, 0, 128, 128, (int)draw_x, (int)draw_y, DRAW_W, DRAW_H, jogador.direcao);
-            }
-            else {
-                int f = (int)jogador.frame % FRAMES_IDLE;
-                al_draw_scaled_bitmap(idle, 128 * f, 0, 128, 128, (int)draw_x, (int)draw_y, DRAW_W, DRAW_H, jogador.direcao);
-            }
-
-            char texto[50];
-            sprintf(texto, "Tempo: %.2f s", tempo.atual);
-
-            al_draw_filled_rectangle(10, 10, 340, 70, al_map_rgb(255,255,255));
-            al_draw_text(fonte, al_map_rgb(0,0,0), 20, 20, 0, texto);
-
-            desenhar_vidas(vetor_vidas, coracao);
-
-            if (!tempo.ativo) {
-                al_draw_text(fonte, al_map_rgb(255,215,0), LARGURA / 2.0, ALTURA / 3.0, ALLEGRO_ALIGN_CENTER, mensagem_final);
-            }
-
-            al_flip_display();
+        if (al_key_down(&state, ALLEGRO_KEY_D)) {
+            novo_x += VELOCIDADE;
+            jogador.direcao = 0;
+            jogador.movendo = 1;
         }
+
+        if (al_key_down(&state, ALLEGRO_KEY_A)) {
+            novo_x -= VELOCIDADE;
+            jogador.direcao = ALLEGRO_FLIP_HORIZONTAL;
+            jogador.movendo = 1;
+        }
+
+        if (!colide_mapa(mapa, novo_x, jogador.mov.y))
+            jogador.mov.x = novo_x;
+
+        // =========================
+        // PULO
+        // =========================
+
+        if (al_key_down(&state, ALLEGRO_KEY_W) && jogador.no_chao)
+            jogador.mov.vel_y = FORCA_PULO;
+
+        jogador.mov.vel_y += GRAVIDADE;
+
+        if (jogador.mov.vel_y > MAX_QUEDA)
+            jogador.mov.vel_y = MAX_QUEDA;
+
+        // =========================
+        // MOVIMENTAÇÃO VERTICAL
+        // =========================
+
+        float novo_y = jogador.mov.y + jogador.mov.vel_y;
+
+        if (!colide_mapa(mapa, jogador.mov.x, novo_y)) {
+            jogador.mov.y = novo_y;
+        }
+        else {
+            jogador.mov.vel_y = 0;
+        }
+
+        jogador.no_chao = esta_no_chao(mapa, jogador.mov.x, jogador.mov.y);
+
+        // =========================
+        // QUEDA
+        // =========================
+
+        if (jogador.mov.y > ALTURA + 200)
+        {
+            perder_vida(vetor_vidas);
+
+            jogador.mov.x = 60;
+            jogador.mov.y = 253;
+            jogador.mov.vel_y = 0;
+        }
+
+        // =========================
+        // FINAL DO MAPA
+        // =========================
+
+        if (jogador.mov.x > 2400 && tempo.ativo)
+        {
+            tempo.fim   = al_get_time();
+            tempo.atual = tempo.fim - tempo.inicio;
+            tempo.ativo = 0;
+        }
+
+        // =========================
+        // DESENHO
+        // =========================
+
+        float draw_x = jogador.mov.x - HITBOX_OFFSET_X;
+        float draw_y = jogador.mov.y - HITBOX_OFFSET_Y;
+
+        al_clear_to_color(al_map_rgb(255, 255, 255));
+
+        al_draw_bitmap(bg, 0, 0, 0);
+
+        desenhar_matriz_fundo(
+            matriz_decorativa,
+            linhas_matriz,
+            colunas_matriz
+        );
+
+        if (!jogador.no_chao)
+        {
+            int f = (int)jogador.frame % FRAMES_JUMP;
+
+            al_draw_scaled_bitmap(
+                jump,
+                128 * f, 0,
+                128, 128,
+                (int)draw_x,
+                (int)draw_y,
+                DRAW_W,
+                DRAW_H,
+                jogador.direcao
+            );
+        }
+        else if (jogador.movendo)
+        {
+            int f = (int)jogador.frame % FRAMES_RUN;
+
+            al_draw_scaled_bitmap(
+                run,
+                128 * f, 0,
+                128, 128,
+                (int)draw_x,
+                (int)draw_y,
+                DRAW_W,
+                DRAW_H,
+                jogador.direcao
+            );
+        }
+        else
+        {
+            int f = (int)jogador.frame % FRAMES_IDLE;
+
+            al_draw_scaled_bitmap(
+                idle,
+                128 * f, 0,
+                128, 128,
+                (int)draw_x,
+                (int)draw_y,
+                DRAW_W,
+                DRAW_H,
+                jogador.direcao
+            );
+        }
+
+        // =========================
+        // HUD
+        // =========================
+
+        char texto[50];
+
+        sprintf(texto, "Tempo: %.2f s", tempo.atual);
+
+        al_draw_filled_rectangle(
+            10, 10,
+            340, 70,
+            al_map_rgb(255,255,255)
+        );
+
+        al_draw_text(
+            fonte,
+            al_map_rgb(0,0,0),
+            20, 20,
+            0,
+            texto
+        );
+
+        desenhar_vidas(vetor_vidas, coracao);
+
+        if (!tempo.ativo)
+        {
+            al_draw_text(
+                fonte,
+                al_map_rgb(255,215,0),
+                LARGURA / 2.0,
+                ALTURA / 3.0,
+                ALLEGRO_ALIGN_CENTER,
+                mensagem_final
+            );
+        }
+
+        al_flip_display();
     }
+}
 
     free(vetor_vidas);
     liberar_matriz(matriz_decorativa, linhas_matriz);
