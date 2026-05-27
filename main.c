@@ -8,6 +8,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+#include <math.h>
 
 #define LARGURA 1920
 #define ALTURA 1080
@@ -83,6 +84,8 @@ typedef struct
 {
     float x;
     float y;
+    float x_inicial;
+    float y_inicial;
     float velocidade;
     int direcao;
     int vivo;
@@ -593,6 +596,8 @@ int main(void)
 
     zumbi.x = 1200;
     zumbi.y = 760;
+    zumbi.x_inicial = 1200;
+    zumbi.y_inicial = 760;
     zumbi.velocidade = 1.35f;
     zumbi.direcao = 0;
     zumbi.vivo = 1;
@@ -784,17 +789,40 @@ int main(void)
             {
                 zumbi.frame += 0.08f;
 
-                if (jogador.mov.x < zumbi.x)
-                {
-                    zumbi.x -= zumbi.velocidade;
+                float diferenca_altura =
+                    fabs(jogador.mov.y - zumbi.y);
 
-                    zumbi.direcao =
-                        ALLEGRO_FLIP_HORIZONTAL;
+                // Se o jogador estiver muito alto/baixo,
+                // o zumbi volta ao ponto inicial
+                if (diferenca_altura > 180)
+                {
+                    if (zumbi.x < zumbi.x_inicial)
+                    {
+                        zumbi.x += zumbi.velocidade;
+                        zumbi.direcao = 0;
+                    }
+                    else if (zumbi.x > zumbi.x_inicial)
+                    {
+                        zumbi.x -= zumbi.velocidade;
+                        zumbi.direcao =
+                            ALLEGRO_FLIP_HORIZONTAL;
+                    }
                 }
                 else
                 {
-                    zumbi.x += zumbi.velocidade;
-                    zumbi.direcao = 0;
+                    // Seguir jogador normalmente
+                    if (jogador.mov.x < zumbi.x)
+                    {
+                        zumbi.x -= zumbi.velocidade;
+
+                        zumbi.direcao =
+                            ALLEGRO_FLIP_HORIZONTAL;
+                    }
+                    else
+                    {
+                        zumbi.x += zumbi.velocidade;
+                        zumbi.direcao = 0;
+                    }
                 }
             }
 
@@ -916,8 +944,7 @@ int main(void)
                 }
                 else if (pos < 10)
                 {
-                    tempo.ranking[
-                        tempo.quantidade_scores - 1] =
+                    tempo.ranking[tempo.quantidade_scores - 1] =
                         tempo.atual;
 
                     ordenar_ranking(
