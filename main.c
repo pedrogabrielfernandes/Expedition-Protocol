@@ -50,7 +50,7 @@
 /* estamina */
 #define MAX_ESTAMINA 10.0f
 #define CUSTO_PULO 1.0f
-#define RECARGA_ESTAMINA 0.02f
+#define RECARGA_ESTAMINA 0.03f
 
 /* sanidade */
 #define MAX_SANIDADE 100.0f
@@ -893,8 +893,8 @@ int main(void)
     ALLEGRO_TIMER       *timer  = al_create_timer(1.0 / FPS);
     if (!display || !queue || !timer) { puts("Erro init display/queue/timer"); return 1; }
 
-    ALLEGRO_FONT *fonte     = al_load_ttf_font("assets/arial.ttf", 48, 0);
-    ALLEGRO_FONT *fonte_hud = al_load_ttf_font("assets/arial.ttf", 32, 0);
+    ALLEGRO_FONT *fonte     = al_load_ttf_font("assets/PublicPixel.ttf", 30, 0);
+    ALLEGRO_FONT *fonte_hud = al_load_ttf_font("assets/PublicPixel.ttf", 18, 0);
     if (!fonte)     fonte     = al_create_builtin_font();
     if (!fonte_hud) fonte_hud = al_create_builtin_font();
 
@@ -1069,14 +1069,18 @@ int main(void)
             /* -------------------------------------------------------- */
 
             /* J: atacar (bloqueado enquanto roda esta aberta) */
-            static int j_ant = 0;
-            int j_now = al_key_down(&state, ALLEGRO_KEY_J);
-            if (j_now && !j_ant && !jogador.atacando && !roda_aberta)
-            {
-                jogador.atacando     = 1;
-                jogador.frame_ataque = 0;
-            }
-            j_ant = j_now;
+                        static int j_ant = 0;
+                        int j_now = al_key_down(&state, ALLEGRO_KEY_J);
+                        if (j_now && !j_ant && !jogador.atacando && !roda_aberta)
+                                    {
+                                        if (jogador.estamina >= 1.5f)
+                                        {
+                                            jogador.atacando     = 1;
+                                            jogador.frame_ataque = 0;
+                                            jogador.estamina    -= 1.5f;
+                                        }
+                                    }
+                        j_ant = j_now;
 
             /* chao */
             jogador.no_chao = esta_no_chao(mapa, jogador.mov.x, jogador.mov.y);
@@ -1107,8 +1111,8 @@ int main(void)
 
             /* pulo (bloqueado pela roda) */
             if (al_key_down(&state, ALLEGRO_KEY_W) && jogador.no_chao &&
-                !jogador.atacando && !roda_aberta &&
-                jogador.estamina >= MAX_ESTAMINA / 2.0f)
+                            !jogador.atacando && !roda_aberta &&
+                            jogador.estamina >= CUSTO_PULO)
             {
                 jogador.mov.vel_y = FORCA_PULO;
                 jogador.estamina -= CUSTO_PULO;
