@@ -222,12 +222,6 @@ bool esta_no_chao(ALLEGRO_BITMAP *mapa, float x, float y)
            pixel_solido(mapa, right, foot);
 }
 
-/* ---------------------------------------------------------------
-   desenhar_vidas:
-   - Desenha a barra verde proporcional às vidas restantes
-   - Por cima desenha os ícones PNG (um por vida)
-   - Vidas perdidas ficam cinzas (tinted)
-   --------------------------------------------------------------- */
 void desenhar_vidas(VidaStatus *vidas, ALLEGRO_BITMAP *coracao)
 {
     int vidas_restantes = 0;
@@ -237,39 +231,31 @@ void desenhar_vidas(VidaStatus *vidas, ALLEGRO_BITMAP *coracao)
 
     float porcentagem = (float)vidas_restantes / MAX_VIDAS;
 
-    /* ----- posição e tamanho da barra ----- */
     float barra_x       = 290;
     float barra_y       = 940;
     float barra_largura = 320;
     float barra_altura  = 63;
-    /* --------------------------------------- */
 
-    /* ----- posição e tamanho do PNG ----- */
     float png_x = 120;
     float png_y = 813;
     float png_w = 540;
     float png_h = 340;
-    /* ------------------------------------- */
 
-    /* 1) fundo escuro da barra */
     al_draw_filled_rectangle(
         barra_x, barra_y,
         barra_x + barra_largura, barra_y + barra_altura,
         al_map_rgb(40, 40, 40));
 
-    /* 2) barra verde proporcional */
     al_draw_filled_rectangle(
         barra_x, barra_y,
         barra_x + (barra_largura * porcentagem), barra_y + barra_altura,
         al_map_rgb(0, 200, 0));
 
-    /* 3) borda da barra */
     al_draw_rectangle(
         barra_x, barra_y,
         barra_x + barra_largura, barra_y + barra_altura,
         al_map_rgb(255, 255, 255), 2);
 
-    /* 4) PNG por cima, independente da barra */
     al_draw_scaled_bitmap(
         coracao,
         0, 0,
@@ -359,6 +345,27 @@ void salvar_ranking(Temporizador *tempo)
     fclose(file);
 }
 
+/* HUD do temporizador estilizado (madeira/medieval) */
+void desenhar_hud_tempo(ALLEGRO_FONT *fonte_hud, const char *texto)
+{
+    /* Sombra */
+    al_draw_filled_rounded_rectangle(14, 14, 314, 72, 8, 8,
+        al_map_rgba(0, 0, 0, 120));
+    /* Fundo madeira */
+    al_draw_filled_rounded_rectangle(10, 10, 310, 68, 8, 8,
+        al_map_rgb(101, 60, 20));
+    /* Borda dourada */
+    al_draw_rounded_rectangle(10, 10, 310, 68, 8, 8,
+        al_map_rgb(218, 165, 32), 3);
+    /* Borda interna */
+    al_draw_rounded_rectangle(14, 14, 306, 64, 6, 6,
+        al_map_rgba(255, 210, 80, 80), 1);
+    /* Texto sombra */
+    al_draw_text(fonte_hud, al_map_rgba(0, 0, 0, 180), 22, 22, 0, texto);
+    /* Texto dourado */
+    al_draw_text(fonte_hud, al_map_rgb(255, 215, 0), 20, 20, 0, texto);
+}
+
 /* ================================================================== */
 int main(void)
 /* ================================================================== */
@@ -382,6 +389,7 @@ int main(void)
     ALLEGRO_TIMER *timer = al_create_timer(1.0 / FPS);
     if (!timer) { printf("Erro: al_create_timer\n"); return 1; }
 
+    /* Fonte principal (ranking, menu, etc.) */
     ALLEGRO_FONT *fonte = al_load_ttf_font("assets/arial.ttf", 48, 0);
     if (!fonte)
     {
@@ -389,6 +397,11 @@ int main(void)
         fonte = al_create_builtin_font();
         if (!fonte) return 1;
     }
+
+    /* Fonte menor exclusiva para o HUD do temporizador */
+    ALLEGRO_FONT *fonte_hud = al_load_ttf_font("assets/arial.ttf", 32, 0);
+    if (!fonte_hud)
+        fonte_hud = al_create_builtin_font();
 
     al_register_event_source(queue, al_get_display_event_source(display));
     al_register_event_source(queue, al_get_timer_event_source(timer));
@@ -403,6 +416,7 @@ int main(void)
     if (escolha == MENU_SAIR)
     {
         al_destroy_bitmap(bg_menu);
+        al_destroy_font(fonte_hud);
         al_destroy_font(fonte);
         al_destroy_timer(timer);
         al_destroy_event_queue(queue);
@@ -434,28 +448,28 @@ int main(void)
     gerar_mapa_colisao(mapa);
 
     Jogador jogador;
-    jogador.mov.x       = 60;
-    jogador.mov.y       = 253;
-    jogador.mov.vel_y   = 0;
-    jogador.frame       = 0;
+    jogador.mov.x        = 60;
+    jogador.mov.y        = 253;
+    jogador.mov.vel_y    = 0;
+    jogador.frame        = 0;
     jogador.frame_ataque = 0;
-    jogador.no_chao     = 0;
-    jogador.direcao     = 0;
-    jogador.movendo     = 0;
-    jogador.atacando    = 0;
-    jogador.tipo_ataque = 1;
-    jogador.ultimo_dano = 0;
+    jogador.no_chao      = 0;
+    jogador.direcao      = 0;
+    jogador.movendo      = 0;
+    jogador.atacando     = 0;
+    jogador.tipo_ataque  = 1;
+    jogador.ultimo_dano  = 0;
 
     Inimigo zumbi;
-    zumbi.x         = 1200;
-    zumbi.y         = 760;
-    zumbi.x_inicial = 1200;
-    zumbi.y_inicial = 760;
+    zumbi.x          = 1200;
+    zumbi.y          = 760;
+    zumbi.x_inicial  = 1200;
+    zumbi.y_inicial  = 760;
     zumbi.velocidade = 1.35f;
-    zumbi.direcao   = 0;
-    zumbi.vivo      = 1;
-    zumbi.frame     = 0;
-    zumbi.vida      = 100;
+    zumbi.direcao    = 0;
+    zumbi.vivo       = 1;
+    zumbi.frame      = 0;
+    zumbi.vida       = 100;
 
     Temporizador tempo;
     tempo.inicio            = al_get_time();
@@ -490,6 +504,11 @@ int main(void)
 
         if (ev.type == ALLEGRO_EVENT_DISPLAY_CLOSE)
             rodando = 0;
+
+        /* ESC para sair */
+        if (ev.type == ALLEGRO_EVENT_KEY_DOWN)
+            if (ev.keyboard.keycode == ALLEGRO_KEY_ESCAPE)
+                rodando = 0;
 
         if (ev.type == ALLEGRO_EVENT_TIMER)
         {
@@ -763,15 +782,12 @@ int main(void)
                     draw_x, draw_y, DRAW_W, DRAW_H, jogador.direcao);
             }
 
-            /* HUD */
+            /* HUD - Temporizador estilizado (fonte menor, caixa madeira) */
             char texto[50];
             sprintf(texto, "Tempo: %.2f s", tempo.atual);
+            desenhar_hud_tempo(fonte_hud, texto);
 
-            al_draw_filled_rectangle(
-                10, 60, 340, 120, al_map_rgb(255, 255, 255));
-            al_draw_text(
-                fonte, al_map_rgb(0, 0, 0), 20, 70, 0, texto);
-
+            /* HUD - Ranking */
             al_draw_text(fonte, al_map_rgb(255, 215, 0),
                          1850, 0, ALLEGRO_ALIGN_RIGHT, "RANKING");
             for (int i = 0; i < tempo.quantidade_scores; i++)
@@ -783,9 +799,10 @@ int main(void)
                              ALLEGRO_ALIGN_RIGHT, texto_rank);
             }
 
-            /* vidas: barra verde + ícones PNG por cima */
+            /* HUD - Vidas */
             desenhar_vidas(vetor_vidas, coracao);
 
+            /* Mensagem de fase concluida */
             if (!tempo.ativo)
                 al_draw_text(
                     fonte, al_map_rgb(255, 215, 0),
@@ -810,6 +827,7 @@ int main(void)
     al_destroy_bitmap(ataque1);
     al_destroy_bitmap(ataque2);
     al_destroy_bitmap(ataque3);
+    al_destroy_font(fonte_hud);
     al_destroy_font(fonte);
     al_destroy_timer(timer);
     al_destroy_event_queue(queue);
