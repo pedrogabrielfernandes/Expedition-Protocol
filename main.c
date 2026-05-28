@@ -494,6 +494,11 @@ int main(void)
     int **matriz_decorativa =
         criar_matriz_decorativa(linhas_matriz, colunas_matriz);
 
+    /* ---- variaveis de pausa ---- */
+    int    pausado      = 0;
+    double pausa_inicio = 0;
+    /* ----------------------------- */
+
     int rodando = 1;
     ALLEGRO_EVENT ev;
     ALLEGRO_KEYBOARD_STATE state;
@@ -505,201 +510,228 @@ int main(void)
         if (ev.type == ALLEGRO_EVENT_DISPLAY_CLOSE)
             rodando = 0;
 
-        /* ESC para sair */
-        if (ev.type == ALLEGRO_EVENT_KEY_DOWN)
-            if (ev.keyboard.keycode == ALLEGRO_KEY_ESCAPE)
-                rodando = 0;
+        /* ESC agora pausa/despausa — nao sai mais do jogo */
 
         if (ev.type == ALLEGRO_EVENT_TIMER)
         {
-            jogador.frame  += 0.15f;
-            jogador.movendo = 0;
-
             al_get_keyboard_state(&state);
 
-            static int key_r_anterior = 0;
-            int key_r_atual = al_key_down(&state, ALLEGRO_KEY_R);
-            if (key_r_atual && !key_r_anterior)
-                jogador.mov.x = 2500;
-            key_r_anterior = key_r_atual;
-
-            static int key_k_anterior = 0;
-            int key_k_atual = al_key_down(&state, ALLEGRO_KEY_K);
-            if (key_k_atual && !key_k_anterior)
+            /* ---------- ESC: alternar pausa ---------- */
+            static int key_esc_anterior = 0;
+            int key_esc_atual = al_key_down(&state, ALLEGRO_KEY_ESCAPE);
+            if (key_esc_atual && !key_esc_anterior)
             {
-                jogador.tipo_ataque++;
-                if (jogador.tipo_ataque > 3)
-                    jogador.tipo_ataque = 1;
-            }
-            key_k_anterior = key_k_atual;
-
-            static int key_j_anterior = 0;
-            int key_j_atual = al_key_down(&state, ALLEGRO_KEY_J);
-            if (key_j_atual && !key_j_anterior && !jogador.atacando)
-            {
-                jogador.atacando     = 1;
-                jogador.frame_ataque = 0;
-            }
-            key_j_anterior = key_j_atual;
-
-            if (tempo.ativo)
-                tempo.atual = al_get_time() - tempo.inicio;
-
-            jogador.no_chao =
-                esta_no_chao(mapa, jogador.mov.x, jogador.mov.y);
-
-            float novo_x = jogador.mov.x;
-            if (al_key_down(&state, ALLEGRO_KEY_D) && !jogador.atacando)
-            {
-                novo_x += VELOCIDADE;
-                jogador.direcao = 0;
-                jogador.movendo = 1;
-            }
-            if (al_key_down(&state, ALLEGRO_KEY_A) && !jogador.atacando)
-            {
-                novo_x -= VELOCIDADE;
-                jogador.direcao = ALLEGRO_FLIP_HORIZONTAL;
-                jogador.movendo = 1;
-            }
-            if (!colide_mapa(mapa, novo_x, jogador.mov.y))
-                jogador.mov.x = novo_x;
-
-            if (al_key_down(&state, ALLEGRO_KEY_W) &&
-                jogador.no_chao && !jogador.atacando)
-                jogador.mov.vel_y = FORCA_PULO;
-
-            jogador.mov.vel_y += GRAVIDADE;
-            if (jogador.mov.vel_y > MAX_QUEDA)
-                jogador.mov.vel_y = MAX_QUEDA;
-
-            float novo_y = jogador.mov.y + jogador.mov.vel_y;
-            if (!colide_mapa(mapa, jogador.mov.x, novo_y))
-                jogador.mov.y = novo_y;
-            else
-                jogador.mov.vel_y = 0;
-
-            jogador.no_chao =
-                esta_no_chao(mapa, jogador.mov.x, jogador.mov.y);
-
-            if (jogador.mov.y > ALTURA + 200)
-            {
-                perder_vida(vetor_vidas);
-                jogador.mov.x     = 60;
-                jogador.mov.y     = 253;
-                jogador.mov.vel_y = 0;
-            }
-
-            if (zumbi.vivo)
-            {
-                zumbi.frame += 0.08f;
-
-                float diferenca_altura =
-                    fabs(jogador.mov.y - zumbi.y);
-
-                if (diferenca_altura > 180)
+                pausado = !pausado;
+                if (pausado)
                 {
-                    if (zumbi.x < zumbi.x_inicial)
-                    {
-                        zumbi.x += zumbi.velocidade;
-                        zumbi.direcao = 0;
-                    }
-                    else if (zumbi.x > zumbi.x_inicial)
-                    {
-                        zumbi.x -= zumbi.velocidade;
-                        zumbi.direcao = ALLEGRO_FLIP_HORIZONTAL;
-                    }
+                    /* guarda o momento em que pausou */
+                    pausa_inicio = al_get_time();
                 }
                 else
                 {
-                    if (jogador.mov.x < zumbi.x)
+                    /* empurra as referencias de tempo pelo periodo pausado
+                       para que cronometro e cooldown de dano nao "pulem" */
+                    double tempo_pausado = al_get_time() - pausa_inicio;
+                    tempo.inicio            += tempo_pausado;
+                    jogador.ultimo_dano     += tempo_pausado;
+                }
+            }
+            key_esc_anterior = key_esc_atual;
+            /* ----------------------------------------- */
+
+            /* ======================================================
+               LOGICA DO JOGO — so roda quando nao esta pausado
+               ====================================================== */
+            if (!pausado)
+            {
+                jogador.frame  += 0.15f;
+                jogador.movendo = 0;
+
+                static int key_r_anterior = 0;
+                int key_r_atual = al_key_down(&state, ALLEGRO_KEY_R);
+                if (key_r_atual && !key_r_anterior)
+                    jogador.mov.x = 2500;
+                key_r_anterior = key_r_atual;
+
+                static int key_k_anterior = 0;
+                int key_k_atual = al_key_down(&state, ALLEGRO_KEY_K);
+                if (key_k_atual && !key_k_anterior)
+                {
+                    jogador.tipo_ataque++;
+                    if (jogador.tipo_ataque > 3)
+                        jogador.tipo_ataque = 1;
+                }
+                key_k_anterior = key_k_atual;
+
+                static int key_j_anterior = 0;
+                int key_j_atual = al_key_down(&state, ALLEGRO_KEY_J);
+                if (key_j_atual && !key_j_anterior && !jogador.atacando)
+                {
+                    jogador.atacando     = 1;
+                    jogador.frame_ataque = 0;
+                }
+                key_j_anterior = key_j_atual;
+
+                if (tempo.ativo)
+                    tempo.atual = al_get_time() - tempo.inicio;
+
+                jogador.no_chao =
+                    esta_no_chao(mapa, jogador.mov.x, jogador.mov.y);
+
+                float novo_x = jogador.mov.x;
+                if (al_key_down(&state, ALLEGRO_KEY_D) && !jogador.atacando)
+                {
+                    novo_x += VELOCIDADE;
+                    jogador.direcao = 0;
+                    jogador.movendo = 1;
+                }
+                if (al_key_down(&state, ALLEGRO_KEY_A) && !jogador.atacando)
+                {
+                    novo_x -= VELOCIDADE;
+                    jogador.direcao = ALLEGRO_FLIP_HORIZONTAL;
+                    jogador.movendo = 1;
+                }
+                if (!colide_mapa(mapa, novo_x, jogador.mov.y))
+                    jogador.mov.x = novo_x;
+
+                if (al_key_down(&state, ALLEGRO_KEY_W) &&
+                    jogador.no_chao && !jogador.atacando)
+                    jogador.mov.vel_y = FORCA_PULO;
+
+                jogador.mov.vel_y += GRAVIDADE;
+                if (jogador.mov.vel_y > MAX_QUEDA)
+                    jogador.mov.vel_y = MAX_QUEDA;
+
+                float novo_y = jogador.mov.y + jogador.mov.vel_y;
+                if (!colide_mapa(mapa, jogador.mov.x, novo_y))
+                    jogador.mov.y = novo_y;
+                else
+                    jogador.mov.vel_y = 0;
+
+                jogador.no_chao =
+                    esta_no_chao(mapa, jogador.mov.x, jogador.mov.y);
+
+                if (jogador.mov.y > ALTURA + 200)
+                {
+                    perder_vida(vetor_vidas);
+                    jogador.mov.x     = 60;
+                    jogador.mov.y     = 253;
+                    jogador.mov.vel_y = 0;
+                }
+
+                if (zumbi.vivo)
+                {
+                    zumbi.frame += 0.08f;
+
+                    float diferenca_altura =
+                        fabs(jogador.mov.y - zumbi.y);
+
+                    if (diferenca_altura > 180)
                     {
-                        zumbi.x -= zumbi.velocidade;
-                        zumbi.direcao = ALLEGRO_FLIP_HORIZONTAL;
+                        if (zumbi.x < zumbi.x_inicial)
+                        {
+                            zumbi.x += zumbi.velocidade;
+                            zumbi.direcao = 0;
+                        }
+                        else if (zumbi.x > zumbi.x_inicial)
+                        {
+                            zumbi.x -= zumbi.velocidade;
+                            zumbi.direcao = ALLEGRO_FLIP_HORIZONTAL;
+                        }
                     }
                     else
                     {
-                        zumbi.x += zumbi.velocidade;
-                        zumbi.direcao = 0;
-                    }
-                }
-            }
-
-            if (jogador.atacando &&
-                jogador.frame_ataque >= 2 &&
-                jogador.frame_ataque <= 2.5f &&
-                zumbi.vivo)
-            {
-                float atk_x = (jogador.direcao == 0)
-                               ? jogador.mov.x + 40
-                               : jogador.mov.x - 60;
-                float atk_y = jogador.mov.y;
-
-                float hzx = zumbi.x + 10, hzy = zumbi.y + 10;
-                float hzw = 45, hzh = 75;
-                float haw = 55, hah = 50;
-
-                if (atk_x < hzx + hzw && atk_x + haw > hzx &&
-                    atk_y < hzy + hzh && atk_y + hah > hzy)
-                {
-                    int dano = (jogador.tipo_ataque == 1) ? 15
-                             : (jogador.tipo_ataque == 2) ? 30 : 50;
-                    zumbi.vida -= dano;
-                    if (zumbi.vida < 0)  zumbi.vida = 0;
-                    if (zumbi.vida <= 0) zumbi.vivo = 0;
-                }
-            }
-
-            if (zumbi.vivo)
-            {
-                if (jogador.mov.x < zumbi.x + 60 &&
-                    jogador.mov.x + HITBOX_W > zumbi.x &&
-                    jogador.mov.y < zumbi.y + 80 &&
-                    jogador.mov.y + HITBOX_H > zumbi.y)
-                {
-                    if (al_get_time() - jogador.ultimo_dano > 1.0)
-                    {
-                        perder_vida(vetor_vidas);
-                        jogador.ultimo_dano = al_get_time();
-
-                        if (jogador.direcao == 0)
-                            jogador.mov.x -= 120;
+                        if (jogador.mov.x < zumbi.x)
+                        {
+                            zumbi.x -= zumbi.velocidade;
+                            zumbi.direcao = ALLEGRO_FLIP_HORIZONTAL;
+                        }
                         else
-                            jogador.mov.x += 120;
-
-                        jogador.mov.vel_y = -8;
+                        {
+                            zumbi.x += zumbi.velocidade;
+                            zumbi.direcao = 0;
+                        }
                     }
                 }
-            }
 
-            if (jogador.mov.x > 2400 && tempo.ativo)
-            {
-                tempo.fim   = al_get_time();
-                tempo.atual = tempo.fim - tempo.inicio;
-                tempo.ativo = 0;
-
-                int pos = busca_binaria(
-                    tempo.ranking,
-                    tempo.quantidade_scores,
-                    (float)tempo.atual);
-
-                if (tempo.quantidade_scores < 10)
+                if (jogador.atacando &&
+                    jogador.frame_ataque >= 2 &&
+                    jogador.frame_ataque <= 2.5f &&
+                    zumbi.vivo)
                 {
-                    tempo.ranking[tempo.quantidade_scores] =
-                        (float)tempo.atual;
-                    tempo.quantidade_scores++;
-                    ordenar_ranking(tempo.ranking, tempo.quantidade_scores);
+                    float atk_x = (jogador.direcao == 0)
+                                   ? jogador.mov.x + 40
+                                   : jogador.mov.x - 60;
+                    float atk_y = jogador.mov.y;
+
+                    float hzx = zumbi.x + 10, hzy = zumbi.y + 10;
+                    float hzw = 45, hzh = 75;
+                    float haw = 55, hah = 50;
+
+                    if (atk_x < hzx + hzw && atk_x + haw > hzx &&
+                        atk_y < hzy + hzh && atk_y + hah > hzy)
+                    {
+                        int dano = (jogador.tipo_ataque == 1) ? 15
+                                 : (jogador.tipo_ataque == 2) ? 30 : 50;
+                        zumbi.vida -= dano;
+                        if (zumbi.vida < 0)  zumbi.vida = 0;
+                        if (zumbi.vida <= 0) zumbi.vivo = 0;
+                    }
                 }
-                else if (pos < 10)
+
+                if (zumbi.vivo)
                 {
-                    tempo.ranking[tempo.quantidade_scores - 1] =
-                        (float)tempo.atual;
-                    ordenar_ranking(tempo.ranking, tempo.quantidade_scores);
+                    if (jogador.mov.x < zumbi.x + 60 &&
+                        jogador.mov.x + HITBOX_W > zumbi.x &&
+                        jogador.mov.y < zumbi.y + 80 &&
+                        jogador.mov.y + HITBOX_H > zumbi.y)
+                    {
+                        if (al_get_time() - jogador.ultimo_dano > 1.0)
+                        {
+                            perder_vida(vetor_vidas);
+                            jogador.ultimo_dano = al_get_time();
+
+                            if (jogador.direcao == 0)
+                                jogador.mov.x -= 120;
+                            else
+                                jogador.mov.x += 120;
+
+                            jogador.mov.vel_y = -8;
+                        }
+                    }
                 }
 
-                salvar_ranking(&tempo);
-            }
+                if (jogador.mov.x > 2400 && tempo.ativo)
+                {
+                    tempo.fim   = al_get_time();
+                    tempo.atual = tempo.fim - tempo.inicio;
+                    tempo.ativo = 0;
 
-            /* ---------- desenho ---------- */
+                    int pos = busca_binaria(
+                        tempo.ranking,
+                        tempo.quantidade_scores,
+                        (float)tempo.atual);
+
+                    if (tempo.quantidade_scores < 10)
+                    {
+                        tempo.ranking[tempo.quantidade_scores] =
+                            (float)tempo.atual;
+                        tempo.quantidade_scores++;
+                        ordenar_ranking(tempo.ranking, tempo.quantidade_scores);
+                    }
+                    else if (pos < 10)
+                    {
+                        tempo.ranking[tempo.quantidade_scores - 1] =
+                            (float)tempo.atual;
+                        ordenar_ranking(tempo.ranking, tempo.quantidade_scores);
+                    }
+
+                    salvar_ranking(&tempo);
+                }
+            }
+            /* ====================================================== */
+
+            /* ---------- DESENHO (roda sempre, pausado ou nao) ---------- */
             float draw_x = jogador.mov.x - HITBOX_OFFSET_X;
             float draw_y = jogador.mov.y - HITBOX_OFFSET_Y;
 
@@ -808,6 +840,49 @@ int main(void)
                     fonte, al_map_rgb(255, 215, 0),
                     LARGURA / 2.0, ALTURA / 3.0,
                     ALLEGRO_ALIGN_CENTER, mensagem_final);
+
+            /* ---------- OVERLAY DE PAUSA ---------- */
+            if (pausado)
+            {
+                /* fundo escuro semi-transparente sobre tudo */
+                al_draw_filled_rectangle(
+                    0, 0, LARGURA, ALTURA,
+                    al_map_rgba(0, 0, 0, 160));
+
+                /* caixa central no mesmo estilo do HUD de tempo */
+                al_draw_filled_rounded_rectangle(
+                    LARGURA / 2.0 - 310, ALTURA / 2.0 - 90,
+                    LARGURA / 2.0 + 310, ALTURA / 2.0 + 70,
+                    12, 12, al_map_rgb(101, 60, 20));
+
+                al_draw_rounded_rectangle(
+                    LARGURA / 2.0 - 310, ALTURA / 2.0 - 90,
+                    LARGURA / 2.0 + 310, ALTURA / 2.0 + 70,
+                    12, 12, al_map_rgb(218, 165, 32), 3);
+
+                /* titulo PAUSADO com sombra */
+                al_draw_text(fonte,
+                    al_map_rgba(0, 0, 0, 180),
+                    LARGURA / 2.0 + 3, ALTURA / 2.0 - 75 + 3,
+                    ALLEGRO_ALIGN_CENTER, "PAUSADO");
+                al_draw_text(fonte,
+                    al_map_rgb(255, 215, 0),
+                    LARGURA / 2.0, ALTURA / 2.0 - 75,
+                    ALLEGRO_ALIGN_CENTER, "PAUSADO");
+
+                /* instrucao com sombra */
+                al_draw_text(fonte_hud,
+                    al_map_rgba(0, 0, 0, 180),
+                    LARGURA / 2.0 + 2, ALTURA / 2.0 + 2,
+                    ALLEGRO_ALIGN_CENTER,
+                    "Pressione ESC para continuar");
+                al_draw_text(fonte_hud,
+                    al_map_rgb(255, 255, 255),
+                    LARGURA / 2.0, ALTURA / 2.0,
+                    ALLEGRO_ALIGN_CENTER,
+                    "Pressione ESC para continuar");
+            }
+            /* --------------------------------------- */
 
             al_flip_display();
         }
