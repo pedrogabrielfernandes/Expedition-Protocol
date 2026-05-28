@@ -196,19 +196,23 @@ bool pixel_solido(ALLEGRO_BITMAP *mapa, int x, int y)
 
 bool colide_mapa(ALLEGRO_BITMAP *mapa, float x, float y)
 {
-    int left   = (int)x;
-    int right  = (int)x + HITBOX_W - 1;
-    int top    = (int)y;
+    int left = (int)x;
+    int right = (int)x + HITBOX_W - 1;
+    int top = (int)y;
     int bottom = (int)y + HITBOX_H - 1;
 
     for (int px = left; px <= right; px += 4)
-        if (pixel_solido(mapa, px, top))    return true;
+        if (pixel_solido(mapa, px, top))
+            return true;
     for (int px = left; px <= right; px += 4)
-        if (pixel_solido(mapa, px, bottom)) return true;
+        if (pixel_solido(mapa, px, bottom))
+            return true;
     for (int py = top; py <= bottom; py += 4)
-        if (pixel_solido(mapa, left, py))   return true;
+        if (pixel_solido(mapa, left, py))
+            return true;
     for (int py = top; py <= bottom; py += 4)
-        if (pixel_solido(mapa, right, py))  return true;
+        if (pixel_solido(mapa, right, py))
+            return true;
 
     return false;
 }
@@ -217,7 +221,7 @@ bool esta_no_chao(ALLEGRO_BITMAP *mapa, float x, float y)
 {
     int left = (int)x + 4;
     int right = (int)x + HITBOX_W - 4;
-    int foot  = (int)y + HITBOX_H;
+    int foot = (int)y + HITBOX_H;
     return pixel_solido(mapa, left, foot) ||
            pixel_solido(mapa, right, foot);
 }
@@ -231,10 +235,10 @@ void desenhar_vidas(VidaStatus *vidas, ALLEGRO_BITMAP *coracao)
 
     float porcentagem = (float)vidas_restantes / MAX_VIDAS;
 
-    float barra_x       = 290;
-    float barra_y       = 940;
+    float barra_x = 290;
+    float barra_y = 940;
     float barra_largura = 320;
-    float barra_altura  = 63;
+    float barra_altura = 63;
 
     float png_x = 120;
     float png_y = 813;
@@ -302,8 +306,8 @@ void ordenar_ranking(float ranking[], int tamanho)
         for (int j = 0; j < tamanho - i - 1; j++)
             if (ranking[j] > ranking[j + 1])
             {
-                float temp     = ranking[j];
-                ranking[j]     = ranking[j + 1];
+                float temp = ranking[j];
+                ranking[j] = ranking[j + 1];
                 ranking[j + 1] = temp;
             }
 }
@@ -325,12 +329,14 @@ int busca_binaria(float ranking[], int tamanho, float novo_tempo)
 void carregar_ranking(Temporizador *tempo)
 {
     FILE *file = fopen("ranking.txt", "r");
-    if (!file) return;
+    if (!file)
+        return;
     while (fscanf(file, "%f",
                   &tempo->ranking[tempo->quantidade_scores]) == 1)
     {
         tempo->quantidade_scores++;
-        if (tempo->quantidade_scores >= 10) break;
+        if (tempo->quantidade_scores >= 10)
+            break;
     }
     fclose(file);
     ordenar_ranking(tempo->ranking, tempo->quantidade_scores);
@@ -339,7 +345,8 @@ void carregar_ranking(Temporizador *tempo)
 void salvar_ranking(Temporizador *tempo)
 {
     FILE *file = fopen("ranking.txt", "w");
-    if (!file) return;
+    if (!file)
+        return;
     for (int i = 0; i < tempo->quantidade_scores; i++)
         fprintf(file, "%.2f\n", tempo->ranking[i]);
     fclose(file);
@@ -350,16 +357,16 @@ void desenhar_hud_tempo(ALLEGRO_FONT *fonte_hud, const char *texto)
 {
     /* Sombra */
     al_draw_filled_rounded_rectangle(14, 14, 314, 72, 8, 8,
-        al_map_rgba(0, 0, 0, 120));
+                                     al_map_rgba(0, 0, 0, 120));
     /* Fundo madeira */
     al_draw_filled_rounded_rectangle(10, 10, 310, 68, 8, 8,
-        al_map_rgb(101, 60, 20));
+                                     al_map_rgb(101, 60, 20));
     /* Borda dourada */
     al_draw_rounded_rectangle(10, 10, 310, 68, 8, 8,
-        al_map_rgb(218, 165, 32), 3);
+                              al_map_rgb(218, 165, 32), 3);
     /* Borda interna */
     al_draw_rounded_rectangle(14, 14, 306, 64, 6, 6,
-        al_map_rgba(255, 210, 80, 80), 1);
+                              al_map_rgba(255, 210, 80, 80), 1);
     /* Texto sombra */
     al_draw_text(fonte_hud, al_map_rgba(0, 0, 0, 180), 22, 22, 0, texto);
     /* Texto dourado */
@@ -372,22 +379,50 @@ int main(void)
 {
     srand(time(NULL));
 
-    if (!al_init())                  { printf("Erro: al_init\n");                  return 1; }
-    if (!al_init_primitives_addon()) { printf("Erro: al_init_primitives_addon\n"); return 1; }
-    if (!al_install_keyboard())      { printf("Erro: al_install_keyboard\n");      return 1; }
-    if (!al_init_image_addon())      { printf("Erro: al_init_image_addon\n");      return 1; }
+    if (!al_init())
+    {
+        printf("Erro: al_init\n");
+        return 1;
+    }
+    if (!al_init_primitives_addon())
+    {
+        printf("Erro: al_init_primitives_addon\n");
+        return 1;
+    }
+    if (!al_install_keyboard())
+    {
+        printf("Erro: al_install_keyboard\n");
+        return 1;
+    }
+    if (!al_init_image_addon())
+    {
+        printf("Erro: al_init_image_addon\n");
+        return 1;
+    }
 
     al_init_font_addon();
     al_init_ttf_addon();
 
     ALLEGRO_DISPLAY *display = al_create_display(LARGURA, ALTURA);
-    if (!display) { printf("Erro: al_create_display\n"); return 1; }
+    if (!display)
+    {
+        printf("Erro: al_create_display\n");
+        return 1;
+    }
 
     ALLEGRO_EVENT_QUEUE *queue = al_create_event_queue();
-    if (!queue) { printf("Erro: al_create_event_queue\n"); return 1; }
+    if (!queue)
+    {
+        printf("Erro: al_create_event_queue\n");
+        return 1;
+    }
 
     ALLEGRO_TIMER *timer = al_create_timer(1.0 / FPS);
-    if (!timer) { printf("Erro: al_create_timer\n"); return 1; }
+    if (!timer)
+    {
+        printf("Erro: al_create_timer\n");
+        return 1;
+    }
 
     /* Fonte principal (ranking, menu, etc.) */
     ALLEGRO_FONT *fonte = al_load_ttf_font("assets/arial.ttf", 48, 0);
@@ -395,7 +430,8 @@ int main(void)
     {
         printf("Erro ao carregar fonte\n");
         fonte = al_create_builtin_font();
-        if (!fonte) return 1;
+        if (!fonte)
+            return 1;
     }
 
     /* Fonte menor exclusiva para o HUD do temporizador */
@@ -408,7 +444,11 @@ int main(void)
     al_register_event_source(queue, al_get_keyboard_event_source());
 
     ALLEGRO_BITMAP *bg_menu = al_load_bitmap("assets/cenarios/inicio.png");
-    if (!bg_menu) { printf("Erro ao carregar background do menu\n"); return 1; }
+    if (!bg_menu)
+    {
+        printf("Erro ao carregar background do menu\n");
+        return 1;
+    }
 
     al_start_timer(timer);
 
@@ -426,16 +466,16 @@ int main(void)
 
     al_flush_event_queue(queue);
 
-    ALLEGRO_BITMAP *bg           = al_load_bitmap("assets/cenarios/background2.png");
-    ALLEGRO_BITMAP *mapa         = al_load_bitmap("assets/cenarios/colisao2.png");
-    ALLEGRO_BITMAP *idle         = al_load_bitmap("assets/sprites/Samurai/Idle.png");
-    ALLEGRO_BITMAP *run          = al_load_bitmap("assets/sprites/Samurai/Run.png");
-    ALLEGRO_BITMAP *jump         = al_load_bitmap("assets/sprites/Samurai/Jump.png");
-    ALLEGRO_BITMAP *coracao      = al_load_bitmap("assets/itens/vida.png");
+    ALLEGRO_BITMAP *bg = al_load_bitmap("assets/cenarios/background2.png");
+    ALLEGRO_BITMAP *mapa = al_load_bitmap("assets/cenarios/colisao2.png");
+    ALLEGRO_BITMAP *idle = al_load_bitmap("assets/sprites/Samurai/Idle.png");
+    ALLEGRO_BITMAP *run = al_load_bitmap("assets/sprites/Samurai/Run.png");
+    ALLEGRO_BITMAP *jump = al_load_bitmap("assets/sprites/Samurai/Jump.png");
+    ALLEGRO_BITMAP *coracao = al_load_bitmap("assets/itens/vida.png");
     ALLEGRO_BITMAP *zumbi_sprite = al_load_bitmap("assets/sprites/Zombies/Walk.png");
-    ALLEGRO_BITMAP *ataque1      = al_load_bitmap("assets/sprites/Samurai/Attack_1.png");
-    ALLEGRO_BITMAP *ataque2      = al_load_bitmap("assets/sprites/Samurai/Attack_2.png");
-    ALLEGRO_BITMAP *ataque3      = al_load_bitmap("assets/sprites/Samurai/Attack_3.png");
+    ALLEGRO_BITMAP *ataque1 = al_load_bitmap("assets/sprites/Samurai/Attack_1.png");
+    ALLEGRO_BITMAP *ataque2 = al_load_bitmap("assets/sprites/Samurai/Attack_2.png");
+    ALLEGRO_BITMAP *ataque3 = al_load_bitmap("assets/sprites/Samurai/Attack_3.png");
 
     if (!bg || !mapa || !idle || !run || !jump ||
         !coracao || !zumbi_sprite ||
@@ -448,34 +488,34 @@ int main(void)
     gerar_mapa_colisao(mapa);
 
     Jogador jogador;
-    jogador.mov.x        = 60;
-    jogador.mov.y        = 253;
-    jogador.mov.vel_y    = 0;
-    jogador.frame        = 0;
+    jogador.mov.x = 60;
+    jogador.mov.y = 253;
+    jogador.mov.vel_y = 0;
+    jogador.frame = 0;
     jogador.frame_ataque = 0;
-    jogador.no_chao      = 0;
-    jogador.direcao      = 0;
-    jogador.movendo      = 0;
-    jogador.atacando     = 0;
-    jogador.tipo_ataque  = 1;
-    jogador.ultimo_dano  = 0;
+    jogador.no_chao = 0;
+    jogador.direcao = 0;
+    jogador.movendo = 0;
+    jogador.atacando = 0;
+    jogador.tipo_ataque = 1;
+    jogador.ultimo_dano = 0;
 
     Inimigo zumbi;
-    zumbi.x          = 1200;
-    zumbi.y          = 760;
-    zumbi.x_inicial  = 1200;
-    zumbi.y_inicial  = 760;
+    zumbi.x = 1200;
+    zumbi.y = 760;
+    zumbi.x_inicial = 1200;
+    zumbi.y_inicial = 760;
     zumbi.velocidade = 1.35f;
-    zumbi.direcao    = 0;
-    zumbi.vivo       = 1;
-    zumbi.frame      = 0;
-    zumbi.vida       = 100;
+    zumbi.direcao = 0;
+    zumbi.vivo = 1;
+    zumbi.frame = 0;
+    zumbi.vida = 100;
 
     Temporizador tempo;
-    tempo.inicio            = al_get_time();
-    tempo.atual             = 0;
-    tempo.fim               = 0;
-    tempo.ativo             = 1;
+    tempo.inicio = al_get_time();
+    tempo.atual = 0;
+    tempo.fim = 0;
+    tempo.ativo = 1;
     tempo.quantidade_scores = 0;
     carregar_ranking(&tempo);
 
@@ -489,13 +529,13 @@ int main(void)
         strcpy(vetor_vidas[i].status, "Inteira");
     }
 
-    int linhas_matriz  = ALTURA  / 100 + 1;
+    int linhas_matriz = ALTURA / 100 + 1;
     int colunas_matriz = LARGURA / 100 + 1;
     int **matriz_decorativa =
         criar_matriz_decorativa(linhas_matriz, colunas_matriz);
 
     /* ---- variaveis de pausa ---- */
-    int    pausado      = 0;
+    int pausado = 0;
     double pausa_inicio = 0;
     /* ----------------------------- */
 
@@ -532,8 +572,8 @@ int main(void)
                     /* empurra as referencias de tempo pelo periodo pausado
                        para que cronometro e cooldown de dano nao "pulem" */
                     double tempo_pausado = al_get_time() - pausa_inicio;
-                    tempo.inicio            += tempo_pausado;
-                    jogador.ultimo_dano     += tempo_pausado;
+                    tempo.inicio += tempo_pausado;
+                    jogador.ultimo_dano += tempo_pausado;
                 }
             }
             key_esc_anterior = key_esc_atual;
@@ -544,7 +584,7 @@ int main(void)
                ====================================================== */
             if (!pausado)
             {
-                jogador.frame  += 0.15f;
+                jogador.frame += 0.15f;
                 jogador.movendo = 0;
 
                 static int key_r_anterior = 0;
@@ -567,7 +607,7 @@ int main(void)
                 int key_j_atual = al_key_down(&state, ALLEGRO_KEY_J);
                 if (key_j_atual && !key_j_anterior && !jogador.atacando)
                 {
-                    jogador.atacando     = 1;
+                    jogador.atacando = 1;
                     jogador.frame_ataque = 0;
                 }
                 key_j_anterior = key_j_atual;
@@ -614,8 +654,8 @@ int main(void)
                 if (jogador.mov.y > ALTURA + 200)
                 {
                     perder_vida(vetor_vidas);
-                    jogador.mov.x     = 60;
-                    jogador.mov.y     = 253;
+                    jogador.mov.x = 60;
+                    jogador.mov.y = 253;
                     jogador.mov.vel_y = 0;
                 }
 
@@ -660,8 +700,8 @@ int main(void)
                     zumbi.vivo)
                 {
                     float atk_x = (jogador.direcao == 0)
-                                   ? jogador.mov.x + 40
-                                   : jogador.mov.x - 60;
+                                      ? jogador.mov.x + 40
+                                      : jogador.mov.x - 60;
                     float atk_y = jogador.mov.y;
 
                     float hzx = zumbi.x + 10, hzy = zumbi.y + 10;
@@ -671,11 +711,14 @@ int main(void)
                     if (atk_x < hzx + hzw && atk_x + haw > hzx &&
                         atk_y < hzy + hzh && atk_y + hah > hzy)
                     {
-                        int dano = (jogador.tipo_ataque == 1) ? 15
-                                 : (jogador.tipo_ataque == 2) ? 30 : 50;
+                        int dano = (jogador.tipo_ataque == 1)   ? 15
+                                   : (jogador.tipo_ataque == 2) ? 30
+                                                                : 50;
                         zumbi.vida -= dano;
-                        if (zumbi.vida < 0)  zumbi.vida = 0;
-                        if (zumbi.vida <= 0) zumbi.vivo = 0;
+                        if (zumbi.vida < 0)
+                            zumbi.vida = 0;
+                        if (zumbi.vida <= 0)
+                            zumbi.vivo = 0;
                     }
                 }
 
@@ -703,7 +746,7 @@ int main(void)
 
                 if (jogador.mov.x > 2400 && tempo.ativo)
                 {
-                    tempo.fim   = al_get_time();
+                    tempo.fim = al_get_time();
                     tempo.atual = tempo.fim - tempo.inicio;
                     tempo.ativo = 0;
 
@@ -746,37 +789,47 @@ int main(void)
             if (zumbi.vivo)
             {
                 int fz = (int)zumbi.frame % FRAMES_ZUMBI;
+
                 al_draw_scaled_bitmap(
                     zumbi_sprite,
                     fz * 96, 0, 96, 96,
                     zumbi_draw_x, zumbi_draw_y,
                     ZUMBI_DRAW_W, ZUMBI_DRAW_H,
                     zumbi.direcao);
-            }
 
-            float barra_zumbi_larg = 58;
-            float barra_zumbi_x =
-                zumbi_draw_x + (ZUMBI_DRAW_W / 2) - (barra_zumbi_larg / 2) - 2;
-            float barra_zumbi_y = zumbi_draw_y + 26;
-            al_draw_filled_rectangle(
-                barra_zumbi_x, barra_zumbi_y,
-                barra_zumbi_x + barra_zumbi_larg, barra_zumbi_y + 6,
-                al_map_rgb(80, 0, 0));
-            al_draw_filled_rectangle(
-                barra_zumbi_x, barra_zumbi_y,
-                barra_zumbi_x + (zumbi.vida * 0.6f), barra_zumbi_y + 6,
-                al_map_rgb(255, 0, 0));
+                float barra_zumbi_larg = 58;
+
+                float barra_zumbi_x =
+                    zumbi_draw_x + (ZUMBI_DRAW_W / 2) - (barra_zumbi_larg / 2) - 2;
+
+                float barra_zumbi_y = zumbi_draw_y + 26;
+
+                al_draw_filled_rectangle(
+                    barra_zumbi_x, barra_zumbi_y,
+                    barra_zumbi_x + barra_zumbi_larg,
+                    barra_zumbi_y + 6,
+                    al_map_rgb(80, 0, 0));
+
+                al_draw_filled_rectangle(
+                    barra_zumbi_x, barra_zumbi_y,
+                    barra_zumbi_x + (zumbi.vida * 0.6f),
+                    barra_zumbi_y + 6,
+                    al_map_rgb(255, 0, 0));
+            }
 
             if (jogador.atacando)
             {
-                int max_frames = (jogador.tipo_ataque == 1) ? 6
-                               : (jogador.tipo_ataque == 2) ? 4 : 3;
+                int max_frames = (jogador.tipo_ataque == 1)   ? 6
+                                 : (jogador.tipo_ataque == 2) ? 4
+                                                              : 3;
                 int f = (int)jogador.frame_ataque;
-                if (f >= max_frames) f = max_frames - 1;
+                if (f >= max_frames)
+                    f = max_frames - 1;
 
                 ALLEGRO_BITMAP *atk =
-                    (jogador.tipo_ataque == 1) ? ataque1
-                  : (jogador.tipo_ataque == 2) ? ataque2 : ataque3;
+                    (jogador.tipo_ataque == 1)   ? ataque1
+                    : (jogador.tipo_ataque == 2) ? ataque2
+                                                 : ataque3;
 
                 al_draw_scaled_bitmap(
                     atk,
@@ -788,7 +841,7 @@ int main(void)
                 jogador.frame_ataque += 0.30f;
                 if (jogador.frame_ataque >= max_frames)
                 {
-                    jogador.atacando     = 0;
+                    jogador.atacando = 0;
                     jogador.frame_ataque = 0;
                 }
             }
@@ -862,25 +915,25 @@ int main(void)
 
                 /* titulo PAUSADO com sombra */
                 al_draw_text(fonte,
-                    al_map_rgba(0, 0, 0, 180),
-                    LARGURA / 2.0 + 3, ALTURA / 2.0 - 75 + 3,
-                    ALLEGRO_ALIGN_CENTER, "PAUSADO");
+                             al_map_rgba(0, 0, 0, 180),
+                             LARGURA / 2.0 + 3, ALTURA / 2.0 - 75 + 3,
+                             ALLEGRO_ALIGN_CENTER, "PAUSADO");
                 al_draw_text(fonte,
-                    al_map_rgb(255, 215, 0),
-                    LARGURA / 2.0, ALTURA / 2.0 - 75,
-                    ALLEGRO_ALIGN_CENTER, "PAUSADO");
+                             al_map_rgb(255, 215, 0),
+                             LARGURA / 2.0, ALTURA / 2.0 - 75,
+                             ALLEGRO_ALIGN_CENTER, "PAUSADO");
 
                 /* instrucao com sombra */
                 al_draw_text(fonte_hud,
-                    al_map_rgba(0, 0, 0, 180),
-                    LARGURA / 2.0 + 2, ALTURA / 2.0 + 2,
-                    ALLEGRO_ALIGN_CENTER,
-                    "Pressione ESC para continuar");
+                             al_map_rgba(0, 0, 0, 180),
+                             LARGURA / 2.0 + 2, ALTURA / 2.0 + 2,
+                             ALLEGRO_ALIGN_CENTER,
+                             "Pressione ESC para continuar");
                 al_draw_text(fonte_hud,
-                    al_map_rgb(255, 255, 255),
-                    LARGURA / 2.0, ALTURA / 2.0,
-                    ALLEGRO_ALIGN_CENTER,
-                    "Pressione ESC para continuar");
+                             al_map_rgb(255, 255, 255),
+                             LARGURA / 2.0, ALTURA / 2.0,
+                             ALLEGRO_ALIGN_CENTER,
+                             "Pressione ESC para continuar");
             }
             /* --------------------------------------- */
 
