@@ -1,5 +1,5 @@
 CODIGO PARA COMPILAR UNIVERSAL
-gcc main.c -o teste -lallegro -lallegro_main -lallegro_font -lallegro_ttf -lallegro_image -lallegro_primitives
+gcc main.c -o teste -lallegro -lallegro_main -lallegro_font -lallegro_ttf -lallegro_image -lallegro_primitives -lallegro_audio -lallegro_acodec -lm
 
 ANTES DE QUALQUER ALTERAÇÃO:
 (guarda suas alterações temporariamente)
