@@ -84,8 +84,8 @@
    SANIDADE
    ============================================================ */
 #define MAX_SANIDADE 100.0f
-#define TOTAL_ZUMBIS_GAME_OVER 20
-#define AVISO_ZUMBIS 18
+#define TOTAL_ZUMBIS_GAME_OVER 15
+#define AVISO_ZUMBIS 13
 #define QUEDA_POR_ZUMBI (MAX_SANIDADE / (float)TOTAL_ZUMBIS_GAME_OVER)
 #define SANIDADE_OVERLAY_LIM 25.0f
 #define TEMPO_INICIO_RECUPERACAO 10.0
@@ -95,7 +95,7 @@
 #define MAX_ZUMBIS_TELA 20
 #define TOTAL_ZUMBIS_FASE 50
 #define ZUMBIS_POR_ONDA 5
-#define INTERVALO_ONDA 450
+#define INTERVALO_ONDA 230
 
 #define SPAWN_DIR_X_MIN 1700
 #define SPAWN_DIR_X_MAX 1800
@@ -115,7 +115,7 @@
 #define NIVEL_ALTO_Y 380
 
 /* patrulha */
-#define PATRULHA_VEL 0.4f
+#define PATRULHA_VEL 1.5f
 #define PATRULHA_DIST 80.0f
 
 /* tempo de invulnerabilidade do jogador após tomar dano */
@@ -125,7 +125,7 @@
 #define KNOCKBACK_ZUMBI_DURACAO 0.7
 #define KNOCKBACK_SAMURAI_DURACAO 0.5
 
-#define KNOCKBACK_ZUMBI_X 18.0f
+#define KNOCKBACK_ZUMBI_X 12.0f
 #define KNOCKBACK_SAMURAI_X 28.0f
 
 /* Delay entre ataques consecutivos */
@@ -142,24 +142,24 @@
    DASH DE FUGA (tecla E)
    ============================================================ */
 #define DASH_FUGA_DIST    200.0f
-#define DASH_FUGA_CUSTO   7.0f
+#define DASH_FUGA_CUSTO   5.0f
 #define DASH_FUGA_DELAY   0.6
 #define DASH_FUGA_FRAMES_RUN 8
 
 /* Hitbox de ataque do SAMURAI */
 #define SAM_ATK_FRAME_INICIO 2
 #define SAM_ATK_FRAME_FIM 4
-#define SAM_ATK_W 25
-#define SAM_ATK_H 50
-#define SAM_ATK_REACH 18
+#define SAM_ATK_W 45
+#define SAM_ATK_H 45
+#define SAM_ATK_REACH 15
 
 /* Hitbox de ataque do ZUMBI */
-#define ZUM_ATK_W 45
-#define ZUM_ATK_H 50
-#define ZUM_ATK_REACH 15
+#define ZUM_ATK_W 60
+#define ZUM_ATK_H 45
+#define ZUM_ATK_REACH 8
 
 /* Margem vertical zumbi abaixo do jogador */
-#define ZUMBI_ABAIXO_MARGEM 280
+#define ZUMBI_ABAIXO_MARGEM 55
 
 /* POÇÃO DE VIDA */
 #define POCAO_SPAWN_X_MIN  415
