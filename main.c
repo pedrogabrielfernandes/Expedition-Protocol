@@ -162,7 +162,7 @@
 #define ZUMBI_ABAIXO_MARGEM 55
 
 /* POÇÃO DE VIDA */
-#define POCAO_SPAWN_X_MIN  415
+#define POCAO_SPAWN_X_MIN  435
 #define POCAO_SPAWN_X_MAX  1870
 #define POCAO_SPAWN_Y      100
 #define POCAO_LARGURA      48
@@ -916,7 +916,7 @@ void desenhar_aviso_sanidade(Sanidade *san, ALLEGRO_FONT *fonte, double t)
     if (sem_matar >= TEMPO_RECUPERACAO_TOTAL) return;
     if ((int)(t / 0.6) % 2 == 0) return;
 
-    float tx = LARGURA - 160.0f;
+    float tx = LARGURA - 620.0f;
     float ty = ALTURA  - 110.0f;
 
     al_draw_text(fonte, al_map_rgba(0, 0, 0, 200), tx + 2, ty + 2, ALLEGRO_ALIGN_CENTER, "INSANIDADE!");
@@ -962,7 +962,7 @@ void desenhar_mensagem_central_insanidade(Sanidade *san, ALLEGRO_FONT *fonte,
 
     al_draw_text(fonte,
         al_map_rgba(255, 40, 40, alpha_txt),
-        cx, cy, ALLEGRO_ALIGN_CENTER, "VOCÊ ESTÁ INSANO!");
+        cx, cy, ALLEGRO_ALIGN_CENTER, "VOCE ESTA INSANO!");
 
     al_draw_text(fonte_hud,
         al_map_rgba(255, 200, 200, alpha_txt),
@@ -1360,20 +1360,20 @@ void horda_atualizar_movimento(Horda *h, Jogador *j, Sons *sons)
 {
     double agora = al_get_time();
     (void)sons;
-
+ 
     for (int i = 0; i < MAX_ZUMBIS_TELA; i++)
     {
         Inimigo *z = &h->pool[i];
         if (!z->vivo) continue;
-
+ 
         if (z->estado == ZUM_DEAD)
         {
             z->frame += 0.08f;
             if (z->frame >= FRAMES_ZUMBI_DEAD) z->vivo = 0;
             continue;
         }
-
-        /* --- STUN: tem prioridade sobre HURT --- */
+ 
+        /* --- STUN --- */
         if (z->stunado)
         {
             double elapsed = agora - z->tempo_stun;
@@ -1394,7 +1394,7 @@ void horda_atualizar_movimento(Horda *h, Jogador *j, Sons *sons)
                 z->estado           = ZUM_WALK;
             }
         }
-
+ 
         if (z->estado == ZUM_HURT)
         {
             double elapsed = agora - z->tempo_hurt;
@@ -1408,7 +1408,7 @@ void horda_atualizar_movimento(Horda *h, Jogador *j, Sons *sons)
             }
             continue;
         }
-
+ 
         if (z->estado == ZUM_ATTACK || z->estado == ZUM_BITE)
         {
             int max_f    = (z->estado == ZUM_ATTACK) ? FRAMES_ZUMBI_ATTACK1 : FRAMES_ZUMBI_BITE;
@@ -1425,20 +1425,22 @@ void horda_atualizar_movimento(Horda *h, Jogador *j, Sons *sons)
             }
             continue;
         }
-
+ 
         float jx = j->mov.x;
         float jy = j->mov.y;
-
+ 
         float zumbi_cx = z->x + ZUMBI_HBX_OFFSET_X + ZUMBI_HBX_W / 2.0f;
         float zumbi_cy = z->y + ZUMBI_HBX_OFFSET_Y + ZUMBI_HBX_H / 2.0f;
         float jog_cx   = jx + HITBOX_W / 2.0f;
         float jog_cy   = jy + HITBOX_H / 2.0f;
-
+ 
         int jogador_morto = (j->estado == SAM_DEAD);
-        float jy_ref      = (j->no_chao) ? jy : j->y_chao;
-        int zumbi_abaixo  = (z->y > jy_ref + ZUMBI_ABAIXO_MARGEM);
-        int jogador_alto  = (jy_ref < NIVEL_ALTO_Y);
-
+ 
+        /* lógica de percepção original */
+        float jy_ref     = (j->no_chao) ? jy : j->y_chao;
+        int zumbi_abaixo = (z->y > jy_ref + ZUMBI_ABAIXO_MARGEM);
+        int jogador_alto = (jy_ref < NIVEL_ALTO_Y);
+ 
         if (!jogador_morto && zumbi_abaixo)
         {
             double agora2 = al_get_time();
@@ -1450,7 +1452,7 @@ void horda_atualizar_movimento(Horda *h, Jogador *j, Sons *sons)
                 else if (r == 1) z->patrol_dir =  1.0f;
                 else             z->patrol_dir =  0.0f;
             }
-
+ 
             if (z->patrol_dir != 0.0f)
             {
                 float nx_z = z->x + PATRULHA_VEL * z->patrol_dir;
@@ -1471,12 +1473,12 @@ void horda_atualizar_movimento(Horda *h, Jogador *j, Sons *sons)
             }
             continue;
         }
-
+ 
         if (!jogador_morto && jogador_alto)
         {
             float dx_vis = fabsf(jog_cx - zumbi_cx);
             float dy_vis = fabsf(jog_cy - zumbi_cy);
-
+ 
             if (!(dx_vis < 250.0f && dy_vis < 250.0f))
             {
                 double agora2 = al_get_time();
@@ -1488,7 +1490,7 @@ void horda_atualizar_movimento(Horda *h, Jogador *j, Sons *sons)
                     else if (r == 1) z->patrol_dir =  1.0f;
                     else             z->patrol_dir =  0.0f;
                 }
-
+ 
                 if (z->patrol_dir != 0.0f)
                 {
                     float nx_z = z->x + PATRULHA_VEL * z->patrol_dir;
@@ -1510,11 +1512,11 @@ void horda_atualizar_movimento(Horda *h, Jogador *j, Sons *sons)
                 continue;
             }
         }
-
+ 
         float dx      = fabsf(jog_cx - zumbi_cx);
         float dy      = fabsf(jog_cy - zumbi_cy);
         float alcance = 55.0f;
-
+ 
         if (dx < alcance && dy < 60.0f)
         {
             if (!z->atacando_jogador || (agora - z->tempo_ataque > 1.4))
@@ -1525,6 +1527,13 @@ void horda_atualizar_movimento(Horda *h, Jogador *j, Sons *sons)
                 z->dano_aplicado     = 0;
                 z->ataque_som_tocado = 0;
                 z->ataque_resultado  = 0;
+ 
+                /* offset lateral para evitar grude visual no mesmo ponto:
+                   cada índice desloca o zumbi alguns pixels para o lado,
+                   sem empurrar ninguém ? é apenas cosmético. */
+                float lateral = ((i % 5) - 2) * 6.0f;
+                z->x += lateral;
+ 
                 z->estado = (z->tipo == 1) ? ZUM_BITE : ZUM_ATTACK;
             }
         }
@@ -1547,99 +1556,92 @@ void horda_atualizar_movimento(Horda *h, Jogador *j, Sons *sons)
             if (z->frame >= mf) z->frame = 0.0f;
         }
     }
+    /* sem separar_zumbis ? zumbis atravessam livremente */
 }
+ 
 /* ------------------------------------------------------------------ */
 void horda_verificar_ataque(Horda *h, Jogador *jog, Sanidade *san, Sons *sons)
 {
     if (!jog->atacando) return;
-
+ 
     int frame_atual = (int)jog->frame_ataque;
     if (frame_atual < SAM_ATK_FRAME_INICIO || frame_atual >= SAM_ATK_FRAME_FIM)
     {
         jog->acertos_no_swing = 0;
         return;
     }
-
+ 
+    /* máximo 2 zumbis por swing */
     if (jog->acertos_no_swing >= 2) return;
-
-    float atk_h   = SAM_ATK_H;
-    float atk_w   = SAM_ATK_W + 20.0f;
-    float atk_y   = jog->mov.y + (HITBOX_H - atk_h) / 2.0f;
-    float jog_cx  = jog->mov.x + HITBOX_W / 2.0f;
-    float offset  = 10.0f;
+ 
+    float atk_h  = SAM_ATK_H;
+    float atk_w  = SAM_ATK_W + 20.0f;
+    float atk_y  = jog->mov.y + (HITBOX_H - atk_h) / 2.0f;
+    float jog_cx = jog->mov.x + HITBOX_W / 2.0f;
+    float offset = 10.0f;
     float atk_x;
-
+ 
     if (jog->direcao == 0)
         atk_x = jog_cx + offset;
     else
         atk_x = jog_cx - atk_w - offset;
-
+ 
     double agora = al_get_time();
-
+ 
     for (int i = 0; i < MAX_ZUMBIS_TELA; i++)
     {
         if (jog->acertos_no_swing >= 2) break;
-
+ 
         Inimigo *z = &h->pool[i];
-        if (!z->vivo)                continue;
-        if (z->estado == ZUM_DEAD)   continue;
-        if (z->atingido_no_ataque)   continue;
-
-        /* sugestão 2: invulnerabilidade do zumbi */
-        if (agora - z->ultimo_dano_recebido < 0.4) continue;
-
+        if (!z->vivo)              continue;
+        if (z->estado == ZUM_DEAD) continue;
+        if (z->atingido_no_ataque) continue;
+ 
+        /* invulnerável durante TODO o knockback:
+           usa KNOCKBACK_ZUMBI_DURACAO em vez de 0.4 fixo */
+        if (z->estado == ZUM_HURT) continue;
+        if (agora - z->ultimo_dano_recebido < KNOCKBACK_ZUMBI_DURACAO) continue;
+ 
         float hzx = z->x + ZUMBI_HBX_OFFSET_X;
         float hzy = z->y + ZUMBI_HBX_OFFSET_Y;
         float hzw = ZUMBI_HBX_W;
         float hzh = ZUMBI_HBX_H;
-
+ 
         if (atk_x < hzx + hzw &&
             atk_x + atk_w > hzx &&
             atk_y < hzy + hzh &&
             atk_y + atk_h > hzy)
         {
             tocar(sons->acerto_zumbi);
-
+ 
             int dano = (jog->tipo_ataque == 3) ? 2 : 1;
             z->vida -= dano;
             if (z->vida < 0) z->vida = 0;
-
-            z->atingido_no_ataque    = 1;
-            z->ultimo_dano_recebido  = agora;
+ 
+            z->atingido_no_ataque   = 1;
+            z->ultimo_dano_recebido = agora;
             jog->acertos_no_swing++;
-
+ 
             float kb_dir = (jog->direcao == 0) ? 1.0f : -1.0f;
             z->x += kb_dir * KNOCKBACK_ZUMBI_X;
-
-            /* sugestão 5: knockback empurra zumbis vizinhos */
-            for (int k = 0; k < MAX_ZUMBIS_TELA; k++)
-            {
-                if (k == i) continue;
-                Inimigo *viz = &h->pool[k];
-                if (!viz->vivo || viz->estado == ZUM_DEAD) continue;
-
-                float dist = fabsf(viz->x - z->x);
-                if (dist < 60.0f)
-                    viz->x += kb_dir * KNOCKBACK_ZUMBI_X * 0.6f;
-            }
-
+ 
             if (z->vida <= 0)
             {
                 z->estado = ZUM_DEAD;
                 z->frame  = 0;
-
+ 
                 if (z->tipo == 1)
                     tocar(sons->morte_velocista);
                 else
                     tocar(sons->morte_zumbi);
-
+ 
                 h->total_mortos++;
                 san->zumbis_mortos++;
                 san->ultimo_abate = al_get_time();
                 san->regenerando  = 0;
-
+ 
                 atualizar_sanidade(san);
-
+ 
                 if (h->total_mortos >= TOTAL_ZUMBIS_FASE)
                     h->fase_concluida = 1;
             }
@@ -1649,7 +1651,7 @@ void horda_verificar_ataque(Horda *h, Jogador *jog, Sanidade *san, Sons *sons)
                     tocar(sons->dano_sofrido_velocista);
                 else
                     tocar(sons->dano_zumbi);
-
+ 
                 if (z->estado != ZUM_HURT)
                 {
                     z->estado     = ZUM_HURT;
@@ -2690,7 +2692,7 @@ int main(void)
             al_rest(0.8);
             const char *motivo = sanidade.game_over
                 ? "Sua sanidade chegou ao limite..."
-                : "Você foi derrotado pelos zumbis!";
+                : "Voce foi derrotado pelos zumbis!";
             int reiniciar = tela_game_over(queue, timer, fonte, fonte_hud, motivo);
             if (reiniciar)
             {
