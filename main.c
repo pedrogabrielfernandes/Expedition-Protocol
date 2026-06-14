@@ -506,6 +506,15 @@ typedef struct
     int   coletada;
 } Pocao;
 
+typedef struct
+{
+    float x, y;       /* posição atual em pixels                */
+    float vy;         /* velocidade vertical (pixels/frame)     */
+    float fase;       /* fase inicial do pulso (0 .. 2*PI)      */
+    float escala;     /* tamanho do ponto (1..3 px)             */
+    float y_origem;   /* y de reset quando sai da tela          */
+} Particula;
+
 /* ================================================================== */
 /*  PROTÓTIPOS                                                          */
 /* ================================================================== */
@@ -525,30 +534,57 @@ bool pixel_solido(ALLEGRO_BITMAP *mapa, int x, int y);
 bool colide_mapa(ALLEGRO_BITMAP *mapa, float x, float y);
 
 /* ================================================================== */
-int **criar_matriz_decorativa(int linhas, int colunas)
+Particula *criar_matriz_decorativa(int linhas, int colunas)
 {
-    int **mat = (int **)malloc(linhas * sizeof(int *));
-    for (int i = 0; i < linhas; i++)
+    int total = linhas * colunas;
+    Particula *mat = (Particula *)malloc(total * sizeof(Particula));
+ 
+    for (int i = 0; i < total; i++)
     {
-        mat[i] = (int *)malloc(colunas * sizeof(int));
-        for (int j = 0; j < colunas; j++)
-            mat[i][j] = rand() % 2;
+        mat[i].x        = (float)(rand() % LARGURA);
+        mat[i].y        = (float)(rand() % ALTURA);
+        mat[i].y_origem = mat[i].y;
+        /* velocidade diagonal: cai para baixo entre 0.8 e 2.0 px/frame */
+        mat[i].vy       = 0.8f + (float)(rand() % 120) / 100.0f;
+        mat[i].fase     = (float)(rand() % 628) / 100.0f;
+        mat[i].escala   = 0.8f + (float)(rand() % 15) / 10.0f;
     }
     return mat;
 }
 
-void desenhar_matriz_fundo(int **mat, int linhas, int colunas)
+void desenhar_matriz_fundo(Particula *mat, int total, double t)
 {
-    for (int i = 0; i < linhas; i++)
-        for (int j = 0; j < colunas; j++)
-            if (mat[i][j] == 1)
-                al_draw_filled_rectangle(j * 100, i * 100, j * 100 + 3, i * 100 + 3, al_map_rgba(255, 255, 255, 40));
-}
+    for (int i = 0; i < total; i++)
+    {
+        /* move para baixo e para a direita em diagonal */
+        mat[i].y += mat[i].vy;
+        mat[i].x += mat[i].vy * 0.5f;   /* inclinação diagonal */
+ 
+        /* ao sair pela base ou pela direita, reaparece no topo com x aleatório */
+        if (mat[i].y > (float)ALTURA + 4.0f || mat[i].x > (float)LARGURA + 4.0f)
+        {
+            mat[i].y = -4.0f;
+            mat[i].x = (float)(rand() % LARGURA);
+        }
+ 
+        /* opacidade fixa mais discreta, sem pulso de bolha */
+        float pulso = 0.6f + 0.4f * sinf((float)t * 1.2f + mat[i].fase);
+        unsigned char alpha = (unsigned char)(30.0f + 60.0f * pulso);
+ 
+        float r = mat[i].escala;
 
-void liberar_matriz(int **mat, int linhas)
+        /* traço curto no lugar do círculo para parecer chuva/folha */
+        float x2 = mat[i].x + mat[i].vy * 0.8f;
+        float y2 = mat[i].y + mat[i].vy * 1.6f;
+        al_draw_line(mat[i].x, mat[i].y, x2, y2,
+                     al_map_rgba(200, 180, 120, alpha), r);
+    }
+}
+ 
+/* ------------------------------------------------------------------ */
+void liberar_matriz(Particula *mat, int linhas)
 {
-    for (int i = 0; i < linhas; i++)
-        free(mat[i]);
+    (void)linhas;   /* não é mais usado ? array plano */
     free(mat);
 }
 
@@ -916,8 +952,8 @@ void desenhar_aviso_sanidade(Sanidade *san, ALLEGRO_FONT *fonte, double t)
     if (sem_matar >= TEMPO_RECUPERACAO_TOTAL) return;
     if ((int)(t / 0.6) % 2 == 0) return;
 
-    float tx = LARGURA - 620.0f;
-    float ty = ALTURA  - 110.0f;
+    float tx = LARGURA - 616.0f;
+    float ty = ALTURA  - 105.0f;
 
     al_draw_text(fonte, al_map_rgba(0, 0, 0, 200), tx + 2, ty + 2, ALLEGRO_ALIGN_CENTER, "INSANIDADE!");
     al_draw_text(fonte, al_map_rgba(0, 0, 0, 200), tx + 2, ty + 38, ALLEGRO_ALIGN_CENTER, "Pare de matar!");
@@ -2270,7 +2306,7 @@ int main(void)
 
         int lm = ALTURA  / 100 + 1;
         int cm = LARGURA / 100 + 1;
-        int **matriz_dec = criar_matriz_decorativa(lm, cm);
+        Particula *matriz_dec = criar_matriz_decorativa(lm, cm);
 
     int pausado     = 0;
     double pausa_inicio = 0;
@@ -2442,7 +2478,7 @@ int main(void)
                             jogador.estado != SAM_HURT && jogador.estado != SAM_DEAD &&
                             (agora_atk - jogador.ultimo_ataque) >= delay_atual)
                         {
-                            int custo_est = (jogador.tipo_ataque == 3) ? 4 : 1;
+                            int custo_est = (jogador.tipo_ataque == 3) ? (int)CUSTO_ATK3 : 1;
 
                             if (jogador.estamina >= custo_est)
                             {
@@ -2632,7 +2668,7 @@ int main(void)
         double t_agora = al_get_time();
         al_clear_to_color(al_map_rgb(0, 0, 0));
         al_draw_bitmap(bg, 0, 0, 0);
-        desenhar_matriz_fundo(matriz_dec, lm, cm);
+        desenhar_matriz_fundo(matriz_dec, lm * cm, t_agora);
 
         pocao_desenhar(&pocao, spr_pocao);
         horda_desenhar(&horda, &zum_spr);
@@ -2779,7 +2815,7 @@ int main(void)
 
     /* limpeza */
     free(vetor_vidas);
-    liberar_matriz(matriz_dec, lm);
+    liberar_matriz(matriz_dec, lm * cm);
     destruir_sons(&sons);
     al_destroy_bitmap(bg_menu);
     al_destroy_bitmap(bg);
