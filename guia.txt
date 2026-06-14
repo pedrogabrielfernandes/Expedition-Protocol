@@ -13,3 +13,4 @@ SE QUISER ATUALIZAR OS PROJETOS COM SUAS ALTERAÇÕES: (apos o git stash)
 git add .
 git commit -m "o que você alterou"
 git push
+Cibelly vai fuder com nós :(
