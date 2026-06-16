@@ -567,7 +567,7 @@ void desenhar_matriz_fundo(Particula *mat, int total, double t)
             mat[i].x = (float)(rand() % LARGURA);
         }
  
-        /* opacidade fixa mais discreta, sem pulso de bolha */
+        /* opacidade fixa mais discreta */
         float pulso = 0.6f + 0.4f * sinf((float)t * 1.2f + mat[i].fase);
         unsigned char alpha = (unsigned char)(30.0f + 60.0f * pulso);
  
@@ -584,7 +584,7 @@ void desenhar_matriz_fundo(Particula *mat, int total, double t)
 /* ------------------------------------------------------------------ */
 void liberar_matriz(Particula *mat, int linhas)
 {
-    (void)linhas;   /* não é mais usado ? array plano */
+    (void)linhas; 
     free(mat);
 }
 
