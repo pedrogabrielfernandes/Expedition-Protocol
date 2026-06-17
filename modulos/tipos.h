@@ -29,7 +29,7 @@
 #define ATTACK_DRAW_H DRAW_H
 
 /* ================================================================== */
-/*  FÍSICA DO SAMURAI                                                   */
+/*  Fï¿½SICA DO SAMURAI                                                   */
 /* ================================================================== */
 #define VELOCIDADE 4.0f
 #define GRAVIDADE 0.7f
@@ -54,13 +54,13 @@
 #define ZUMBI_OFFSET_Y 0
 
 /* ================================================================== */
-/*  FÍSICA DO ZUMBI                                                     */
+/*  Fï¿½SICA DO ZUMBI                                                     */
 /* ================================================================== */
 #define GRAVIDADE_ZUMBI 0.55f
 #define MAX_QUEDA_ZUMBI 14.0f
 
 /* ================================================================== */
-/*  FRAMES DE ANIMAÇÃO ? SAMURAI                                        */
+/*  FRAMES DE ANIMAï¿½ï¿½O  SAMURAI                                        */
 /* ================================================================== */
 #define FRAMES_IDLE 6
 #define FRAMES_RUN 8
@@ -69,7 +69,7 @@
 #define FRAMES_DEAD 3
 
 /* ================================================================== */
-/*  FRAMES DE ANIMAÇÃO ? ZUMBI NORMAL                                   */
+/*  FRAMES DE ANIMAï¿½ï¿½O  ZUMBI NORMAL                                   */
 /* ================================================================== */
 #define FRAMES_ZUMBI_WALK 8
 #define FRAMES_ZUMBI_RUN 7
@@ -82,7 +82,7 @@
 #define FRAMES_ZUMBI_IDLE 8
 
 /* ================================================================== */
-/*  ZUMBI ÁCIDO                                                         */
+/*  ZUMBI ï¿½CIDO                                                         */
 /* ================================================================== */
 #define ACIDO_HBX_OFFSET_X 60
 #define ACIDO_HBX_OFFSET_Y 48
@@ -106,7 +106,7 @@
 #define ZUMBI_ACIDO_FRAME_DISPARO 3
 
 /* ================================================================== */
-/*  PROJÉTIL ÁCIDO                                                      */
+/*  PROJï¿½TIL ï¿½CIDO                                                      */
 /* ================================================================== */
 #define MAX_PROJETEIS_ACIDO 12
 #define FRAMES_ACIDO_PROJETIL 9
@@ -120,7 +120,7 @@
 #define ACIDO_PROJETIL_HBX_H 24
 
 /* ================================================================== */
-/*  EXPLOSÃO ÁCIDA                                                      */
+/*  EXPLOSï¿½O ï¿½CIDA                                                      */
 /* ================================================================== */
 #define MAX_EXPLOSOES_ACIDAS 8
 #define FRAMES_EXPLOSAO_ACIDA 10
@@ -140,7 +140,7 @@
 #define RECARGA_ESTAMINA 0.03f
 
 /* ================================================================== */
-/*  ATAQUE 2 CARREGÁVEL                                                 */
+/*  ATAQUE 2 CARREGï¿½VEL                                                 */
 /* ================================================================== */
 #define CARGA_ATK2_TEMPO_MAX 1.2
 #define CUSTO_ATK2_MIN 1.0f
@@ -178,7 +178,7 @@
 #define SPAWN_TOP_Y_THRESHOLD 300
 
 /* ================================================================== */
-/*  PATRULHA E PERCEPÇÃO                                                */
+/*  PATRULHA E PERCEPï¿½ï¿½O                                                */
 /* ================================================================== */
 #define PATROL_AREA_X_MIN 100
 #define PATROL_AREA_X_MAX 1800
@@ -188,7 +188,7 @@
 #define ZUMBI_ABAIXO_MARGEM 55
 
 /* ================================================================== */
-/*  COMBATE ? TEMPOS E KNOCKBACK                                        */
+/*  COMBATE  TEMPOS E KNOCKBACK                                        */
 /* ================================================================== */
 #define TEMPO_INVUL 1.0
 #define KNOCKBACK_ZUMBI_DURACAO 0.7
@@ -199,7 +199,7 @@
 #define DELAY_ATAQUE_3 0.45
 
 /* ================================================================== */
-/*  HITBOX DE ATAQUE ? SAMURAI                                          */
+/*  HITBOX DE ATAQUE  SAMURAI                                          */
 /* ================================================================== */
 #define SAM_ATK_FRAME_INICIO 2
 #define SAM_ATK_FRAME_FIM 4
@@ -208,7 +208,7 @@
 #define SAM_ATK_REACH 15
 
 /* ================================================================== */
-/*  HITBOX DE ATAQUE ? ZUMBI                                            */
+/*  HITBOX DE ATAQUE  ZUMBI                                            */
 /* ================================================================== */
 #define ZUM_ATK_W 60
 #define ZUM_ATK_H 45
@@ -228,7 +228,7 @@
 #define DASH_FUGA_FRAMES_RUN 8
 
 /* ================================================================== */
-/*  POÇÃO DE VIDA                                                       */
+/*  POï¿½ï¿½O DE VIDA                                                       */
 /* ================================================================== */
 #define POCAO_SPAWN_X_MIN 450
 #define POCAO_SPAWN_X_MAX 1870
@@ -242,7 +242,7 @@
 #define POCAO_HITBOX_H 40
 
 /* ================================================================== */
-/*  SONS ? INTERVALO MÍNIMO ENTRE REPRODUÇÕES                          */
+/*  SONS INTERVALO Mï¿½NIMO ENTRE REPRODUï¿½ï¿½ES                          */
 /* ================================================================== */
 #define SOM_WALK_SAM_INTERVALO 0.30f
 
@@ -354,7 +354,7 @@ typedef struct
     int direcao;
     int vivo;
     int vida;
-    int tipo; /* 0=normal, 1=velocista, 2=ácido */
+    int tipo; /* 0=normal, 1=velocista, 2=ï¿½cido */
 
     EstadoZumbi estado;
 
@@ -375,7 +375,7 @@ typedef struct
 
     int spawn_tipo;
 
-    /* Ácido */
+    /* ï¿½cido */
     double tempo_morte;
     int explodiu;
     int mutante;
@@ -385,7 +385,7 @@ typedef struct
     int ataque_resultado;
 } Inimigo;
 
-/* ---- Projétil ácido ---- */
+/* ---- Projï¿½til ï¿½cido ---- */
 typedef struct
 {
     float x, y;
@@ -396,7 +396,7 @@ typedef struct
     int impactou;
 } ProjetilAcido;
 
-/* ---- Explosão ácida ---- */
+/* ---- Explosï¿½o ï¿½cida ---- */
 typedef struct
 {
     float x, y;
@@ -429,7 +429,7 @@ typedef struct
     int regenerando;
 } Sanidade;
 
-/* ---- Poção ---- */
+/* ---- Poï¿½ï¿½o ---- */
 typedef struct
 {
     float x, y;
@@ -450,7 +450,7 @@ typedef struct
     int quantidade_scores;
 } Temporizador;
 
-/* ---- Partícula decorativa ---- */
+/* ---- Partï¿½cula decorativa ---- */
 typedef struct
 {
     float x, y;
@@ -509,7 +509,7 @@ typedef struct
     ALLEGRO_SAMPLE *morte_velocista;
     ALLEGRO_SAMPLE *dano_sofrido_velocista;
 
-    /* Zumbi ácido */
+    /* Zumbi ï¿½cido */
     ALLEGRO_SAMPLE *acido_impacto;
     ALLEGRO_SAMPLE *cuspindo_acido;
     ALLEGRO_SAMPLE *dano_zumbi_acido;

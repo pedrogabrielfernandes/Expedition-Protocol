@@ -66,8 +66,14 @@ void atualizar_sanidade(Sanidade *san)
             san->valor = MAX_SANIDADE;
 
 
-        san->regenerando =
-            (progresso < 1.0f) ? 1 : 0;
+        if (progresso < 1.0f)
+        {
+            san->regenerando = 1;
+        }
+            else
+            {
+            san->regenerando = 0;
+            }
 
 
         if (san->valor >= MAX_SANIDADE)
