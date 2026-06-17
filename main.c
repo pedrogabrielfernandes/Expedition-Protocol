@@ -1,5 +1,5 @@
 /* ================================================================== */
-/*  main.c  –  Samurai vs Zumbis                                       */
+/*  main.c    Samurai vs Zumbis                                       */
 /* ================================================================== */
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_audio.h>
@@ -26,6 +26,7 @@ static ALLEGRO_BITMAP *jog_mapa_ptr = NULL;
 /* Globais de projéteis e explosões de ácido */
 static ProjetilAcido g_projeteis_acido[MAX_PROJETEIS_ACIDO];
 static ExplosaoAcida g_explosoes_acidas[MAX_EXPLOSOES_ACIDAS];
+static unsigned char g_explosao_acida_hit[MAX_EXPLOSOES_ACIDAS][MAX_ZUMBIS_TELA];
 
 /* ================================================================== */
 /*  SISTEMA DE SONS                                                     */
@@ -277,7 +278,7 @@ void projetil_acido_spawn(float x, float y, int direcao);
 void projeteis_acido_atualizar(ALLEGRO_BITMAP *mapa, Jogador *jog, VidaStatus *vidas, Sons *sons);
 void projeteis_acido_desenhar(ALLEGRO_BITMAP *spr);
 void explosao_acida_spawn(float x, float y);
-void explosoes_acidas_atualizar(Jogador *jog, VidaStatus *vidas, Sons *sons);
+void explosoes_acidas_atualizar(Horda *h, Jogador *jog, VidaStatus *vidas, Sanidade *san, Sons *sons);
 void explosoes_acidas_desenhar(ALLEGRO_BITMAP *frames[]);
 
 /* ================================================================== */
@@ -531,7 +532,7 @@ void perder_vida(VidaStatus *vidas)
 }
 
 /* ================================================================== */
-/*  HUD – VIDAS / ESTAMINA / SANIDADE                                  */
+/*  HUD  VIDAS / ESTAMINA / SANIDADE                                  */
 /* ================================================================== */
 void desenhar_vidas(VidaStatus *vidas, ALLEGRO_BITMAP *coracao)
 {
@@ -698,7 +699,7 @@ void desenhar_mensagem_central_insanidade(Sanidade *san, ALLEGRO_FONT *fonte,
 }
 
 /* ================================================================== */
-/*  HUD – TEMPO / HORDA / ATAQUES / DASH                               */
+/*  HUD  TEMPO / HORDA / ATAQUES / DASH                               */
 /* ================================================================== */
 void desenhar_hud_tempo(ALLEGRO_FONT *f, const char *txt)
 {
@@ -774,6 +775,21 @@ void desenhar_hud_dash_fuga(Jogador *jog, ALLEGRO_FONT *fonte_hud)
                  bx + bw / 2.0f, by + 22.0f, ALLEGRO_ALIGN_CENTER, "DASH");
     al_draw_text(fonte_hud, pode ? al_map_rgb(0, 255, 255) : al_map_rgb(80, 80, 120),
                  bx + bw / 2.0f, by + 42.0f, ALLEGRO_ALIGN_CENTER, "[E]");
+}
+
+void desenhar_hud_carga_atk2(Jogador *jog, ALLEGRO_FONT *fonte_hud)
+{
+    (void)fonte_hud;
+    if (!jog->carregando_atk2)
+        return;
+    float draw_x = jog->mov.x - HITBOX_OFFSET_X;
+    float draw_y = jog->mov.y - HITBOX_OFFSET_Y;
+    float bw = 60.0f, bh = 8.0f;
+    float bx = draw_x + DRAW_W / 2.0f - bw / 2.0f, by = draw_y + 20.0f;
+    al_draw_filled_rectangle(bx, by, bx + bw, by + bh, al_map_rgb(40, 40, 40));
+    ALLEGRO_COLOR cor = al_map_rgb(30, 144, 255);
+    al_draw_filled_rectangle(bx, by, bx + bw * jog->carga_atk2_pct, by + bh, cor);
+    al_draw_rectangle(bx, by, bx + bw, by + bh, al_map_rgb(255, 255, 255), 1);
 }
 
 void desenhar_roda_habilidade(ALLEGRO_BITMAP *at1, ALLEGRO_BITMAP *at2, ALLEGRO_BITMAP *at3,
@@ -1020,12 +1036,13 @@ void explosao_acida_spawn(float x, float y)
             g_explosoes_acidas[i].y = y;
             g_explosoes_acidas[i].frame = 0.0f;
             g_explosoes_acidas[i].ativo = 1;
+            memset(g_explosao_acida_hit[i], 0, sizeof(g_explosao_acida_hit[i]));
             return;
         }
     }
 }
 
-void explosoes_acidas_atualizar(Jogador *jog, VidaStatus *vidas, Sons *sons)
+void explosoes_acidas_atualizar(Horda *h, Jogador *jog, VidaStatus *vidas, Sanidade *san, Sons *sons)
 {
     double agora = al_get_time();
 
@@ -1062,6 +1079,87 @@ void explosoes_acidas_atualizar(Jogador *jog, VidaStatus *vidas, Sons *sons)
                     jog->frame_dead = 0;
                     jog->morte_animando = 1;
                     jog->som_morrendo_tocado = 0;
+                }
+            }
+        }
+
+        if (e->frame >= 5.0f)
+        {
+            for (int zi = 0; zi < MAX_ZUMBIS_TELA; zi++)
+            {
+                if (g_explosao_acida_hit[i][zi])
+                    continue;
+
+                Inimigo *z = &h->pool[zi];
+                if (!z->vivo || z->estado == ZUM_DEAD)
+                    continue;
+
+                float zx, zy, zw, zh;
+                if (z->tipo == 2)
+                {
+                    zx = z->x + ACIDO_HBX_OFFSET_X;
+                    zy = z->y + ACIDO_HBX_OFFSET_Y;
+                    zw = ACIDO_HBX_W;
+                    zh = ACIDO_HBX_H;
+                }
+                else
+                {
+                    zx = z->x + ZUMBI_HBX_OFFSET_X;
+                    zy = z->y + ZUMBI_HBX_OFFSET_Y;
+                    zw = ZUMBI_HBX_W;
+                    zh = ZUMBI_HBX_H;
+                }
+
+                float zcx = zx + zw / 2.0f;
+                float zcy = zy + zh / 2.0f;
+                float zdx = zcx - e->x;
+                float zdy = zcy - e->y;
+                float zdist = sqrtf(zdx * zdx + zdy * zdy);
+
+                if (zdist < EXPLOSAO_ACIDA_RAIO)
+                {
+                    g_explosao_acida_hit[i][zi] = 1;
+
+                    /* zumbi ácido atingido pela explosão de outro: em vez de
+                       morrer, muta ? fica verde e ganha a velocidade do
+                       zumbi rápido */
+                    if (z->tipo == 2 && !z->mutante)
+                    {
+                        z->mutante = 1;
+                        z->velocidade = 1.8f + (float)(rand() % 80) / 100.0f;
+
+                        float kb_dir = (zdx >= 0) ? 1.0f : -1.0f;
+                        z->x += kb_dir * KNOCKBACK_ZUMBI_X * 0.5f;
+
+                        tocar(sons->dano_zumbi_acido);
+                        continue;
+                    }
+
+                    z->vida = 0;
+                    z->estado = ZUM_DEAD;
+                    z->frame = 0;
+
+                    float kb_dir = (zdx >= 0) ? 1.0f : -1.0f;
+                    z->x += kb_dir * KNOCKBACK_ZUMBI_X;
+
+                    if (z->tipo == 2)
+                    {
+                        z->tempo_morte = al_get_time();
+                        z->explodiu = 0;
+                        tocar(sons->morte_acido);
+                    }
+                    else if (z->tipo == 1)
+                        tocar(sons->morte_velocista);
+                    else
+                        tocar(sons->morte_zumbi);
+
+                    h->total_mortos++;
+                    san->zumbis_mortos++;
+                    san->ultimo_abate = al_get_time();
+                    san->regenerando = 0;
+                    atualizar_sanidade(san);
+                    if (h->total_mortos >= TOTAL_ZUMBIS_FASE)
+                        h->fase_concluida = 1;
                 }
             }
         }
@@ -1105,7 +1203,7 @@ void explosoes_acidas_desenhar(ALLEGRO_BITMAP *frames[])
 }
 
 /* ================================================================== */
-/*  HORDA – INIT                                                        */
+/*  HORDA  INIT                                                        */
 /* ================================================================== */
 void horda_init(Horda *h)
 {
@@ -1166,6 +1264,7 @@ static void spawnar_zumbi(Horda *h, Sons *sons, int s, float sx_, float sy_, int
     z->ja_stunado_no_dash = 0;
     z->tempo_morte = 0.0;
     z->explodiu = 0;
+    z->mutante = 0;   /* <-- ponto e vírgula corrigido aqui */
 
     int roll = rand() % 100;
 
@@ -1206,7 +1305,7 @@ static void spawnar_zumbi(Horda *h, Sons *sons, int s, float sx_, float sy_, int
 }
 
 /* ================================================================== */
-/*  HORDA – SPAWN                                                       */
+/*  HORDA  SPAWN                                                       */
 /* ================================================================== */
 void horda_atualizar_spawn(Horda *h, Sons *sons, float jogador_y)
 {
@@ -1261,7 +1360,7 @@ void horda_atualizar_spawn(Horda *h, Sons *sons, float jogador_y)
 }
 
 /* ================================================================== */
-/*  HORDA – FÍSICA                                                      */
+/*  HORDA  FÍSICA                                                      */
 /* ================================================================== */
 void horda_atualizar_fisica(Horda *h, ALLEGRO_BITMAP *mapa)
 {
@@ -1300,7 +1399,7 @@ void horda_atualizar_fisica(Horda *h, ALLEGRO_BITMAP *mapa)
 }
 
 /* ================================================================== */
-/*  HORDA – MOVIMENTO / IA                                              */
+/*  HORDA  MOVIMENTO / IA                                              */
 /* ================================================================== */
 void horda_atualizar_movimento(Horda *h, Jogador *j, Sons *sons, ALLEGRO_BITMAP *mapa)
 {
@@ -1646,7 +1745,8 @@ void horda_verificar_ataque(Horda *h, Jogador *jog, Sanidade *san, Sons *sons)
         if (atk_x < hzx + hzw && atk_x + atk_w > hzx && atk_y < hzy + hzh && atk_y + atk_h > hzy)
         {
             tocar(sons->acerto_zumbi);
-            int dano = (jog->tipo_ataque == 3) ? 2 : 1;
+            int dano = (jog->tipo_ataque == 3) ? 2 : (jog->tipo_ataque == 2) ? jog->dano_atk2_atual
+                                                                             : 1;
             z->vida -= dano;
             if (z->vida < 0)
                 z->vida = 0;
@@ -1699,7 +1799,7 @@ void horda_verificar_ataque(Horda *h, Jogador *jog, Sanidade *san, Sons *sons)
 }
 
 /* ================================================================== */
-/*  HORDA – DANO AO JOGADOR                                             */
+/*  HORDA  DANO AO JOGADOR                                             */
 /* ================================================================== */
 void horda_verificar_dano_jogador(Horda *h, Jogador *jog, VidaStatus *vidas, Sons *sons)
 {
@@ -1777,7 +1877,7 @@ void horda_verificar_dano_jogador(Horda *h, Jogador *jog, VidaStatus *vidas, Son
 }
 
 /* ================================================================== */
-/*  HORDA – DESENHO                                                     */
+/*  HORDA  DESENHO                                                     */
 /* ================================================================== */
 void horda_desenhar(Horda *h, ZumbiSprites *spr, ZumbiAcidoSprites *spr_acido)
 {
@@ -1868,6 +1968,11 @@ void horda_desenhar(Horda *h, ZumbiSprites *spr, ZumbiAcidoSprites *spr_acido)
                 unsigned char g = (unsigned char)(255.0f * (0.5f + 0.5f * progresso * pulso));
                 unsigned char rb = (unsigned char)(255.0f * (1.0f - progresso * 0.8f));
                 tint_acido = al_map_rgb(rb, g, rb);
+            }
+            else if (z->mutante)
+            {
+                /* zumbi ácido mutado por explosão: tom verde fixo */
+                tint_acido = al_map_rgb(120, 255, 120);
             }
             al_draw_tinted_scaled_bitmap(sheet, tint_acido,
                                          fz * ZUMBI_ACIDO_SRC_W, 0,
@@ -2141,6 +2246,15 @@ void desenhar_samurai(Jogador *jog, SamuraiSprites *spr)
         jog->dash_fuga_frame += 0.5f;
         break;
     }
+    case SAM_CHARGING:
+    {
+        int f = (int)jog->frame % FRAMES_IDLE;
+        float intensidade = 0.6f + 0.8f * jog->carga_atk2_pct;
+        float shake_x = sinf((float)al_get_time() * 30.0f) * intensidade;
+        al_draw_scaled_bitmap(spr->idle, 128 * f, 0, 128, 128,
+                              draw_x + shake_x, draw_y, DRAW_W, DRAW_H, jog->direcao);
+        break;
+    }
     case SAM_JUMP:
     {
         int f = (int)jog->frame % FRAMES_JUMP;
@@ -2164,7 +2278,8 @@ void desenhar_samurai(Jogador *jog, SamuraiSprites *spr)
 
 void atualizar_estado_samurai(Jogador *jog)
 {
-    if (jog->estado == SAM_DEAD || jog->estado == SAM_HURT || jog->estado == SAM_DASH)
+    if (jog->estado == SAM_DEAD || jog->estado == SAM_HURT ||
+        jog->estado == SAM_DASH || jog->estado == SAM_CHARGING)
         return;
     if (jog->atacando)
     {
@@ -2566,7 +2681,78 @@ int main(void)
             int j_now = al_key_down(&state, ALLEGRO_KEY_J);
             double agora_atk = al_get_time();
             double delay_atual = (jogador.tipo_ataque == 3) ? DELAY_ATAQUE_3 : DELAY_ATAQUE_12;
-            if (j_now && !j_ant && !jogador.atacando && !roda_aberta &&
+
+            /* início da carga do ataque 2 */
+            if (jogador.tipo_ataque == 2 &&
+                j_now && !j_ant && !jogador.atacando && !roda_aberta &&
+                !jogador.dash_fuga_ativo && !jogador.carregando_atk2 &&
+                jogador.estado != SAM_HURT && jogador.estado != SAM_DEAD &&
+                jogador.estamina >= CUSTO_ATK2_MIN &&
+                (agora_atk - jogador.ultimo_ataque) >= delay_atual)
+            {
+                jogador.carregando_atk2 = 1;
+                jogador.carga_atk2_inicio = agora_atk;
+                jogador.carga_atk2_pct = 0.0f;
+                jogador.estado = SAM_CHARGING;
+            }
+
+            /* enquanto carrega: atualiza % e verifica soltura/estamina */
+            if (jogador.carregando_atk2)
+            {
+                double carregando_ha = agora_atk - jogador.carga_atk2_inicio;
+                float pct = (float)(carregando_ha / CARGA_ATK2_TEMPO_MAX);
+                if (pct > 1.0f)
+                    pct = 1.0f;
+                jogador.carga_atk2_pct = pct;
+
+                float custo_projetado = CUSTO_ATK2_MIN + (CUSTO_ATK2_MAX - CUSTO_ATK2_MIN) * pct;
+                int estamina_insuficiente = (jogador.estamina < custo_projetado);
+
+                int soltou = (!j_now && j_ant);
+
+                if (soltou || estamina_insuficiente)
+                {
+                    /* se a estamina não aguenta a carga atual, recalcula a carga
+                       máxima que a estamina disponível permite */
+                    if (estamina_insuficiente)
+                    {
+                        float pct_max_pela_estamina =
+                            (jogador.estamina - CUSTO_ATK2_MIN) / (CUSTO_ATK2_MAX - CUSTO_ATK2_MIN);
+                        if (pct_max_pela_estamina < 0.0f)
+                            pct_max_pela_estamina = 0.0f;
+                        if (pct_max_pela_estamina > 1.0f)
+                            pct_max_pela_estamina = 1.0f;
+                        pct = pct_max_pela_estamina;
+                    }
+
+                    float custo_final = CUSTO_ATK2_MIN + (CUSTO_ATK2_MAX - CUSTO_ATK2_MIN) * pct;
+                    int dano_final = DANO_ATK2_MIN + (int)((DANO_ATK2_MAX - DANO_ATK2_MIN) * pct + 0.5f);
+
+                    jogador.estamina -= custo_final;
+                    if (jogador.estamina < 0.0f)
+                        jogador.estamina = 0.0f;
+
+                    jogador.dano_atk2_atual = dano_final;
+                    jogador.carregando_atk2 = 0;
+                    jogador.carga_atk2_pct = 0.0f;
+
+                    jogador.atacando = 1;
+                    jogador.frame_ataque = 0;
+                    jogador.acertos_no_swing = 0;
+                    jogador.som_ataque_tocado = 0;
+                    jogador.dash_som_tocado = 0;
+                    for (int i = 0; i < MAX_ZUMBIS_TELA; i++)
+                        horda.pool[i].atingido_no_ataque = 0;
+
+                    jogador.estado = SAM_ATTACK;
+                    jogador.ultimo_ataque = agora_atk;
+                    tocar(sons.katana12);
+                }
+            }
+
+            /* ataques 1 e 3: comportamento original (instantâneo) */
+            if (jogador.tipo_ataque != 2 &&
+                j_now && !j_ant && !jogador.atacando && !roda_aberta &&
                 !jogador.dash_fuga_ativo &&
                 jogador.estado != SAM_HURT && jogador.estado != SAM_DEAD &&
                 (agora_atk - jogador.ultimo_ataque) >= delay_atual)
@@ -2619,7 +2805,8 @@ int main(void)
             }
 
             /* ?? movimento e pulo ?? */
-            if (jogador.estado != SAM_HURT && jogador.estado != SAM_DEAD && !jogador.dash_fuga_ativo)
+            if (jogador.estado != SAM_HURT && jogador.estado != SAM_DEAD &&
+                jogador.estado != SAM_CHARGING && !jogador.dash_fuga_ativo)
             {
                 float nx = jogador.mov.x;
                 if (al_key_down(&state, ALLEGRO_KEY_D) && !jogador.atacando && !roda_aberta)
@@ -2696,7 +2883,7 @@ int main(void)
 
             /* ?? projéteis e explosões ácidas ?? */
             projeteis_acido_atualizar(mapa, &jogador, vetor_vidas, &sons);
-            explosoes_acidas_atualizar(&jogador, vetor_vidas, &sons);
+            explosoes_acidas_atualizar(&horda, &jogador, vetor_vidas, &sanidade, &sons);
 
             /* ?? poção ?? */
             {
@@ -2774,6 +2961,7 @@ int main(void)
                             habilidade1, habilidade2, habilidade3,
                             jogador.tipo_ataque, fonte_hud);
         desenhar_hud_dash_fuga(&jogador, fonte_hud);
+        desenhar_hud_carga_atk2(&jogador, fonte_hud);
 
         if (pausado)
         {
