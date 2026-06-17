@@ -1264,7 +1264,7 @@ static void spawnar_zumbi(Horda *h, Sons *sons, int s, float sx_, float sy_, int
     z->ja_stunado_no_dash = 0;
     z->tempo_morte = 0.0;
     z->explodiu = 0;
-    z->mutante = 0;   /* <-- ponto e vírgula corrigido aqui */
+    z->mutante = 0; /* <-- ponto e vírgula corrigido aqui */
 
     int roll = rand() % 100;
 
@@ -1991,12 +1991,13 @@ void horda_desenhar(Horda *h, ZumbiSprites *spr, ZumbiAcidoSprites *spr_acido)
                                          z->direcao);
         }
 
-        if (z->estado != ZUM_DEAD)
+        if(z->estado != ZUM_DEAD)
         {
             float draw_w = (z->tipo == 2) ? ZUMBI_ACIDO_DRAW_W : ZUMBI_DRAW_W;
             float draw_y = (z->tipo == 2) ? (z->y - 40) : z->y;
-            float bw2 = 58.0f;
-            float bx2 = z->x + draw_w / 2.0f - bw2 / 2.0f, by2 = draw_y + 4.0f;
+            float bw2 = 55.0f;
+            float offset_barra = (z->tipo == 2) ? 60.0f : 20.0f;
+            float bx2 = z->x + draw_w / 2.0f - bw2 / 2.0f, by2 = draw_y + offset_barra;
             float vida_pct = (float)z->vida / 5.0f;
             al_draw_filled_rectangle(bx2, by2, bx2 + bw2, by2 + 6, al_map_rgb(80, 0, 0));
             al_draw_filled_rectangle(bx2, by2, bx2 + bw2 * vida_pct, by2 + 6, al_map_rgb(255, 0, 0));
