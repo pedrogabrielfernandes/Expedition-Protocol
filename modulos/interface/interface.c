@@ -53,7 +53,7 @@ OpcaoMenu executar_menu(ALLEGRO_EVENT_QUEUE *queue, ALLEGRO_TIMER *timer,
                                   0, 0, LARGURA, ALTURA, 0);
             al_draw_filled_rectangle(0, 950, LARGURA, ALTURA, al_map_rgba(0, 0, 0, 210));
 
-            /* &#9472;&#9472; botão JOGAR &#9472;&#9472; */
+            /* ── botão JOGAR ── */
             {
                 int sel = (opcao == MENU_JOGAR);
                 float cx = LARGURA / 2.4f, cy = 990.0f;
@@ -73,7 +73,7 @@ OpcaoMenu executar_menu(ALLEGRO_EVENT_QUEUE *queue, ALLEGRO_TIMER *timer,
                     al_draw_text(fonte, al_map_rgba(180, 180, 180, 200), cx, cy, ALLEGRO_ALIGN_CENTER, "JOGAR");
             }
 
-            /* &#9472;&#9472; botão SAIR &#9472;&#9472; */
+            /* ── botão SAIR ── */
             {
                 int sel = (opcao == MENU_SAIR);
                 float cx = LARGURA / 1.6f, cy = 990.0f;
@@ -107,9 +107,15 @@ void desenhar_vidas(VidaStatus *vidas, ALLEGRO_BITMAP *coracao)
 {
     int vivas = contar_vidas(vidas);
     float pct = (float)vivas / MAX_VIDAS;
-    ALLEGRO_COLOR cor = (vivas >= 4)   ? al_map_rgb(0, 200, 0)
-                        : (vivas >= 2) ? al_map_rgb(220, 200, 0)
-                                       : al_map_rgb(200, 0, 0);
+
+    ALLEGRO_COLOR cor;
+    if (vivas >= 4)
+        cor = al_map_rgb(0, 200, 0);
+    else if (vivas >= 2)
+        cor = al_map_rgb(220, 200, 0);
+    else
+        cor = al_map_rgb(200, 0, 0);
+
     float bx = 290, by = 940, bw = 320, bh = 63;
     al_draw_filled_rectangle(bx, by, bx + bw, by + bh, al_map_rgb(40, 40, 40));
     al_draw_filled_rectangle(bx, by, bx + bw * pct, by + bh, cor);
@@ -121,7 +127,13 @@ void desenhar_vidas(VidaStatus *vidas, ALLEGRO_BITMAP *coracao)
 void desenhar_estamina(float estamina, ALLEGRO_BITMAP *spr)
 {
     float pct = estamina / MAX_ESTAMINA;
-    ALLEGRO_COLOR cor = (estamina > 0) ? al_map_rgb(30, 144, 255) : al_map_rgb(80, 80, 80);
+
+    ALLEGRO_COLOR cor;
+    if (estamina > 0)
+        cor = al_map_rgb(30, 144, 255);
+    else
+        cor = al_map_rgb(80, 80, 80);
+
     float bx = 782, by = 940, bw = 325, bh = 63;
     al_draw_filled_rectangle(bx, by, bx + bw, by + bh, al_map_rgb(40, 40, 40));
     al_draw_filled_rectangle(bx, by, bx + bw * pct, by + bh, cor);
@@ -134,7 +146,13 @@ void desenhar_sanidade(Sanidade *san, ALLEGRO_BITMAP *spr)
 {
     float pct = san->valor / MAX_SANIDADE;
     unsigned char g = (unsigned char)(20 * pct), b = g;
-    ALLEGRO_COLOR cor = (san->valor > 0) ? al_map_rgb(180, g, b) : al_map_rgb(80, 80, 80);
+
+    ALLEGRO_COLOR cor;
+    if (san->valor > 0)
+        cor = al_map_rgb(180, g, b);
+    else
+        cor = al_map_rgb(80, 80, 80);
+
     float bx = 90, by = 1050, bw = 30, bh = 230, fh = bh * pct, topo = by - bh;
     al_draw_filled_rectangle(bx, topo, bx + bw, by, al_map_rgb(40, 40, 40));
     al_draw_filled_rectangle(bx, by - fh, bx + bw, by, cor);
@@ -180,14 +198,26 @@ void desenhar_hud_ataque(ALLEGRO_BITMAP *at1, ALLEGRO_BITMAP *at2, ALLEGRO_BITMA
         float sx = bx + i * (tam + pad), sy = by;
         int sel = (i + 1 == selecao);
         al_draw_filled_rounded_rectangle(sx + 3, sy + 3, sx + tam + 3, sy + tam + 3, 6, 6, al_map_rgba(0, 0, 0, 120));
-        al_draw_filled_rounded_rectangle(sx, sy, sx + tam, sy + tam, 6, 6,
-                                         sel ? al_map_rgb(218, 165, 32) : al_map_rgb(60, 35, 10));
-        al_draw_rounded_rectangle(sx, sy, sx + tam, sy + tam, 6, 6, al_map_rgb(218, 165, 32), sel ? 3 : 1);
+
+        if (sel)
+            al_draw_filled_rounded_rectangle(sx, sy, sx + tam, sy + tam, 6, 6, al_map_rgb(218, 165, 32));
+        else
+            al_draw_filled_rounded_rectangle(sx, sy, sx + tam, sy + tam, 6, 6, al_map_rgb(60, 35, 10));
+
+        if (sel)
+            al_draw_rounded_rectangle(sx, sy, sx + tam, sy + tam, 6, 6, al_map_rgb(218, 165, 32), 3);
+        else
+            al_draw_rounded_rectangle(sx, sy, sx + tam, sy + tam, 6, 6, al_map_rgb(218, 165, 32), 1);
+
         float ip = -14.0f;
         al_draw_scaled_bitmap(sprites[i], 0, 0, al_get_bitmap_width(sprites[i]), al_get_bitmap_height(sprites[i]),
                               sx + ip, sy + ip, tam - ip * 1.6f, tam - ip * 1.6f, 0);
-        al_draw_text(fonte_hud, sel ? al_map_rgb(255, 215, 0) : al_map_rgb(180, 180, 180),
-                     sx + tam / 2.0f, sy + tam + 4, ALLEGRO_ALIGN_CENTER, nomes[i]);
+
+        if (sel)
+            al_draw_text(fonte_hud, al_map_rgb(255, 215, 0), sx + tam / 2.0f, sy + tam + 4, ALLEGRO_ALIGN_CENTER, nomes[i]);
+        else
+            al_draw_text(fonte_hud, al_map_rgb(180, 180, 180), sx + tam / 2.0f, sy + tam + 4, ALLEGRO_ALIGN_CENTER, nomes[i]);
+
         if (sel)
         {
             al_draw_filled_circle(sx + tam - 10, sy + 10, 9, al_map_rgb(0, 0, 0));
@@ -203,23 +233,42 @@ void desenhar_hud_ataque(ALLEGRO_BITMAP *at1, ALLEGRO_BITMAP *at2, ALLEGRO_BITMA
 void desenhar_hud_dash_fuga(Jogador *jog, ALLEGRO_FONT *fonte_hud)
 {
     double elapsed = al_get_time() - jog->dash_fuga_ultimo;
-    float cd_pct = (elapsed >= DASH_FUGA_DELAY) ? 1.0f : (float)(elapsed / DASH_FUGA_DELAY);
+
+    float cd_pct;
+    if (elapsed >= DASH_FUGA_DELAY)
+        cd_pct = 1.0f;
+    else
+        cd_pct = (float)(elapsed / DASH_FUGA_DELAY);
+
     int pode = (jog->estamina >= DASH_FUGA_CUSTO) && cd_pct >= 1.0f;
     float bx = 1805.0f, by = 930.0f, bw = 90.0f, bh = 88.0f;
     al_draw_filled_rounded_rectangle(bx + 3, by + 3, bx + bw + 3, by + bh + 3, 6, 6, al_map_rgba(0, 0, 0, 120));
-    al_draw_filled_rounded_rectangle(bx, by, bx + bw, by + bh, 6, 6,
-                                     pode ? al_map_rgb(0, 160, 220) : al_map_rgb(30, 30, 60));
-    al_draw_rounded_rectangle(bx, by, bx + bw, by + bh, 6, 6,
-                              pode ? al_map_rgb(0, 220, 255) : al_map_rgb(80, 80, 120), pode ? 3 : 1);
+
+    if (pode)
+        al_draw_filled_rounded_rectangle(bx, by, bx + bw, by + bh, 6, 6, al_map_rgb(0, 160, 220));
+    else
+        al_draw_filled_rounded_rectangle(bx, by, bx + bw, by + bh, 6, 6, al_map_rgb(30, 30, 60));
+
+    if (pode)
+        al_draw_rounded_rectangle(bx, by, bx + bw, by + bh, 6, 6, al_map_rgb(0, 220, 255), 3);
+    else
+        al_draw_rounded_rectangle(bx, by, bx + bw, by + bh, 6, 6, al_map_rgb(80, 80, 120), 1);
+
     if (cd_pct < 1.0f)
     {
         al_draw_filled_rectangle(bx + 4, by + bh - 10, bx + 4 + (bw - 8) * cd_pct, by + bh - 4, al_map_rgb(0, 200, 255));
         al_draw_rectangle(bx + 4, by + bh - 10, bx + bw - 4, by + bh - 4, al_map_rgb(0, 100, 150), 1);
     }
-    al_draw_text(fonte_hud, pode ? al_map_rgb(255, 255, 255) : al_map_rgb(100, 100, 140),
-                 bx + bw / 2.0f, by + 22.0f, ALLEGRO_ALIGN_CENTER, "DASH");
-    al_draw_text(fonte_hud, pode ? al_map_rgb(0, 255, 255) : al_map_rgb(80, 80, 120),
-                 bx + bw / 2.0f, by + 42.0f, ALLEGRO_ALIGN_CENTER, "[E]");
+
+    if (pode)
+        al_draw_text(fonte_hud, al_map_rgb(255, 255, 255), bx + bw / 2.0f, by + 22.0f, ALLEGRO_ALIGN_CENTER, "DASH");
+    else
+        al_draw_text(fonte_hud, al_map_rgb(100, 100, 140), bx + bw / 2.0f, by + 22.0f, ALLEGRO_ALIGN_CENTER, "DASH");
+
+    if (pode)
+        al_draw_text(fonte_hud, al_map_rgb(0, 255, 255), bx + bw / 2.0f, by + 42.0f, ALLEGRO_ALIGN_CENTER, "[E]");
+    else
+        al_draw_text(fonte_hud, al_map_rgb(80, 80, 120), bx + bw / 2.0f, by + 42.0f, ALLEGRO_ALIGN_CENTER, "[E]");
 }
 
 void desenhar_hud_carga_atk2(Jogador *jog, ALLEGRO_FONT *fonte_hud)
@@ -252,17 +301,37 @@ void desenhar_roda_habilidade(ALLEGRO_BITMAP *at1, ALLEGRO_BITMAP *at2, ALLEGRO_
     {
         float a0 = base + i * step, amid = a0 + step / 2.0f;
         int sel = (i + 1 == selecao);
-        ALLEGRO_COLOR cf = sel ? al_map_rgba(218, 165, 32, 210) : al_map_rgba(60, 35, 10, 185);
+
+        ALLEGRO_COLOR cf;
+        if (sel)
+            cf = al_map_rgba(218, 165, 32, 210);
+        else
+            cf = al_map_rgba(60, 35, 10, 185);
+
         al_draw_filled_pieslice(cx, cy, r_ext, a0, step, cf);
-        al_draw_pieslice(cx, cy, r_ext, a0, step, al_map_rgb(218, 165, 32), sel ? 4 : 2);
+
+        if (sel)
+            al_draw_pieslice(cx, cy, r_ext, a0, step, al_map_rgb(218, 165, 32), 4);
+        else
+            al_draw_pieslice(cx, cy, r_ext, a0, step, al_map_rgb(218, 165, 32), 2);
+
         float dist = r_int + (r_ext - r_int) * 0.55f;
         float ix = cx + cosf(amid) * dist, iy = cy + sinf(amid) * dist;
-        float itam = sel ? 200.0f : 150.0f;
+
+        float itam;
+        if (sel)
+            itam = 200.0f;
+        else
+            itam = 150.0f;
+
         al_draw_scaled_bitmap(sprites[i], 0, 0, al_get_bitmap_width(sprites[i]), al_get_bitmap_height(sprites[i]),
                               ix - itam / 2.0f, iy - itam / 2.0f, itam, itam, 0);
         float tx = cx + cosf(amid) * (r_ext + 32.0f), ty = cy + sinf(amid) * (r_ext + 32.0f);
-        al_draw_text(fonte_hud, sel ? al_map_rgb(255, 215, 0) : al_map_rgb(200, 200, 200),
-                     tx, ty - 14, ALLEGRO_ALIGN_CENTER, nomes[i]);
+
+        if (sel)
+            al_draw_text(fonte_hud, al_map_rgb(255, 215, 0), tx, ty - 14, ALLEGRO_ALIGN_CENTER, nomes[i]);
+        else
+            al_draw_text(fonte_hud, al_map_rgb(200, 200, 200), tx, ty - 14, ALLEGRO_ALIGN_CENTER, nomes[i]);
     }
     al_draw_filled_circle(cx, cy, r_int, al_map_rgb(28, 14, 4));
     al_draw_circle(cx, cy, r_int, al_map_rgb(218, 165, 32), 2);

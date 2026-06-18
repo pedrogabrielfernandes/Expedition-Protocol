@@ -37,7 +37,8 @@ void desenhar_samurai(Jogador *jog, SamuraiSprites *spr)
             f = FRAMES_DEAD - 1;
             jog->morte_animando = 0;
         }
-        else jog->morte_animando = 1;
+        else
+            jog->morte_animando = 1;
 
         al_draw_scaled_bitmap(spr->dead, 128 * f, 0, 128, 128,
                               draw_x, draw_y, DRAW_W, DRAW_H,
@@ -49,16 +50,24 @@ void desenhar_samurai(Jogador *jog, SamuraiSprites *spr)
 
     case SAM_ATTACK:
     {
-        int mf = (jog->tipo_ataque == 1) ? 6 :
-                 (jog->tipo_ataque == 2) ? 4 : 3;
+        int mf;
+        if (jog->tipo_ataque == 1)
+            mf = 6;
+        else if (jog->tipo_ataque == 2)
+            mf = 4;
+        else
+            mf = 3;
 
         int f = (int)jog->frame_ataque;
         if (f >= mf) f = mf - 1;
 
-        ALLEGRO_BITMAP *atk =
-            (jog->tipo_ataque == 1) ? spr->attack1 :
-            (jog->tipo_ataque == 2) ? spr->attack2 :
-                                      spr->attack3;
+        ALLEGRO_BITMAP *atk;
+        if (jog->tipo_ataque == 1)
+            atk = spr->attack1;
+        else if (jog->tipo_ataque == 2)
+            atk = spr->attack2;
+        else
+            atk = spr->attack3;
 
         al_draw_scaled_bitmap(atk, 128 * f, 0, 128, 128,
                               draw_x - 10, draw_y - 1,
@@ -81,7 +90,12 @@ void desenhar_samurai(Jogador *jog, SamuraiSprites *spr)
     case SAM_DASH:
     {
         int f = (int)jog->dash_fuga_frame % FRAMES_RUN;
-        float off = (jog->direcao == 0) ? -18.0f : 18.0f;
+
+        float off;
+        if (jog->direcao == 0)
+            off = -18.0f;
+        else
+            off = 18.0f;
 
         al_draw_tinted_scaled_bitmap(spr->run,
             al_map_rgba(180, 240, 255, 220),
