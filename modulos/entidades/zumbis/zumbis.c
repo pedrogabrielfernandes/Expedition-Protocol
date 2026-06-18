@@ -711,7 +711,7 @@ void horda_atualizar_movimento(Horda *h, Jogador *j, Sons *sons,
         float dx = fabsf(jog_cx - zumbi_cx);
         float dy = fabsf(jog_cy - zumbi_cy);
 
-        if (dx < 55.0f && dy < 60.0f)
+        if (dx < 75.0f && dy < 70.0f)
         {
             if (!z->atacando_jogador || (agora - z->tempo_ataque > 1.4))
             {
@@ -1082,12 +1082,12 @@ void horda_desenhar(Horda *h, ZumbiSprites *spr,
                 break;
             }
         }
-        if (!sheet){
+        if (!sheet)
+        {
             if (z->tipo == 2)
                 sheet = spr_acido->walk;
             else
                 sheet = spr->walk;
-            
         }
 
         int fz = (int)z->frame % max_f;

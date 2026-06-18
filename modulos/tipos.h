@@ -29,7 +29,7 @@
 #define ATTACK_DRAW_H DRAW_H
 
 /* ================================================================== */
-/*  Fï¿½SICA DO SAMURAI                                                   */
+/*  FÍSICA DO SAMURAI                                                   */
 /* ================================================================== */
 #define VELOCIDADE 4.0f
 #define GRAVIDADE 0.7f
@@ -54,13 +54,13 @@
 #define ZUMBI_OFFSET_Y 0
 
 /* ================================================================== */
-/*  Fï¿½SICA DO ZUMBI                                                     */
+/*  FÍSICA DO ZUMBI                                                     */
 /* ================================================================== */
 #define GRAVIDADE_ZUMBI 0.55f
 #define MAX_QUEDA_ZUMBI 14.0f
 
 /* ================================================================== */
-/*  FRAMES DE ANIMAï¿½ï¿½O  SAMURAI                                        */
+/*  FRAMES DE ANIMAÇÃO  SAMURAI                                        */
 /* ================================================================== */
 #define FRAMES_IDLE 6
 #define FRAMES_RUN 8
@@ -69,7 +69,7 @@
 #define FRAMES_DEAD 3
 
 /* ================================================================== */
-/*  FRAMES DE ANIMAï¿½ï¿½O  ZUMBI NORMAL                                   */
+/*  FRAMES DE ANIMAÇÃO  ZUMBI NORMAL                                   */
 /* ================================================================== */
 #define FRAMES_ZUMBI_WALK 8
 #define FRAMES_ZUMBI_RUN 7
@@ -82,7 +82,7 @@
 #define FRAMES_ZUMBI_IDLE 8
 
 /* ================================================================== */
-/*  ZUMBI ï¿½CIDO                                                         */
+/*  ZUMBI ÁCIDO                                                         */
 /* ================================================================== */
 #define ACIDO_HBX_OFFSET_X 60
 #define ACIDO_HBX_OFFSET_Y 48
@@ -100,14 +100,14 @@
 #define ZUMBI_ACIDO_DRAW_W 160
 #define ZUMBI_ACIDO_DRAW_H 160
 
-#define ZUMBI_ACIDO_DIST_MIN 300.0f          
+#define ZUMBI_ACIDO_DIST_MIN 300.0f
 #define ZUMBI_ACIDO_DIST_MAX 550.0f
-#define ZUMBI_ACIDO_DIST_MUITO_PERTO 250.0f    
+#define ZUMBI_ACIDO_DIST_MUITO_PERTO 250.0f
 #define ZUMBI_ACIDO_COOLDOWN_ATAQUE 2.5
 #define ZUMBI_ACIDO_FRAME_DISPARO 3
 
 /* ================================================================== */
-/*  PROJï¿½TIL ï¿½CIDO                                                      */
+/*  PROJÉTIL ÁCIDO                                                      */
 /* ================================================================== */
 #define MAX_PROJETEIS_ACIDO 12
 #define FRAMES_ACIDO_PROJETIL 9
@@ -121,7 +121,7 @@
 #define ACIDO_PROJETIL_HBX_H 24
 
 /* ================================================================== */
-/*  EXPLOSï¿½O ï¿½CIDA                                                      */
+/*  EXPLOSÃO ÁCIDA                                                      */
 /* ================================================================== */
 #define MAX_EXPLOSOES_ACIDAS 8
 #define FRAMES_EXPLOSAO_ACIDA 10
@@ -141,7 +141,7 @@
 #define RECARGA_ESTAMINA 0.03f
 
 /* ================================================================== */
-/*  ATAQUE 2 CARREGï¿½VEL                                                 */
+/*  ATAQUE 2 CARREGÁVEL                                                 */
 /* ================================================================== */
 #define CARGA_ATK2_TEMPO_MAX 1.2
 #define CUSTO_ATK2_MIN 1.0f
@@ -179,7 +179,7 @@
 #define SPAWN_TOP_Y_THRESHOLD 300
 
 /* ================================================================== */
-/*  PATRULHA E PERCEPï¿½ï¿½O                                                */
+/*  PATRULHA E PERCEPÇÃO                                                */
 /* ================================================================== */
 #define PATROL_AREA_X_MIN 10
 #define PATROL_AREA_X_MAX 1800
@@ -229,7 +229,7 @@
 #define DASH_FUGA_FRAMES_RUN 8
 
 /* ================================================================== */
-/*  POï¿½ï¿½O DE VIDA                                                       */
+/*  POÇÃO DE VIDA                                                       */
 /* ================================================================== */
 #define POCAO_SPAWN_X_MIN 480
 #define POCAO_SPAWN_X_MAX 1870
@@ -243,9 +243,14 @@
 #define POCAO_HITBOX_H 40
 
 /* ================================================================== */
-/*  SONS INTERVALO Mï¿½NIMO ENTRE REPRODUï¿½ï¿½ES                          */
+/*  SONS INTERVALO MÍNIMO ENTRE REPRODUÇÕES                            */
 /* ================================================================== */
 #define SOM_WALK_SAM_INTERVALO 0.30f
+
+/* ================================================================== */
+/*  VOLUME PADRÃO                                                       */
+/* ================================================================== */
+#define VOLUME_PADRAO 0.5f
 
 /* ================================================================== */
 /*  ENUMS                                                               */
@@ -355,7 +360,7 @@ typedef struct
     int direcao;
     int vivo;
     int vida;
-    int tipo; /* 0=normal, 1=velocista, 2=ï¿½cido */
+    int tipo; /* 0=normal, 1=velocista, 2=ácido */
 
     EstadoZumbi estado;
 
@@ -376,7 +381,7 @@ typedef struct
 
     int spawn_tipo;
 
-    /* ï¿½cido */
+    /* ácido */
     double tempo_morte;
     int explodiu;
     int mutante;
@@ -386,7 +391,7 @@ typedef struct
     int ataque_resultado;
 } Inimigo;
 
-/* ---- Projï¿½til ï¿½cido ---- */
+/* ---- Projétil ácido ---- */
 typedef struct
 {
     float x, y;
@@ -397,7 +402,7 @@ typedef struct
     int impactou;
 } ProjetilAcido;
 
-/* ---- Explosï¿½o ï¿½cida ---- */
+/* ---- Explosão ácida ---- */
 typedef struct
 {
     float x, y;
@@ -430,7 +435,7 @@ typedef struct
     int regenerando;
 } Sanidade;
 
-/* ---- Poï¿½ï¿½o ---- */
+/* ---- Poção ---- */
 typedef struct
 {
     float x, y;
@@ -451,7 +456,7 @@ typedef struct
     int quantidade_scores;
 } Temporizador;
 
-/* ---- Partï¿½cula decorativa ---- */
+/* ---- Partícula decorativa ---- */
 typedef struct
 {
     float x, y;
@@ -510,7 +515,7 @@ typedef struct
     ALLEGRO_SAMPLE *morte_velocista;
     ALLEGRO_SAMPLE *dano_sofrido_velocista;
 
-    /* Zumbi ï¿½cido */
+    /* Zumbi ácido */
     ALLEGRO_SAMPLE *acido_impacto;
     ALLEGRO_SAMPLE *cuspindo_acido;
     ALLEGRO_SAMPLE *dano_zumbi_acido;
@@ -530,8 +535,20 @@ typedef struct
     ALLEGRO_SAMPLE *selecao_som;
     ALLEGRO_SAMPLE *horda_som;
 
-    ALLEGRO_SAMPLE_ID padrao_id;
+    ALLEGRO_SAMPLE_INSTANCE *padrao_inst;
     int padrao_tocando;
+
+    /* ================================================================
+       CONTROLE DE VOLUME E MUTE
+       volume_sfx   : volume dos efeitos sonoros  (0.0 ? 1.0)
+       volume_musica: volume da música de fundo   (0.0 ? 1.0)
+       mudo_sfx     : 1 = efeitos sonoros mutados
+       mudo_musica  : 1 = música de fundo mutada
+       ================================================================ */
+    float volume_sfx;
+    float volume_musica;
+    int   mudo_sfx;
+    int   mudo_musica;
 } Sons;
 
 #endif /* TIPOS_H */
