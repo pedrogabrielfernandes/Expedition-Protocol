@@ -30,7 +30,12 @@ int tela_game_over(ALLEGRO_EVENT_QUEUE *queue, ALLEGRO_TIMER *timer,
 
             if (ev.keyboard.keycode == ALLEGRO_KEY_ENTER ||
                 ev.keyboard.keycode == ALLEGRO_KEY_SPACE)
-                return (opcao == 0) ? 1 : 0;
+            {
+                if (opcao == 0)
+                    return 1;
+                else
+                    return 0;
+            }
 
             if (ev.keyboard.keycode == ALLEGRO_KEY_ESCAPE)
                 return 0;
@@ -44,6 +49,7 @@ int tela_game_over(ALLEGRO_EVENT_QUEUE *queue, ALLEGRO_TIMER *timer,
         float pw = 910, ph = 340;
         float px_ = LARGURA / 2.0f - pw / 2.0f;
         float py_ = ALTURA / 2.0f - ph / 2.0f;
+
 
         al_draw_filled_rounded_rectangle(px_ + 6, py_ + 6, px_ + pw + 6, py_ + ph + 6, 14, 14, al_map_rgba(0, 0, 0, 180));
         al_draw_filled_rounded_rectangle(px_, py_, px_ + pw, py_ + ph, 14, 14, al_map_rgb(60, 10, 10));
@@ -63,16 +69,33 @@ int tela_game_over(ALLEGRO_EVENT_QUEUE *queue, ALLEGRO_TIMER *timer,
         al_draw_line(px_ + 40, py_ + 158, px_ + pw - 40, py_ + 158,
                      al_map_rgb(120, 20, 20), 1);
 
-        const char *tr = (opcao == 0) ? "> REINICIAR <" : "REINICIAR";
-        const char *ts = (opcao == 1) ? "> SAIR <" : "SAIR";
+        
+        const char *tr;
+        ALLEGRO_COLOR cor_tr;
+        if (opcao == 0) {
+            tr = "> REINICIAR <";
+            cor_tr = al_map_rgb(255, 215, 0); 
+        } else {
+            tr = "REINICIAR";
+            cor_tr = al_map_rgb(180, 180, 180);
+        }
 
-        al_draw_text(fonte,
-                     (opcao == 0) ? al_map_rgb(255, 215, 0) : al_map_rgb(180, 180, 180),
+        al_draw_text(fonte, cor_tr,
                      LARGURA / 2.0f - 160, py_ + 186,
                      ALLEGRO_ALIGN_CENTER, tr);
 
-        al_draw_text(fonte,
-                     (opcao == 1) ? al_map_rgb(255, 215, 0) : al_map_rgb(180, 180, 180),
+       
+        const char *ts;
+        ALLEGRO_COLOR cor_ts;
+        if (opcao == 1) {
+            ts = "> SAIR <";
+            cor_ts = al_map_rgb(255, 215, 0); 
+        } else {
+            ts = "SAIR";
+            cor_ts = al_map_rgb(180, 180, 180); 
+        }
+
+        al_draw_text(fonte, cor_ts,
                      LARGURA / 2.0f + 160, py_ + 186,
                      ALLEGRO_ALIGN_CENTER, ts);
 

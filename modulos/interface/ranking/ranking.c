@@ -130,13 +130,16 @@ void tela_ranking(ALLEGRO_EVENT_QUEUE *queue, ALLEGRO_TIMER *timer,
 
         for (int i = 0; i < tempo->quantidade_scores; i++)
         {
-            char linha[64];
+           char linha[64];
             sprintf(linha, "%d.   %.2f s", i + 1, tempo->ranking[i]);
 
-            ALLEGRO_COLOR cor =
-                (fabsf(tempo->ranking[i] - (float)tempo_final) < 0.005f)
-                ? al_map_rgb(255, 215, 0)
-                : al_map_rgb(220, 220, 220);
+            ALLEGRO_COLOR cor;
+            if (fabsf(tempo->ranking[i] - (float)tempo_final) < 0.005f){
+                cor = al_map_rgb(255, 215, 0);
+            }
+            else{
+                cor = al_map_rgb(220, 220, 220); 
+            }
 
             al_draw_text(fonte_hud, cor,
                          LARGURA / 2.0f, py_ + 195 + i * 44,

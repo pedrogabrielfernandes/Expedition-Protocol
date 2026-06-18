@@ -27,7 +27,7 @@
 #include "modulos/interface/game_over/game_over.h"
 
 /* ================================================================== */
-/*  Globais de colis„o                                                  */
+/*  Globais de colis√£o                                                  */
 /* ================================================================== */
 unsigned char colisao[ALTURA][3000];
 static ALLEGRO_BITMAP *jog_mapa_ptr = NULL;
@@ -36,7 +36,7 @@ ALLEGRO_BITMAP *get_jog_mapa(void)
     return jog_mapa_ptr;
 }
 
-/*  PROT”TIPOS                                                          */
+/*  PROT√ìTIPOS                                                          */
 /* ================================================================== */
 void perder_vida(VidaStatus *vidas);
 int contar_vidas(VidaStatus *vidas);
@@ -151,7 +151,7 @@ int main(void)
     }
     al_flush_event_queue(queue);
 
-    /* ?? Bitmaps de jogo ?? */
+    /* Bitmaps de jogo */
     ALLEGRO_BITMAP *bg = al_load_bitmap("assets/cenarios/background2.png");
     ALLEGRO_BITMAP *mapa = al_load_bitmap("assets/cenarios/colisao2.png");
 
@@ -176,7 +176,7 @@ int main(void)
     zum_spr.dead = al_load_bitmap("assets/sprites/Zombies/Dead.png");
     zum_spr.idle = al_load_bitmap("assets/sprites/Zombies/Idle.png");
 
-    /* ?? Zumbi ·cido ?? */
+    /* Zumbi √°cido */
     ZumbiAcidoSprites zum_acido_spr;
     zum_acido_spr.walk = al_load_bitmap("assets/sprites/Zumbi-acido/Walk.png");
     zum_acido_spr.attack = al_load_bitmap("assets/sprites/Zumbi-acido/Attack.png");
@@ -184,10 +184,10 @@ int main(void)
     zum_acido_spr.dead = al_load_bitmap("assets/sprites/Zumbi-acido/Dead.png");
     zum_acido_spr.idle = al_load_bitmap("assets/sprites/Zumbi-acido/Idle.png");
 
-    /* ?? ProjÈtil de ·cido ?? */
+    /* Proj√©til de √°cido */
     ALLEGRO_BITMAP *spr_acido_projetil = al_load_bitmap("assets/itens/acido.png");
 
-    /* ?? Frames da explos„o ·cida ?? */
+    /* Frames da explos√£o √°cida */
     ALLEGRO_BITMAP *explosao_acida_frames[FRAMES_EXPLOSAO_ACIDA];
     for (int i = 0; i < FRAMES_EXPLOSAO_ACIDA; i++)
     {
@@ -224,7 +224,7 @@ int main(void)
     gerar_mapa_colisao(mapa);
     jog_mapa_ptr = mapa;
 
-    /* ?? Estado inicial do jogador ?? */
+    /* Estado inicial do jogador */
     Jogador jogador = {0};
     jogador.mov.x = 60;
     jogador.mov.y = 253;
@@ -242,7 +242,7 @@ int main(void)
     for (int iz = 0; iz < MAX_ZUMBIS_TELA; iz++)
         horda.pool[iz].ja_stunado_no_dash = 0;
 
-    /* ?? Zera projÈteis e explosıes ?? */
+    /* Zera proj√©teis e explos√µes */
     for (int ip = 0; ip < MAX_PROJETEIS_ACIDO; ip++)
         g_projeteis_acido[ip].ativo = 0;
     for (int ie = 0; ie < MAX_EXPLOSOES_ACIDAS; ie++)
@@ -294,7 +294,7 @@ int main(void)
 
         al_get_keyboard_state(&state);
 
-        /* ?? ESC: pausa ?? */
+        /* ESC: pausa */
         int esc_now = al_key_down(&state, ALLEGRO_KEY_ESCAPE);
         if (esc_now && !esc_ant &&
             !sanidade.game_over && !horda.fase_concluida &&
@@ -327,7 +327,7 @@ int main(void)
             if (tempo.ativo)
                 tempo.atual = al_get_time() - tempo.inicio;
 
-            /* ?? roda de habilidades ?? */
+            /* roda de habilidades */
             int k_now = al_key_down(&state, ALLEGRO_KEY_K);
             if (k_now && !k_ant)
             {
@@ -360,7 +360,7 @@ int main(void)
             }
             k_ant = k_now;
 
-            /* ?? dash de fuga (E) ?? */
+            /* dash de fuga (E) */
             int e_now_dash = al_key_down(&state, ALLEGRO_KEY_E);
             if (!roda_aberta)
             {
@@ -390,14 +390,24 @@ int main(void)
                 float passo_fuga = 14.0f;
                 if (jogador.dash_fuga_dist > 0.0f)
                 {
-                    float move = (jogador.dash_fuga_dist < passo_fuga) ? jogador.dash_fuga_dist : passo_fuga;
-                    float dx_fuga = (jogador.direcao == 0) ? move : -move;
+                    float move;
+                    if (jogador.dash_fuga_dist < passo_fuga)
+                        move = jogador.dash_fuga_dist;
+                    else
+                        move = passo_fuga;
+
+                    float dx_fuga;
+                    if (jogador.direcao == 0)
+                        dx_fuga = move;
+                    else
+                        dx_fuga = -move;
+
                     float nx_f = jogador.mov.x + dx_fuga;
                     if (!colide_mapa(mapa, nx_f, jogador.mov.y))
                         jogador.mov.x = nx_f;
                     jogador.dash_fuga_dist -= move;
 
-                    /* stun em zumbis prÛximos */
+                    /* stun em zumbis pr√≥ximos */
                     double agora_dash = al_get_time();
                     for (int iz = 0; iz < MAX_ZUMBIS_TELA; iz++)
                     {
@@ -408,7 +418,12 @@ int main(void)
                         float dist_y = fabsf((z->y + ZUMBI_HBX_OFFSET_Y + ZUMBI_HBX_H / 2.0f) - (jogador.mov.y + HITBOX_H / 2.0f));
                         if (dist_x < 70.0f && dist_y < 70.0f)
                         {
-                            float kb_dir = (z->x > jogador.mov.x) ? 1.0f : -1.0f;
+                            float kb_dir;
+                            if (z->x > jogador.mov.x)
+                                kb_dir = 1.0f;
+                            else
+                                kb_dir = -1.0f;
+
                             z->x += kb_dir * 18.0f;
                             z->stunado = 1;
                             z->tempo_stun = agora_dash;
@@ -420,7 +435,7 @@ int main(void)
                         }
                     }
 
-                    /* dash destrÛi projÈteis de ·cido prÛximos */
+                    /* dash destr√≥i proj√©teis de √°cido pr√≥ximos */
                     for (int ip = 0; ip < MAX_PROJETEIS_ACIDO; ip++)
                     {
                         ProjetilAcido *p = &g_projeteis_acido[ip];
@@ -443,12 +458,17 @@ int main(void)
                 }
             }
 
-            /* ?? ataque (J) ?? */
+            /* ataque (J) */
             int j_now = al_key_down(&state, ALLEGRO_KEY_J);
             double agora_atk = al_get_time();
-            double delay_atual = (jogador.tipo_ataque == 3) ? DELAY_ATAQUE_3 : DELAY_ATAQUE_12;
 
-            /* inÌcio da carga do ataque 2 */
+            double delay_atual;
+            if (jogador.tipo_ataque == 3)
+                delay_atual = DELAY_ATAQUE_3;
+            else
+                delay_atual = DELAY_ATAQUE_12;
+
+            /* in√≠cio da carga do ataque 2 */
             if (jogador.tipo_ataque == 2 &&
                 j_now && !j_ant && !jogador.atacando && !roda_aberta &&
                 !jogador.dash_fuga_ativo && !jogador.carregando_atk2 &&
@@ -478,8 +498,6 @@ int main(void)
 
                 if (soltou || estamina_insuficiente)
                 {
-                    /* se a estamina n„o aguenta a carga atual, recalcula a carga
-                       m·xima que a estamina disponÌvel permite */
                     if (estamina_insuficiente)
                     {
                         float pct_max_pela_estamina =
@@ -516,14 +534,19 @@ int main(void)
                 }
             }
 
-            /* ataques 1 e 3: comportamento original (instant‚neo) */
+            /* ataques 1 e 3: comportamento original (instant√¢neo) */
             if (jogador.tipo_ataque != 2 &&
                 j_now && !j_ant && !jogador.atacando && !roda_aberta &&
                 !jogador.dash_fuga_ativo &&
                 jogador.estado != SAM_HURT && jogador.estado != SAM_DEAD &&
                 (agora_atk - jogador.ultimo_ataque) >= delay_atual)
             {
-                int custo_est = (jogador.tipo_ataque == 3) ? (int)CUSTO_ATK3 : 1;
+                int custo_est;
+                if (jogador.tipo_ataque == 3)
+                    custo_est = (int)CUSTO_ATK3;
+                else
+                    custo_est = 1;
+
                 if (jogador.estamina >= custo_est)
                 {
                     jogador.atacando = 1;
@@ -559,8 +582,18 @@ int main(void)
                 float passo = 8.0f;
                 if (jogador.dash_dist > 0.0f)
                 {
-                    float move = (jogador.dash_dist < passo) ? jogador.dash_dist : passo;
-                    float dx_dash = (jogador.direcao == 0) ? move : -move;
+                    float move;
+                    if (jogador.dash_dist < passo)
+                        move = jogador.dash_dist;
+                    else
+                        move = passo;
+
+                    float dx_dash;
+                    if (jogador.direcao == 0)
+                        dx_dash = move;
+                    else
+                        dx_dash = -move;
+
                     float nx_d = jogador.mov.x + dx_dash;
                     if (!colide_mapa(mapa, nx_d, jogador.mov.y))
                         jogador.mov.x = nx_d;
@@ -570,7 +603,7 @@ int main(void)
                     jogador.dash_ativo = 0;
             }
 
-            /* ?? movimento e pulo ?? */
+            /* movimento e pulo */
             if (jogador.estado != SAM_HURT && jogador.estado != SAM_DEAD &&
                 jogador.estado != SAM_CHARGING && !jogador.dash_fuga_ativo)
             {
@@ -612,7 +645,7 @@ int main(void)
                 }
             }
 
-            /* ?? gravidade ?? */
+            /* gravidade */
             jogador.mov.vel_y += GRAVIDADE;
             if (jogador.mov.vel_y > MAX_QUEDA)
                 jogador.mov.vel_y = MAX_QUEDA;
@@ -640,18 +673,18 @@ int main(void)
 
             atualizar_estado_samurai(&jogador);
 
-            /* ?? horda ?? */
+            /* horda */
             horda_atualizar_spawn(&horda, &sons, jogador.mov.y);
             horda_atualizar_fisica(&horda, mapa);
             horda_atualizar_movimento(&horda, &jogador, &sons, mapa);
             horda_verificar_ataque(&horda, &jogador, &sanidade, &sons);
             horda_verificar_dano_jogador(&horda, &jogador, vetor_vidas, &sons);
 
-            /* ?? projÈteis e explosıes ·cidas ?? */
+            /* proj√©teis e explos√µes √°cidas */
             projeteis_acido_atualizar(mapa, &jogador, vetor_vidas, &sons);
             explosoes_acidas_atualizar(&horda, &jogador, vetor_vidas, &sanidade, &sons);
 
-            /* ?? poÁ„o ?? */
+            /* po√ß√£o */
             {
                 double agora_poc = al_get_time();
                 if (!pocao.ativa && (agora_poc - pocao_ultimo_check) >= 3.0)
@@ -662,7 +695,7 @@ int main(void)
                 pocao_atualizar(&pocao, &jogador, vetor_vidas, &sons);
             }
 
-            /* ?? morte do jogador ?? */
+            /* morte do jogador */
             {
                 int vivas = contar_vidas(vetor_vidas);
                 if (vivas == 0 && jogador.estado != SAM_DEAD)
@@ -687,7 +720,7 @@ int main(void)
             }
         }
 
-        /* fÌsica durante animaÁ„o de morte */
+        /* f√≠sica durante anima√ß√£o de morte */
         if (!pausado && jogador.estado == SAM_DEAD && jogador.morte_animando && !sanidade.game_over)
         {
             jogador.mov.vel_y += GRAVIDADE * 0.30f;
@@ -701,7 +734,7 @@ int main(void)
             morte_pronta = (jogador.estado == SAM_DEAD && !jogador.morte_animando);
         }
 
-        /* ?? DESENHO ?? */
+        /* DESENHO */
         double t_agora = al_get_time();
         al_clear_to_color(al_map_rgb(0, 0, 0));
         al_draw_bitmap(bg, 0, 0, 0);
@@ -751,7 +784,7 @@ int main(void)
 
         al_flip_display();
 
-        /* ?? game over / vitÛria ?? */
+        /* game over / vit√≥ria */
         morte_pronta = (jogador.estado == SAM_DEAD && !jogador.morte_animando);
         if (morte_pronta || sanidade.game_over)
         {
@@ -762,9 +795,13 @@ int main(void)
                 som_gameover_tocado = 1;
             }
             al_rest(0.8);
-            const char *motivo = sanidade.game_over
-                                     ? "Sua sanidade chegou ao limite..."
-                                     : "Voce foi derrotado pelos zumbis!";
+
+            const char *motivo;
+            if (sanidade.game_over)
+                motivo = "Sua sanidade chegou ao limite...";
+            else
+                motivo = "Voce foi derrotado pelos zumbis!";
+
             int reiniciar = tela_game_over(queue, timer, fonte, fonte_hud, motivo);
             if (reiniciar)
             {
@@ -783,7 +820,7 @@ int main(void)
 
                 horda_init(&horda);
 
-                /* zera projÈteis e explosıes ·cidas */
+                /* zera proj√©teis e explos√µes √°cidas */
                 for (int ip = 0; ip < MAX_PROJETEIS_ACIDO; ip++)
                     g_projeteis_acido[ip].ativo = 0;
                 for (int ie = 0; ie < MAX_EXPLOSOES_ACIDAS; ie++)
@@ -845,7 +882,7 @@ int main(void)
         }
     } /* fim while(rodando) */
 
-    /* ?? limpeza ?? */
+    /* limpeza */
     free(vetor_vidas);
     liberar_matriz(matriz_dec, lm * cm);
     destruir_sons(&sons);
