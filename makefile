@@ -15,9 +15,10 @@ SRCS = main.c \
        modulos/interface/particulas/particulas.c \
        modulos/entidades/samurai/samurai.c \
        modulos/interface/ranking/ranking.c \
-       modulos/interface/game_over/game_over.c
+       modulos/interface/game_over/game_over.c \
+       modulos/cutciene/cutciene.c
 
-# Nome do execut√°vel
+# Nome do execut·vel
 TARGET = teste
 
 all:
