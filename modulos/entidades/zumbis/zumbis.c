@@ -46,10 +46,14 @@ static void spawnar_zumbi(Horda *h, Sons *sons, int s,
     z->x_inicial = sx_;
     z->y_inicial = sy_;
     z->patrol_base = sx_;
-    if (rand() % 2 == 0){
-        z->patrol_dir = 1.0f;}
-    else{
-        z->patrol_dir = -1.0f;}
+    if (rand() % 2 == 0)
+    {
+        z->patrol_dir = 1.0f;
+    }
+    else
+    {
+        z->patrol_dir = -1.0f;
+    }
     z->direcao = ALLEGRO_FLIP_HORIZONTAL;
     z->vivo = 1;
     z->estado = ZUM_WALK;
@@ -147,10 +151,14 @@ void horda_atualizar_spawn(Horda *h, Sons *sons, float jogador_y)
     {
         int restam = TOTAL_ZUMBIS_FASE - h->total_spawned;
         int para_spawn;
-    if (restam < 5){    
-        para_spawn = restam;}
-        else{
-            para_spawn = 5;}
+        if (restam < 5)
+        {
+            para_spawn = restam;
+        }
+        else
+        {
+            para_spawn = 5;
+        }
         tocar(sons->horda_som);
         for (int n = 0; n < para_spawn; n++)
         {
@@ -341,15 +349,15 @@ void horda_atualizar_movimento(Horda *h, Jogador *j, Sons *sons,
             }
 
             int max_f;
-                if (z->estado == ZUM_ATTACK)
-                    max_f = FRAMES_ZUMBI_ATTACK1;
-                else
-                    max_f = FRAMES_ZUMBI_BITE;
+            if (z->estado == ZUM_ATTACK)
+                max_f = FRAMES_ZUMBI_ATTACK1;
+            else
+                max_f = FRAMES_ZUMBI_BITE;
             float vel_an;
-                if (z->tipo == 1)
-                    vel_an = 0.15f;
-                else
-                    vel_an = 0.10f;
+            if (z->tipo == 1)
+                vel_an = 0.15f;
+            else
+                vel_an = 0.10f;
             z->frame += vel_an;
             if (z->frame >= max_f)
             {
@@ -371,10 +379,10 @@ void horda_atualizar_movimento(Horda *h, Jogador *j, Sons *sons,
 
         int jogador_morto = (j->estado == SAM_DEAD);
         float jy_ref;
-            if (j->no_chao)
-                jy_ref = jy;
-            else
-                jy_ref = j->y_chao;
+        if (j->no_chao)
+            jy_ref = jy;
+        else
+            jy_ref = j->y_chao;
         int zumbi_abaixo = (z->y > jy_ref + ZUMBI_ABAIXO_MARGEM);
         int jogador_alto = (jy_ref < NIVEL_ALTO_Y);
 
@@ -388,7 +396,7 @@ void horda_atualizar_movimento(Horda *h, Jogador *j, Sons *sons,
                 z->tempo_ataque = agora;
                 int r = rand() % 3;
                 if (r == 0)
-            z->patrol_dir = -1.0f;
+                    z->patrol_dir = -1.0f;
                 else if (r == 1)
                     z->patrol_dir = 1.0f;
                 else
@@ -402,9 +410,9 @@ void horda_atualizar_movimento(Horda *h, Jogador *j, Sons *sons,
                 else if (!zumbi_colide_horizontal(mapa, nx_z, z->y))
                     z->x = nx_z;
                 else
-                z->patrol_dir = -z->patrol_dir;
+                    z->patrol_dir = -z->patrol_dir;
                 if (z->patrol_dir > 0)
-                z->direcao = 0;
+                    z->direcao = 0;
                 else
                 {
                     z->direcao = ALLEGRO_FLIP_HORIZONTAL;
@@ -433,16 +441,20 @@ void horda_atualizar_movimento(Horda *h, Jogador *j, Sons *sons,
             {
                 float passo = z->velocidade;
                 float nx_z;
-                    if (dx_signed > 0)
-                        nx_z = z->x - passo;
-                    else
-                        nx_z = z->x + passo;
+                if (dx_signed > 0)
+                    nx_z = z->x - passo;
+                else
+                    nx_z = z->x + passo;
                 if (!zumbi_colide_horizontal(mapa, nx_z, z->y))
                     z->x = nx_z;
-                if (dx_signed > 0){
-                    z->direcao = ALLEGRO_FLIP_HORIZONTAL;}
-                else{
-                    z->direcao = 0;}
+                if (dx_signed > 0)
+                {
+                    z->direcao = ALLEGRO_FLIP_HORIZONTAL;
+                }
+                else
+                {
+                    z->direcao = 0;
+                }
                 z->estado = ZUM_WALK;
                 z->frame += 0.04f;
                 if (z->frame >= FRAMES_ACIDO_WALK)
@@ -452,10 +464,10 @@ void horda_atualizar_movimento(Horda *h, Jogador *j, Sons *sons,
             {
                 float passo = z->velocidade * 0.5f;
                 float nx_z;
-                    if (dx_signed > 0)
-                        nx_z = z->x + passo;
-                    else
-                        nx_z = z->x - passo;
+                if (dx_signed > 0)
+                    nx_z = z->x + passo;
+                else
+                    nx_z = z->x - passo;
                 if (!zumbi_colide_horizontal(mapa, nx_z, z->y))
                     z->x = nx_z;
                 if (dx_signed > 0)
@@ -532,22 +544,23 @@ void horda_atualizar_movimento(Horda *h, Jogador *j, Sons *sons,
                 z->estado = ZUM_RUN;
             else
                 z->estado = ZUM_WALK;
-           float va;
+            float va;
             if (z->tipo == 1)
                 va = 0.14f;
             else
                 va = 0.07f;
+            z->frame += va; 
 
             int mf;
             if (z->tipo == 1)
                 mf = FRAMES_ZUMBI_RUN;
             else
                 mf = FRAMES_ZUMBI_WALK;
-                        if (z->frame >= mf)
-                            z->frame = 0.0f;
-                    }
-                }
-            }
+            if (z->frame >= mf)
+                z->frame = 0.0f;
+        }
+    }
+}
 
 /* ================================================================== */
 /*  HORDA  VERIFICAR ATAQUE DO SAMURAI                                 */
@@ -757,7 +770,7 @@ void horda_verificar_dano_jogador(Horda *h, Jogador *jog,
             if (body_centro < jog_centro)
                 jog->direcao = ALLEGRO_FLIP_HORIZONTAL;
             else
-                jog->direcao = 0;            
+                jog->direcao = 0;
             jog->mov.x += kb_dir * KNOCKBACK_SAMURAI_X;
             jog->mov.vel_y = -6.0f;
             z->dano_aplicado = 1;
@@ -860,7 +873,7 @@ void horda_desenhar(Horda *h, ZumbiSprites *spr,
             }
         }
         if (!sheet)
-           if (z->tipo == 2)
+            if (z->tipo == 2)
                 sheet = spr_acido->walk;
             else
                 sheet = spr->walk;
@@ -894,7 +907,7 @@ void horda_desenhar(Horda *h, ZumbiSprites *spr,
         }
         else
         {
-           ALLEGRO_COLOR tint;
+            ALLEGRO_COLOR tint;
             if (z->tipo == 1)
                 tint = al_map_rgb(255, 120, 120);
             else
@@ -910,7 +923,7 @@ void horda_desenhar(Horda *h, ZumbiSprites *spr,
         if (z->estado != ZUM_DEAD)
         {
             float bw2 = 55.0f;
-           float draw_w;
+            float draw_w;
             if (z->tipo == 2)
                 draw_w = ZUMBI_ACIDO_DRAW_W;
             else
@@ -1025,13 +1038,13 @@ void projeteis_acido_atualizar(ALLEGRO_BITMAP *mapa, Jogador *jog,
             tocar(sons->dano_sofrido);
             tocar(sons->acido_impacto);
 
-           float kb_dir;
+            float kb_dir;
             if (p->direcao == 0)
                 kb_dir = 1.0f;
             else
                 kb_dir = -1.0f;
 
-            jog->mov.x += kb_dir * KNOCKBACK_SAMURAI_X * 0.5f;  
+            jog->mov.x += kb_dir * KNOCKBACK_SAMURAI_X * 0.5f;
             if (p->direcao == 0)
                 jog->direcao = ALLEGRO_FLIP_HORIZONTAL;
             else
@@ -1116,19 +1129,19 @@ void explosoes_acidas_atualizar(Horda *h, Jogador *jog, VidaStatus *vidas,
                 jog->ultimo_dano = agora;
                 tocar(sons->dano_sofrido);
 
-              float kb_dir;
+                float kb_dir;
                 if (dx >= 0)
                     kb_dir = 1.0f;
                 else
                     kb_dir = -1.0f;
 
-                jog->mov.x += kb_dir * KNOCKBACK_SAMURAI_X;  // ← depois
+                jog->mov.x += kb_dir * KNOCKBACK_SAMURAI_X; // ← depois
                 jog->mov.vel_y = -6.0f;
 
-                    if (kb_dir > 0)
-                        jog->direcao = ALLEGRO_FLIP_HORIZONTAL;
-                    else
-                        jog->direcao = 0;
+                if (kb_dir > 0)
+                    jog->direcao = ALLEGRO_FLIP_HORIZONTAL;
+                else
+                    jog->direcao = 0;
 
                 if (jog->estado != SAM_DEAD)
                 {
@@ -1182,10 +1195,10 @@ void explosoes_acidas_atualizar(Horda *h, Jogador *jog, VidaStatus *vidas,
                         z->mutante = 1;
                         z->velocidade = 1.8f + (float)(rand() % 80) / 100.0f;
                         float kb_dir;
-                            if (zdx >= 0)
-                                kb_dir = 1.0f;
-                            else
-                                kb_dir = -1.0f;
+                        if (zdx >= 0)
+                            kb_dir = 1.0f;
+                        else
+                            kb_dir = -1.0f;
                         z->x += kb_dir * KNOCKBACK_ZUMBI_X * 0.5f;
                         tocar(sons->dano_zumbi_acido);
                         continue;
@@ -1196,10 +1209,10 @@ void explosoes_acidas_atualizar(Horda *h, Jogador *jog, VidaStatus *vidas,
                     z->frame = 0;
 
                     float kb_dir;
-                        if (zdx >= 0)
-                            kb_dir = 1.0f;
-                        else
-                            kb_dir = -1.0f;
+                    if (zdx >= 0)
+                        kb_dir = 1.0f;
+                    else
+                        kb_dir = -1.0f;
                     z->x += kb_dir * KNOCKBACK_ZUMBI_X;
 
                     if (z->tipo == 2)
