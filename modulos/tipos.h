@@ -44,7 +44,6 @@
 #define ZUMBI_DRAW_W 120
 #define ZUMBI_DRAW_H 120
 
-/* Hitbox do zumbi normal */
 #define ZUMBI_HBX_OFFSET_X 38
 #define ZUMBI_HBX_OFFSET_Y 42
 #define ZUMBI_HBX_W 44
@@ -326,23 +325,21 @@ typedef struct
     float estamina;
     float y_chao;
 
-    /* Dash ataque 3 */
     int dash_ativo;
     float dash_dist;
 
-    /* Dash de fuga */
     int dash_fuga_ativo;
     float dash_fuga_dist;
     double dash_fuga_ultimo;
     float dash_fuga_frame;
 
-    /* Ataque 2 carregado */
+
     int carregando_atk2;
     double carga_atk2_inicio;
     float carga_atk2_pct;
     int dano_atk2_atual;
 
-    /* Sons */
+
     int som_ataque_tocado;
     int dash_som_tocado;
     int som_morrendo_tocado;
@@ -360,7 +357,7 @@ typedef struct
     int direcao;
     int vivo;
     int vida;
-    int tipo; /* 0=normal, 1=velocista, 2=�cido */
+    int tipo; 
 
     EstadoZumbi estado;
 
@@ -381,17 +378,16 @@ typedef struct
 
     int spawn_tipo;
 
-    /* �cido */
     double tempo_morte;
     int explodiu;
     int mutante;
 
-    /* Sons */
+
     int ataque_som_tocado;
     int ataque_resultado;
 } Inimigo;
 
-/* ---- Proj�til �cido ---- */
+
 typedef struct
 {
     float x, y;
@@ -402,7 +398,7 @@ typedef struct
     int impactou;
 } ProjetilAcido;
 
-/* ---- Explos�o �cida ---- */
+
 typedef struct
 {
     float x, y;
@@ -410,7 +406,7 @@ typedef struct
     int ativo;
 } ExplosaoAcida;
 
-/* ---- Horda ---- */
+
 typedef struct
 {
     Inimigo pool[MAX_ZUMBIS_TELA];
@@ -424,7 +420,7 @@ typedef struct
     int spawns_dir;
 } Horda;
 
-/* ---- Sanidade ---- */
+
 typedef struct
 {
     float valor;
@@ -435,7 +431,6 @@ typedef struct
     int regenerando;
 } Sanidade;
 
-/* ---- Po��o ---- */
 typedef struct
 {
     float x, y;
@@ -445,7 +440,7 @@ typedef struct
     int coletada;
 } Pocao;
 
-/* ---- Temporizador / Ranking ---- */
+
 typedef struct
 {
     double inicio;
@@ -456,7 +451,7 @@ typedef struct
     int quantidade_scores;
 } Temporizador;
 
-/* ---- Part�cula decorativa ---- */
+
 typedef struct
 {
     float x, y;
@@ -466,7 +461,7 @@ typedef struct
     float y_origem;
 } Particula;
 
-/* ---- Sprite sheets ---- */
+
 typedef struct
 {
     ALLEGRO_BITMAP *idle, *run, *jump;
@@ -486,10 +481,10 @@ typedef struct
     ALLEGRO_BITMAP *walk, *attack, *hurt, *dead, *idle;
 } ZumbiAcidoSprites;
 
-/* ---- Sons ---- */
+
 typedef struct
 {
-    /* Samurai */
+  
     ALLEGRO_SAMPLE *katana12;
     ALLEGRO_SAMPLE *katana_attack3;
     ALLEGRO_SAMPLE *dash;
@@ -501,21 +496,21 @@ typedef struct
     ALLEGRO_SAMPLE *caindo;
     ALLEGRO_SAMPLE *dash_fuga;
 
-    /* Zumbi normal */
+ 
     ALLEGRO_SAMPLE *dano;
     ALLEGRO_SAMPLE *dano_miss;
     ALLEGRO_SAMPLE *morte_zumbi;
     ALLEGRO_SAMPLE *dano_zumbi;
     ALLEGRO_SAMPLE *zumbi_knockback;
 
-    /* Zumbi velocista */
+   
     ALLEGRO_SAMPLE *som_velocista;
     ALLEGRO_SAMPLE *ataque_velocista;
     ALLEGRO_SAMPLE *dano_velocista;
     ALLEGRO_SAMPLE *morte_velocista;
     ALLEGRO_SAMPLE *dano_sofrido_velocista;
 
-    /* Zumbi �cido */
+
     ALLEGRO_SAMPLE *acido_impacto;
     ALLEGRO_SAMPLE *cuspindo_acido;
     ALLEGRO_SAMPLE *dano_zumbi_acido;
@@ -524,7 +519,7 @@ typedef struct
     ALLEGRO_SAMPLE *morte_acido;
     ALLEGRO_SAMPLE *impacto_espada;
 
-    /* Jogo / UI */
+  
     ALLEGRO_SAMPLE *padrao;
     ALLEGRO_SAMPLE *jogar;
     ALLEGRO_SAMPLE *esc_som;
@@ -538,17 +533,10 @@ typedef struct
     ALLEGRO_SAMPLE_INSTANCE *padrao_inst;
     int padrao_tocando;
 
-    /* ================================================================
-       CONTROLE DE VOLUME E MUTE
-       volume_sfx   : volume dos efeitos sonoros  (0.0, 1.0)
-       volume_musica: volume da msica de fundo   (0.0, 1.0)
-       mudo_sfx     : 1 = efeitos sonoros mutados
-       mudo_musica  : 1 = m�sica de fundo mutada
-       ================================================================ */
     float volume_sfx;
     float volume_musica;
     int   mudo_sfx;
     int   mudo_musica;
 } Sons;
 
-#endif /* TIPOS_H */
+#endif 

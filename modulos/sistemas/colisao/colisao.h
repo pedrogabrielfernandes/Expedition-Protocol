@@ -12,4 +12,4 @@ bool zumbi_colide_vertical (ALLEGRO_BITMAP *mapa, float x, float y, float vel_y)
 bool zumbi_no_chao         (ALLEGRO_BITMAP *mapa, float x, float y);
 bool zumbi_colide_horizontal(ALLEGRO_BITMAP *mapa, float x, float y);
 
-#endif /* COLISAO_H */
+#endif 

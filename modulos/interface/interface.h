@@ -62,11 +62,7 @@ void desenhar_roda_habilidade(
     int selecao,
     ALLEGRO_FONT *fonte_hud);
 
-/* ================================================================== */
-/*  ÍCONES DE ÁUDIO (mute SFX / mute Música)                            */
-/*  Ficam fixos no canto superior direito da tela, clicáveis com o      */
-/*  mouse em qualquer momento (jogando ou pausado).                     */
-/* ================================================================== */
+
 #define ICONE_AUDIO_TAM 75
 
 #define ICONE_SFX_X (LARGURA - 190)
@@ -81,11 +77,7 @@ void desenhar_icones_audio(
     float mouse_x,
     float mouse_y);
 
-/* ================================================================== */
-/*  PAUSA COM CONTROLE DE VOLUME                                        */
-/*  Dois sliders arrastáveis (SFX e Música) desenhados dentro do        */
-/*  painel de pausa.                                                    */
-/* ================================================================== */
+
 #define SLIDER_LARGURA 360
 #define SLIDER_ALTURA 16
 #define SLIDER_BOLA_RAIO 13

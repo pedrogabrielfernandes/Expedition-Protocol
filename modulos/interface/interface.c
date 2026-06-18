@@ -53,7 +53,7 @@ OpcaoMenu executar_menu(ALLEGRO_EVENT_QUEUE *queue, ALLEGRO_TIMER *timer,
                                   0, 0, LARGURA, ALTURA, 0);
             al_draw_filled_rectangle(0, 950, LARGURA, ALTURA, al_map_rgba(0, 0, 0, 210));
 
-            /* botao JOGAR */
+            
             {
                 int sel = (opcao == MENU_JOGAR);
                 float cx = LARGURA / 2.4f, cy = 990.0f;
@@ -73,7 +73,7 @@ OpcaoMenu executar_menu(ALLEGRO_EVENT_QUEUE *queue, ALLEGRO_TIMER *timer,
                     al_draw_text(fonte, al_map_rgba(180, 180, 180, 200), cx, cy, ALLEGRO_ALIGN_CENTER, "JOGAR");
             }
 
-            /* botao SAIR */
+            
             {
                 int sel = (opcao == MENU_SAIR);
                 float cx = LARGURA / 1.6f, cy = 990.0f;
@@ -101,7 +101,7 @@ OpcaoMenu executar_menu(ALLEGRO_EVENT_QUEUE *queue, ALLEGRO_TIMER *timer,
 }
 
 /* ================================================================== */
-/*  HUD - VIDAS / ESTAMINA / SANIDADE                                  */
+/*  HUD - VIDAS / ESTAMINA / SANIDADE                                 */
 /* ================================================================== */
 void desenhar_vidas(VidaStatus *vidas, ALLEGRO_BITMAP *coracao)
 {
@@ -162,7 +162,7 @@ void desenhar_sanidade(Sanidade *san, ALLEGRO_BITMAP *spr)
 }
 
 /* ================================================================== */
-/*  HUD - TEMPO / HORDA / ATAQUES / DASH                               */
+/*  HUD - TEMPO / HORDA / ATAQUES / DASH                              */
 /* ================================================================== */
 void desenhar_hud_tempo(ALLEGRO_FONT *f, const char *txt)
 {
@@ -345,7 +345,7 @@ void desenhar_roda_habilidade(ALLEGRO_BITMAP *at1, ALLEGRO_BITMAP *at2, ALLEGRO_
 }
 
 /* ================================================================== */
-/*  ICONES DE AUDIO (mute SFX / mute Musica)                           */
+/*  ICONES DE AUDIO (mute SFX / mute Musica)                          */
 /* ================================================================== */
 
 static int mouse_sobre_icone(float mx, float my, float ix, float iy)
@@ -596,7 +596,7 @@ void desenhar_icones_audio(Sons *sons, ALLEGRO_FONT *fonte_hud,
     else
         cor_mus = al_map_rgb(255, 230, 180);
 
-    /* haste */
+    
     al_draw_filled_rectangle(
         cx - 2,
         cy - 16,
@@ -604,14 +604,14 @@ void desenhar_icones_audio(Sons *sons, ALLEGRO_FONT *fonte_hud,
         cy + 6,
         cor_mus);
 
-    /* bandeira */
+    
     al_draw_filled_triangle(
         cx + 2, cy - 16,
         cx + 16, cy - 12,
         cx + 2, cy - 6,
         cor_mus);
 
-    /* bolinha */
+    
     al_draw_filled_circle(
         cx - 5,
         cy + 10,
@@ -635,7 +635,7 @@ void desenhar_icones_audio(Sons *sons, ALLEGRO_FONT *fonte_hud,
 }
 
 /* ================================================================== */
-/*  PAUSA COM CONTROLE DE VOLUME (sliders arrastaveis)                  */
+/*  PAUSA COM CONTROLE DE VOLUME (sliders arrastaveis)                */
 /* ================================================================== */
 
 static void desenhar_slider(float x, float y, float valor01,

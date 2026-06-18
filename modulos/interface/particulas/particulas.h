@@ -6,7 +6,6 @@
 #include <stdlib.h>
 #include <math.h>
 
-/* depende do teu tipos.h se Particula já existir lá */
 #include "../../tipos.h"
 
 Particula *criar_matriz_decorativa(int linhas, int colunas);

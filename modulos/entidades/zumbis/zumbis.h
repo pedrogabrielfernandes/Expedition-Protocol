@@ -33,4 +33,4 @@ void explosao_acida_spawn       (float x, float y);
 void explosoes_acidas_atualizar (Horda *h, Jogador *jog, VidaStatus *vidas, Sanidade *san, Sons *sons);
 void explosoes_acidas_desenhar  (ALLEGRO_BITMAP *frames[]);
 
-#endif /* ZUMBI_H */
+#endif

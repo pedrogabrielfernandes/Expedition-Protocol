@@ -27,7 +27,7 @@
 #include "modulos/interface/game_over/game_over.h"
 
 /* ================================================================== */
-/*  Globais de colis�o                                                  */
+/*  Globais de colis�o                                               */
 /* ================================================================== */
 unsigned char colisao[ALTURA][3000];
 static ALLEGRO_BITMAP *jog_mapa_ptr = NULL;
@@ -35,8 +35,8 @@ ALLEGRO_BITMAP *get_jog_mapa(void)
 {
     return jog_mapa_ptr;
 }
-
-/*  PROT�TIPOS                                                          */
+/* ================================================================== */
+/*  PROT�TIPOS                                                       */
 /* ================================================================== */
 void perder_vida(VidaStatus *vidas);
 int contar_vidas(VidaStatus *vidas);
@@ -64,9 +64,6 @@ void explosoes_acidas_desenhar(ALLEGRO_BITMAP *frames[]);
 /*  Helpers para sliders de volume                                      */
 /* ================================================================== */
 
-/* Retorna 1 se o ponto (mx,my) est� sobre o slider cujo trilho come�a
-   em (sx, sy) e tem SLIDER_LARGURA x SLIDER_ALTURA pixels.
-   A zona de clique � ampliada verticalmente para facilitar o arrasto. */
 static int mouse_sobre_slider(float mx, float my, float sx, float sy)
 {
     float margem = SLIDER_BOLA_RAIO + 4.0f;
@@ -74,7 +71,6 @@ static int mouse_sobre_slider(float mx, float my, float sx, float sy)
             my >= sy - margem && my <= sy + SLIDER_ALTURA + margem);
 }
 
-/* Converte posi��o X do mouse em valor 0..1 dentro do slider. */
 static float slider_valor_de_x(float mx, float sx)
 {
     float v = (mx - sx) / SLIDER_LARGURA;
@@ -83,7 +79,7 @@ static float slider_valor_de_x(float mx, float sx)
     return v;
 }
 
-/* Retorna 1 se (mx,my) est� sobre um �cone de �udio de tamanho ICONE_AUDIO_TAM. */
+
 static int mouse_sobre_icone_audio(float mx, float my, float ix, float iy)
 {
     return (mx >= ix && mx <= ix + ICONE_AUDIO_TAM &&
@@ -112,7 +108,7 @@ int main(void)
         puts("Erro keyboard");
         return 1;
     }
-    /* Mouse necess�rio para os �cones/sliders de �udio */
+   
     if (!al_install_mouse())
     {
         puts("Erro al_install_mouse");
@@ -160,11 +156,11 @@ int main(void)
     al_register_event_source(queue, al_get_display_event_source(display));
     al_register_event_source(queue, al_get_timer_event_source(timer));
     al_register_event_source(queue, al_get_keyboard_event_source());
-    /* Registra mouse na fila de eventos */
+   
     al_register_event_source(queue, al_get_mouse_event_source());
 
     Sons sons = carregar_sons();
-    /* Aponta o global para que tocar() use volume_sfx/mudo_sfx */
+   
     g_sons_ativo = &sons;
 
     ALLEGRO_BITMAP *bg_menu = al_load_bitmap("assets/cenarios/inicio.png");
@@ -191,7 +187,6 @@ int main(void)
     }
     al_flush_event_queue(queue);
 
-    /* Bitmaps de jogo */
     ALLEGRO_BITMAP *bg = al_load_bitmap("assets/cenarios/background2.png");
     ALLEGRO_BITMAP *mapa = al_load_bitmap("assets/cenarios/colisao2.png");
 
@@ -216,7 +211,6 @@ int main(void)
     zum_spr.dead = al_load_bitmap("assets/sprites/Zombies/Dead.png");
     zum_spr.idle = al_load_bitmap("assets/sprites/Zombies/Idle.png");
 
-    /* Zumbi �cido */
     ZumbiAcidoSprites zum_acido_spr;
     zum_acido_spr.walk = al_load_bitmap("assets/sprites/Zumbi-acido/Walk.png");
     zum_acido_spr.attack = al_load_bitmap("assets/sprites/Zumbi-acido/Attack.png");
@@ -224,10 +218,8 @@ int main(void)
     zum_acido_spr.dead = al_load_bitmap("assets/sprites/Zumbi-acido/Dead.png");
     zum_acido_spr.idle = al_load_bitmap("assets/sprites/Zumbi-acido/Idle.png");
 
-    /* Proj�til de �cido */
     ALLEGRO_BITMAP *spr_acido_projetil = al_load_bitmap("assets/itens/acido.png");
 
-    /* Frames da explos�o �cida */
     ALLEGRO_BITMAP *explosao_acida_frames[FRAMES_EXPLOSAO_ACIDA];
     for (int i = 0; i < FRAMES_EXPLOSAO_ACIDA; i++)
     {
@@ -264,7 +256,6 @@ int main(void)
     gerar_mapa_colisao(mapa);
     jog_mapa_ptr = mapa;
 
-    /* Estado inicial do jogador */
     Jogador jogador = {0};
     jogador.mov.x = 60;
     jogador.mov.y = 253;
@@ -282,7 +273,6 @@ int main(void)
     for (int iz = 0; iz < MAX_ZUMBIS_TELA; iz++)
         horda.pool[iz].ja_stunado_no_dash = 0;
 
-    /* Zera proj�teis e explos�es */
     for (int ip = 0; ip < MAX_PROJETEIS_ACIDO; ip++)
         g_projeteis_acido[ip].ativo = 0;
     for (int ie = 0; ie < MAX_EXPLOSOES_ACIDAS; ie++)
@@ -315,7 +305,6 @@ int main(void)
     int som_finish_tocado = 0, som_gameover_tocado = 0;
     int rodando = 1;
 
-    /* Estado do mouse */
     float mouse_x = 0.0f, mouse_y = 0.0f;
     int mouse_btn1_pressionado = 0; /* bot�o esquerdo segurado */
     int arrastando_slider_sfx   = 0;
@@ -336,13 +325,11 @@ int main(void)
             break;
         }
 
-        /* ---- Eventos de mouse ---- */
         if (ev.type == ALLEGRO_EVENT_MOUSE_AXES)
         {
             mouse_x = (float)ev.mouse.x;
             mouse_y = (float)ev.mouse.y;
 
-            /* Arrasto dos sliders (apenas durante a pausa) */
             if (pausado && mouse_btn1_pressionado)
             {
                 if (arrastando_slider_sfx)
@@ -362,19 +349,18 @@ int main(void)
             mouse_btn1_pressionado = 1;
             float mx = (float)ev.mouse.x, my = (float)ev.mouse.y;
 
-            /* �cone de mute SFX  clic�vel sempre */
+            
             if (mouse_sobre_icone_audio(mx, my, ICONE_SFX_X, ICONE_SFX_Y))
             {
                 sons.mudo_sfx = !sons.mudo_sfx;
             }
-            /* �cone de mute M�sica  clic�vel sempre */
+           
             else if (mouse_sobre_icone_audio(mx, my, ICONE_MUSICA_X, ICONE_MUSICA_Y))
             {
                 sons.mudo_musica = !sons.mudo_musica;
                 aplicar_volume_musica(&sons);
             }
 
-            /* Sliders apenas durante a pausa */
             if (pausado)
             {
                 if (mouse_sobre_slider(mx, my, SLIDER_SFX_X, SLIDER_SFX_Y))
@@ -403,7 +389,6 @@ int main(void)
 
         al_get_keyboard_state(&state);
 
-        /* ESC: pausa */
         int esc_now = al_key_down(&state, ALLEGRO_KEY_ESCAPE);
         if (esc_now && !esc_ant &&
             !sanidade.game_over && !horda.fase_concluida &&
@@ -414,7 +399,7 @@ int main(void)
             {
                 pausa_inicio = al_get_time();
                 tocar(sons.esc_som);
-                /* Solta qualquer arrasto ao pausar */
+               
                 arrastando_slider_sfx   = 0;
                 arrastando_slider_musica = 0;
             }
@@ -439,7 +424,6 @@ int main(void)
             if (tempo.ativo)
                 tempo.atual = al_get_time() - tempo.inicio;
 
-            /* roda de habilidades */
             int k_now = al_key_down(&state, ALLEGRO_KEY_K);
             if (k_now && !k_ant)
             {
@@ -472,7 +456,6 @@ int main(void)
             }
             k_ant = k_now;
 
-            /* dash de fuga (E) */
             int e_now_dash = al_key_down(&state, ALLEGRO_KEY_E);
             if (!roda_aberta)
             {
@@ -496,7 +479,6 @@ int main(void)
                 e_ant = e_now_dash;
             }
 
-            /* processa dash de fuga */
             if (jogador.dash_fuga_ativo)
             {
                 float passo_fuga = 14.0f;
@@ -519,7 +501,6 @@ int main(void)
                         jogador.mov.x = nx_f;
                     jogador.dash_fuga_dist -= move;
 
-                    /* stun em zumbis pr�ximos */
                     double agora_dash = al_get_time();
                     for (int iz = 0; iz < MAX_ZUMBIS_TELA; iz++)
                     {
@@ -547,7 +528,6 @@ int main(void)
                         }
                     }
 
-                    /* dash destr�i proj�teis de �cido pr�ximos */
                     for (int ip = 0; ip < MAX_PROJETEIS_ACIDO; ip++)
                     {
                         ProjetilAcido *p = &g_projeteis_acido[ip];
@@ -570,7 +550,6 @@ int main(void)
                 }
             }
 
-            /* ataque (J) */
             int j_now = al_key_down(&state, ALLEGRO_KEY_J);
             double agora_atk = al_get_time();
 
@@ -580,7 +559,6 @@ int main(void)
             else
                 delay_atual = DELAY_ATAQUE_12;
 
-            /* in�cio da carga do ataque 2 */
             if (jogador.tipo_ataque == 2 &&
                 j_now && !j_ant && !jogador.atacando && !roda_aberta &&
                 !jogador.dash_fuga_ativo && !jogador.carregando_atk2 &&
@@ -594,7 +572,6 @@ int main(void)
                 jogador.estado = SAM_CHARGING;
             }
 
-            /* enquanto carrega: atualiza % e verifica soltura/estamina */
             if (jogador.carregando_atk2)
             {
                 double carregando_ha = agora_atk - jogador.carga_atk2_inicio;
@@ -646,7 +623,6 @@ int main(void)
                 }
             }
 
-            /* ataques 1 e 3: comportamento original (instant�neo) */
             if (jogador.tipo_ataque != 2 &&
                 j_now && !j_ant && !jogador.atacando && !roda_aberta &&
                 !jogador.dash_fuga_ativo &&
@@ -688,7 +664,6 @@ int main(void)
             }
             j_ant = j_now;
 
-            /* dash do ataque 3 */
             if (jogador.dash_ativo && jogador.atacando)
             {
                 float passo = 8.0f;
@@ -715,7 +690,6 @@ int main(void)
                     jogador.dash_ativo = 0;
             }
 
-            /* movimento e pulo */
             if (jogador.estado != SAM_HURT && jogador.estado != SAM_DEAD &&
                 jogador.estado != SAM_CHARGING && !jogador.dash_fuga_ativo)
             {
@@ -745,7 +719,6 @@ int main(void)
                     tocar(sons.pulo);
                 }
 
-                /* som de passos */
                 if (jogador.no_chao && jogador.movendo && jogador.estado == SAM_RUN)
                 {
                     double agora_sam = al_get_time();
@@ -757,7 +730,6 @@ int main(void)
                 }
             }
 
-            /* gravidade */
             jogador.mov.vel_y += GRAVIDADE;
             if (jogador.mov.vel_y > MAX_QUEDA)
                 jogador.mov.vel_y = MAX_QUEDA;
@@ -785,18 +757,16 @@ int main(void)
 
             atualizar_estado_samurai(&jogador);
 
-            /* horda */
             horda_atualizar_spawn(&horda, &sons, jogador.mov.y);
             horda_atualizar_fisica(&horda, mapa);
             horda_atualizar_movimento(&horda, &jogador, &sons, mapa);
             horda_verificar_ataque(&horda, &jogador, &sanidade, &sons, mapa);
             horda_verificar_dano_jogador(&horda, &jogador, vetor_vidas, &sons);
 
-            /* proj�teis e explos�es �cidas */
             projeteis_acido_atualizar(mapa, &jogador, vetor_vidas, &sons);
             explosoes_acidas_atualizar(&horda, &jogador, vetor_vidas, &sanidade, &sons);
 
-            /* po��o */
+          
             {
                 double agora_poc = al_get_time();
                 if (!pocao.ativa && (agora_poc - pocao_ultimo_check) >= 3.0)
@@ -807,7 +777,7 @@ int main(void)
                 pocao_atualizar(&pocao, &jogador, vetor_vidas, &sons);
             }
 
-            /* morte do jogador */
+  
             {
                 int vivas = contar_vidas(vetor_vidas);
                 if (vivas == 0 && jogador.estado != SAM_DEAD)
@@ -832,7 +802,6 @@ int main(void)
             }
         }
 
-        /* f�sica durante anima��o de morte */
         if (!pausado && jogador.estado == SAM_DEAD && jogador.morte_animando && !sanidade.game_over)
         {
             jogador.mov.vel_y += GRAVIDADE * 0.30f;
@@ -846,7 +815,7 @@ int main(void)
             morte_pronta = (jogador.estado == SAM_DEAD && !jogador.morte_animando);
         }
 
-        /* DESENHO */
+        
         double t_agora = al_get_time();
         al_clear_to_color(al_map_rgb(0, 0, 0));
         al_draw_bitmap(bg, 0, 0, 0);
@@ -874,12 +843,12 @@ int main(void)
         desenhar_hud_dash_fuga(&jogador, fonte_hud);
         desenhar_hud_carga_atk2(&jogador, fonte_hud);
 
-        /* �cones de �udio vis�veis sempre (fora e dentro da pausa) */
+       
         desenhar_icones_audio(&sons, fonte_hud, mouse_x, mouse_y);
 
         if (pausado)
         {
-            /* Painel de pausa com sliders de volume */
+            
             desenhar_pausa_com_volume(&sons, fonte, fonte_hud, mouse_x, mouse_y);
         }
         if (roda_aberta)
@@ -889,7 +858,7 @@ int main(void)
 
         al_flip_display();
 
-        /* game over / vit�ria */
+        
         morte_pronta = (jogador.estado == SAM_DEAD && !jogador.morte_animando);
         if (morte_pronta || sanidade.game_over)
         {
@@ -925,7 +894,6 @@ int main(void)
 
                 horda_init(&horda);
 
-                /* zera proj�teis e explos�es �cidas */
                 for (int ip = 0; ip < MAX_PROJETEIS_ACIDO; ip++)
                     g_projeteis_acido[ip].ativo = 0;
                 for (int ie = 0; ie < MAX_EXPLOSOES_ACIDAS; ie++)
@@ -956,7 +924,6 @@ int main(void)
                 som_finish_tocado = 0;
                 som_gameover_tocado = 0;
 
-                /* Reseta estado do mouse */
                 mouse_btn1_pressionado  = 0;
                 arrastando_slider_sfx   = 0;
                 arrastando_slider_musica = 0;
@@ -990,9 +957,8 @@ int main(void)
             rodando = 0;
             continue;
         }
-    } /* fim while(rodando) */
+    } 
 
-    /* limpeza */
     free(vetor_vidas);
     liberar_matriz(matriz_dec, lm * cm);
     destruir_sons(&sons);

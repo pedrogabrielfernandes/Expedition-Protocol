@@ -46,8 +46,8 @@ static void spawnar_zumbi(Horda *h, Sons *sons, int s,
     z->x_inicial = sx_;
     z->y_inicial = sy_;
     z->patrol_base = sx_;
-    z->patrol_dir = 1.0f; /* sempre para a direita ao spawnar */
-    z->direcao = 0;       /* olha para a direita */
+    z->patrol_dir = 1.0f; 
+    z->direcao = 0;       
     z->vivo = 1;
     z->estado = ZUM_WALK;
     z->frame = (float)(rand() % 8);
@@ -180,7 +180,7 @@ void horda_atualizar_spawn(Horda *h, Sons *sons, float jogador_y)
 }
 
 /* ================================================================== */
-/*  HORDA  FÃSICA                                                      */
+/*  HORDA  Fï¿½SICA                                                      */
 /* ================================================================== */
 void horda_atualizar_fisica(Horda *h, ALLEGRO_BITMAP *mapa)
 {
@@ -269,7 +269,7 @@ void horda_atualizar_movimento(Horda *h, Jogador *j, Sons *sons,
             continue;
         }
 
-        /* STUN */
+        
         if (z->stunado)
         {
             double elapsed = agora - z->tempo_stun;
@@ -388,14 +388,13 @@ void horda_atualizar_movimento(Horda *h, Jogador *j, Sons *sons,
         int zumbi_abaixo = (z->y > jy_ref + ZUMBI_ABAIXO_MARGEM);
         int jogador_alto = (jy_ref < NIVEL_ALTO_Y);
 
-        /* Zumbi na plataforma de cima e jogador em baixo:
-              anda sempre para a direita para cair da plataforma */
+    
         if (!jogador_morto && z->y < NIVEL_ALTO_Y && jy_ref >= NIVEL_ALTO_Y)
         {
             float passo;
 
             if (z->tipo == 2)
-                passo = z->velocidade * 0.4f; // mesma escala usada no resto do movimento do ácido
+                passo = z->velocidade * 0.4f; 
             else
                 passo = z->velocidade;
 
@@ -491,7 +490,7 @@ void horda_atualizar_movimento(Horda *h, Jogador *j, Sons *sons,
                 continue;
             }
 
-            /* zumbi abaixo do jogador, patrulha aleatória */
+            
             if (agora - z->tempo_ataque > 1.5)
             {
                 z->tempo_ataque = agora;
@@ -671,7 +670,7 @@ void horda_atualizar_movimento(Horda *h, Jogador *j, Sons *sons,
             }
             else
             {
-                /* Distância boa para atacar (entre MUITO_PERTO e DIST_MAX): ataca direto. */
+                
                 if (dx_signed > 0)
                     z->direcao = 0;
                 else
@@ -1347,7 +1346,7 @@ void explosoes_acidas_atualizar(Horda *h, Jogador *jog, VidaStatus *vidas,
                 else
                     kb_dir = -1.0f;
 
-                jog->mov.x += kb_dir * KNOCKBACK_SAMURAI_X; // â† depois
+                jog->mov.x += kb_dir * KNOCKBACK_SAMURAI_X; 
                 jog->mov.vel_y = -6.0f;
 
                 if (kb_dir > 0)

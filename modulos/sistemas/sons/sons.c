@@ -5,29 +5,9 @@
 #include <stdlib.h>
 #include <string.h>
 
-/* ================================================================== */
-/*  Ponteiro global para o Sons ativo                                   */
-/*  Definido aqui; declarado como extern em sons.h                     */
-/* ================================================================== */
 Sons *g_sons_ativo = NULL;
 
-/* ================================================================== */
-/*  Controle de sons repetidos (Lista Encadeada)                       */
-/* ================================================================== */
-/* Quando vários zumbis são atingidos no mesmo golpe, o mesmo
-   ALLEGRO_SAMPLE pode ser disparado mais de uma vez no mesmo frame.
-   O Allegro toca cada chamada como uma voz separada e elas se somam,
-   ficando ensurdecedor.
-
-   Para resolver isso (e atender ao requisito de usar uma estrutura de
-   dados de lista/pilha/fila), guardamos cada sample já tocado em uma
-   LISTA ENCADEADA, junto do último instante em que ele tocou. Antes de
-   tocar um som de novo, percorremos a lista procurando aquele sample:
-   se ele tocou há pouco tempo (dentro do COOLDOWN_SOM), a nova chamada
-   é ignorada; senão, atualizamos o tempo e deixamos tocar. Se o sample
-   ainda não está na lista, um novo nó é inserido no início (O(1)). */
-
-#define COOLDOWN_SOM 0.05 /* segundos */
+#define COOLDOWN_SOM 0.05 
 
 typedef struct NoSomTocado
 {
@@ -43,13 +23,13 @@ static int pode_tocar(ALLEGRO_SAMPLE *s)
     double agora = al_get_time();
     NoSomTocado *atual = g_lista_sons_tocados;
 
-    /* Percorre a lista procurando o sample */
+    
     while (atual)
     {
         if (atual->sample == s)
         {
             if (agora - atual->ultimo_tempo < COOLDOWN_SOM)
-                return 0; /* tocou recente demais: ignora */
+                return 0; 
 
             atual->ultimo_tempo = agora;
             return 1;
@@ -57,10 +37,10 @@ static int pode_tocar(ALLEGRO_SAMPLE *s)
         atual = atual->prox;
     }
 
-    /* Sample ainda não registrado: insere um novo nó no início da lista */
+    
     NoSomTocado *novo = (NoSomTocado *)malloc(sizeof(NoSomTocado));
     if (!novo)
-        return 1; /* sem memória: deixa tocar normalmente */
+        return 1; 
 
     novo->sample = s;
     novo->ultimo_tempo = agora;
@@ -85,10 +65,10 @@ static void liberar_lista_sons_tocados(void)
 }
 
 /* ================================================================== */
-/*  Helpers internos de volume                                          */
+/*  Helpers internos de volume                                        */
 /* ================================================================== */
 
-/* Retorna o volume efetivo de SFX (0 se mutado) */
+
 static float volume_sfx_efetivo(void)
 {
     if (!g_sons_ativo)
@@ -98,7 +78,7 @@ static float volume_sfx_efetivo(void)
     return g_sons_ativo->volume_sfx;
 }
 
-/* Retorna o volume efetivo de música (0 se mutado) */
+
 static float volume_musica_efetivo(Sons *s)
 {
     if (!s)
@@ -109,7 +89,7 @@ static float volume_musica_efetivo(Sons *s)
 }
 
 /* ================================================================== */
-/*  API pública                                                         */
+/*  API pï¿½blica                                                      */
 /* ================================================================== */
 
 void tocar(ALLEGRO_SAMPLE *s)
@@ -175,13 +155,13 @@ Sons carregar_sons(void)
     Sons s;
     memset(&s, 0, sizeof(Sons));
 
-    /* Volume e mute inicializados com o padrão (50%) */
+    
     s.volume_sfx = VOLUME_PADRAO;
     s.volume_musica = VOLUME_PADRAO;
     s.mudo_sfx = 0;
     s.mudo_musica = 0;
 
-    /* Samurai */
+    
     s.katana12 = al_load_sample("assets/sons/Samurai/Katana12.wav");
     s.katana_attack3 = al_load_sample("assets/sons/Samurai/Katana_attack3.wav");
     s.dash = al_load_sample("assets/sons/Samurai/dash.wav");
@@ -193,7 +173,7 @@ Sons carregar_sons(void)
     s.caindo = al_load_sample("assets/sons/Samurai/caindo.wav");
     s.dash_fuga = s.dash;
 
-    /* Zumbi normal */
+    
     s.dano = al_load_sample("assets/sons/Zumbi/dano.wav");
     s.dano_miss = al_load_sample("assets/sons/Zumbi/dano_miss.wav");
     s.morte_zumbi = al_load_sample("assets/sons/Zumbi/morte_zumbi.wav");
@@ -206,7 +186,7 @@ Sons carregar_sons(void)
     s.morte_velocista = al_load_sample("assets/sons/Zumbi/morte_velocista.wav");
     s.dano_sofrido_velocista = al_load_sample("assets/sons/Zumbi/dano_sofrido_velocista.wav");
 
-    /* Jogo / UI */
+
     s.padrao = al_load_sample("assets/sons/game/padrao.wav");
 
     s.padrao_inst = NULL;
@@ -236,7 +216,7 @@ Sons carregar_sons(void)
     s.selecao_som = al_load_sample("assets/sons/game/selecao.wav");
     s.horda_som = al_load_sample("assets/sons/Zumbi/horda.wav");
 
-    /* Ácido */
+    
     s.acido_impacto = al_load_sample("assets/sons/Zumbi/acido/acido_impacto.wav");
     s.cuspindo_acido = al_load_sample("assets/sons/Zumbi/acido/cuspindo_acido.wav");
     s.dano_zumbi_acido = al_load_sample("assets/sons/Zumbi/acido/dano_zumbi_acido.wav");
@@ -273,7 +253,7 @@ void destruir_sons(Sons *s)
         al_destroy_sample(s->morrendo);
     if (s->caindo)
         al_destroy_sample(s->caindo);
-    /* dash_fuga aponta para o mesmo sample que dash, não destruir duas vezes */
+
 
     if (s->dano)
         al_destroy_sample(s->dano);
