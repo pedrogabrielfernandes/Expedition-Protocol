@@ -100,8 +100,9 @@
 #define ZUMBI_ACIDO_DRAW_W 160
 #define ZUMBI_ACIDO_DRAW_H 160
 
-#define ZUMBI_ACIDO_DIST_MIN 180.0f
-#define ZUMBI_ACIDO_DIST_MAX 380.0f
+#define ZUMBI_ACIDO_DIST_MIN 300.0f          
+#define ZUMBI_ACIDO_DIST_MAX 550.0f
+#define ZUMBI_ACIDO_DIST_MUITO_PERTO 250.0f    
 #define ZUMBI_ACIDO_COOLDOWN_ATAQUE 2.5
 #define ZUMBI_ACIDO_FRAME_DISPARO 3
 
@@ -115,7 +116,7 @@
 #define ACIDO_PROJETIL_DRAW_W 52
 #define ACIDO_PROJETIL_DRAW_H 52
 #define ACIDO_PROJETIL_VEL 6.0f
-#define ACIDO_PROJETIL_DIST_MAX 500.0f
+#define ACIDO_PROJETIL_DIST_MAX 700.0f
 #define ACIDO_PROJETIL_HBX_W 24
 #define ACIDO_PROJETIL_HBX_H 24
 
@@ -169,10 +170,10 @@
 
 #define SPAWN_DIR_X_MIN 1700
 #define SPAWN_DIR_X_MAX 1800
-#define SPAWN_DIR_Y 540
+#define SPAWN_DIR_Y 655
 
-#define SPAWN_TOP_LEFT_X 60
-#define SPAWN_TOP_LEFT_Y 90
+#define SPAWN_TOP_LEFT_X 15
+#define SPAWN_TOP_LEFT_Y 210
 
 #define SPAWN_MIN_JOGADOR_Y 300
 #define SPAWN_TOP_Y_THRESHOLD 300
@@ -180,10 +181,10 @@
 /* ================================================================== */
 /*  PATRULHA E PERCEP��O                                                */
 /* ================================================================== */
-#define PATROL_AREA_X_MIN 100
+#define PATROL_AREA_X_MIN 10
 #define PATROL_AREA_X_MAX 1800
 #define NIVEL_ALTO_Y 380
-#define PATRULHA_VEL 1.5f
+#define PATRULHA_VEL 1.0f
 #define PATRULHA_DIST 80.0f
 #define ZUMBI_ABAIXO_MARGEM 55
 
@@ -230,7 +231,7 @@
 /* ================================================================== */
 /*  PO��O DE VIDA                                                       */
 /* ================================================================== */
-#define POCAO_SPAWN_X_MIN 450
+#define POCAO_SPAWN_X_MIN 480
 #define POCAO_SPAWN_X_MAX 1870
 #define POCAO_SPAWN_Y 100
 #define POCAO_LARGURA 48

@@ -1,12 +1,88 @@
 #include "sons.h"
 
+#include <allegro5/allegro.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
+
+
+/* ================================================================== */
+/*  Controle de sons repetidos (Lista Encadeada)                       */
+/* ================================================================== */
+/* Quando vários zumbis sao atingidos no mesmo golpe, o mesmo
+   ALLEGRO_SAMPLE pode ser disparado mais de uma vez no mesmo frame.
+   O Allegro toca cada chamada como uma voz separada e elas se somam,
+   ficando ensurdecedor.
+
+   Para resolver isso (e atender ao requisito de usar uma estrutura de
+   dados de lista/pilha/fila), guardamos cada sample já tocado em uma
+   LISTA ENCADEADA, junto do último instante em que ele tocou. Antes de
+   tocar um som de novo, percorremos a lista procurando aquele sample:
+   se ele tocou há pouco tempo (dentro do COOLDOWN_SOM), a nova chamada
+   é ignorada; senão, atualizamos o tempo e deixamos tocar. Se o sample
+   ainda não está na lista, um novo nó é inserido no início (O(1)). */
+
+#define COOLDOWN_SOM 0.05 /* segundos */
+
+typedef struct NoSomTocado
+{
+    ALLEGRO_SAMPLE *sample;
+    double ultimo_tempo;
+    struct NoSomTocado *prox;
+} NoSomTocado;
+
+static NoSomTocado *g_lista_sons_tocados = NULL;
+
+static int pode_tocar(ALLEGRO_SAMPLE *s)
+{
+    double agora = al_get_time();
+    NoSomTocado *atual = g_lista_sons_tocados;
+
+    /* Percorre a lista procurando o sample */
+    while (atual)
+    {
+        if (atual->sample == s)
+        {
+            if (agora - atual->ultimo_tempo < COOLDOWN_SOM)
+                return 0; /* tocou recente demais: ignora */
+
+            atual->ultimo_tempo = agora;
+            return 1;
+        }
+        atual = atual->prox;
+    }
+
+    /* Sample ainda nao registrado: insere um novo nó no início da lista */
+    NoSomTocado *novo = (NoSomTocado *)malloc(sizeof(NoSomTocado));
+    if (!novo)
+        return 1; /* sem memória: deixa tocar normalmente */
+
+    novo->sample = s;
+    novo->ultimo_tempo = agora;
+    novo->prox = g_lista_sons_tocados;
+    g_lista_sons_tocados = novo;
+
+    return 1;
+}
+
+static void liberar_lista_sons_tocados(void)
+{
+    NoSomTocado *atual = g_lista_sons_tocados;
+
+    while (atual)
+    {
+        NoSomTocado *prox = atual->prox;
+        free(atual);
+        atual = prox;
+    }
+
+    g_lista_sons_tocados = NULL;
+}
 
 
 void tocar(ALLEGRO_SAMPLE *s)
 {
-    if (s)
+    if (s && pode_tocar(s))
         al_play_sample(
             s,
             1.0f,
@@ -20,7 +96,7 @@ void tocar(ALLEGRO_SAMPLE *s)
 
 void tocar_pitch(ALLEGRO_SAMPLE *s, float pitch)
 {
-    if (s)
+    if (s && pode_tocar(s))
         al_play_sample(
             s,
             1.0f,
@@ -161,7 +237,7 @@ Sons carregar_sons(void)
         al_load_sample("assets/sons/Zumbi/horda.wav");
 
 
-    /* Ãcido */
+    /* Ãcido */
     s.acido_impacto =
         al_load_sample("assets/sons/Zumbi/acido/acido_impacto.wav");
 
@@ -194,6 +270,8 @@ Sons carregar_sons(void)
 void destruir_sons(Sons *s)
 {
     parar_musica_fundo(s);
+
+    liberar_lista_sons_tocados();
 
 
     if (s->katana12)

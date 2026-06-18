@@ -15,7 +15,7 @@ void horda_init                  (Horda *h);
 void horda_atualizar_spawn       (Horda *h, Sons *sons, float jogador_y);
 void horda_atualizar_fisica      (Horda *h, ALLEGRO_BITMAP *mapa);
 void horda_atualizar_movimento   (Horda *h, Jogador *j, Sons *sons, ALLEGRO_BITMAP *mapa);
-void horda_verificar_ataque      (Horda *h, Jogador *jog, Sanidade *san, Sons *sons);
+void horda_verificar_ataque(Horda *h, Jogador *jog, Sanidade *san, Sons *sons, ALLEGRO_BITMAP *mapa);
 void horda_verificar_dano_jogador(Horda *h, Jogador *jog, VidaStatus *vidas, Sons *sons);
 void horda_desenhar              (Horda *h, ZumbiSprites *spr, ZumbiAcidoSprites *spr_acido);
 

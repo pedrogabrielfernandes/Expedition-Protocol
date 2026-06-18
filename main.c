@@ -677,7 +677,7 @@ int main(void)
             horda_atualizar_spawn(&horda, &sons, jogador.mov.y);
             horda_atualizar_fisica(&horda, mapa);
             horda_atualizar_movimento(&horda, &jogador, &sons, mapa);
-            horda_verificar_ataque(&horda, &jogador, &sanidade, &sons);
+            horda_verificar_ataque(&horda, &jogador, &sanidade, &sons, mapa);
             horda_verificar_dano_jogador(&horda, &jogador, vetor_vidas, &sons);
 
             /* projéteis e explosões ácidas */
