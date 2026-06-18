@@ -1,7 +1,7 @@
 #ifndef SONS_H
 #define SONS_H
 
-#include "../tipos.h"
+#include "../../tipos.h"
 
 void tocar(ALLEGRO_SAMPLE *s);
 

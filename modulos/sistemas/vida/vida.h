@@ -1,7 +1,7 @@
 #ifndef VIDAS_H
 #define VIDAS_H
 
-#include "../tipos.h"
+#include "../../tipos.h"
 
 
 int contar_vidas(VidaStatus *vidas);

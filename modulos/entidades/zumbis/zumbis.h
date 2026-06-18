@@ -2,7 +2,7 @@
 #define ZUMBI_H
 
 #include <allegro5/allegro.h>
-#include "../tipos.h"
+#include "../../tipos.h"
 
 extern ProjetilAcido g_projeteis_acido[MAX_PROJETEIS_ACIDO];
 extern ExplosaoAcida g_explosoes_acidas[MAX_EXPLOSOES_ACIDAS];

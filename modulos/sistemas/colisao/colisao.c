@@ -1,7 +1,30 @@
 #include "colisao.h"
-#include "../tipos.h"   /* ALTURA, HITBOX_W, HITBOX_H,
-                             ZUMBI_HBX_OFFSET_X/Y, ZUMBI_HBX_W/H */
+#include "../../tipos.h"  
 extern unsigned char colisao[ALTURA][3000];
+
+#include "colisao.h"
+
+
+void gerar_mapa_colisao(ALLEGRO_BITMAP *mapa)
+{
+    al_lock_bitmap(
+        mapa,
+        ALLEGRO_PIXEL_FORMAT_ANY,
+        ALLEGRO_LOCK_READONLY
+    );
+    for (int y = 0; y < al_get_bitmap_height(mapa); y++)
+    {
+        for (int x = 0; x < al_get_bitmap_width(mapa); x++)
+        {
+            ALLEGRO_COLOR c = al_get_pixel(mapa, x, y);
+            unsigned char r, g, b;
+            al_unmap_rgb(c, &r, &g, &b);
+            colisao[y][x] =
+                ((r + g + b) / 3 < 120);
+        }
+    }
+    al_unlock_bitmap(mapa);
+}
 
 bool pixel_solido(ALLEGRO_BITMAP *mapa, int x, int y)
 {

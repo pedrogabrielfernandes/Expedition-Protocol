@@ -1,5 +1,5 @@
 CODIGO PARA COMPILAR UNIVERSAL
-gcc main.c modulos/colisao/colisao.c modulos/sanidade/sanidade.c modulos/sons/sons.c modulos/vida/vida.c modulos/zumbis/zumbis.c -o teste -lallegro -lallegro_main -lallegro_font -lallegro_ttf -lallegro_image -lallegro_primitives -lallegro_audio -lallegro_acodec -lm
+gcc main.c modulos/sistemas/colisao/colisao.c modulos/sistemas/sanidade/sanidade.c modulos/sistemas/sons/sons.c modulos/sistemas/vida/vida.c modulos/entidades/zumbis/zumbis.c modulos/interface/interface.c modulos/sistemas/pocao/pocao.c modulos/interface/particulas/particulas.c modulos/entidades/samurai/samurai.c modulos/interface/ranking/ranking.c modulos/interface/game_over/game_over.c -o teste -lallegro -lallegro_main -lallegro_font -lallegro_ttf -lallegro_image -lallegro_primitives -lallegro_audio -lallegro_acodec -lm
 
 ANTES DE QUALQUER ALTERAÇÃO:
 (guarda suas alterações temporariamente)

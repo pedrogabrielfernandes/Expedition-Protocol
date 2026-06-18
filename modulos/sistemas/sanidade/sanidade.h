@@ -1,7 +1,7 @@
 #ifndef SANIDADE_H
 #define SANIDADE_H
 
-#include "../tipos.h"
+#include "../../tipos.h"
 
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_font.h>

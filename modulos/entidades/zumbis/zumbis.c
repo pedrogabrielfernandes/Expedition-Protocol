@@ -6,11 +6,11 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "../tipos.h"
-#include "../colisao/colisao.h"
-#include "../sons/sons.h"
-#include "../sanidade/sanidade.h"
-#include "../vida/vida.h"
+#include "../../tipos.h"
+#include "../../sistemas/colisao/colisao.h"
+#include "../../sistemas/sons/sons.h"
+#include "../../sistemas/sanidade/sanidade.h"
+#include "../../sistemas/vida/vida.h"
 
 ProjetilAcido g_projeteis_acido[MAX_PROJETEIS_ACIDO];
 ExplosaoAcida g_explosoes_acidas[MAX_EXPLOSOES_ACIDAS];
