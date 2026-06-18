@@ -53,7 +53,7 @@ OpcaoMenu executar_menu(ALLEGRO_EVENT_QUEUE *queue, ALLEGRO_TIMER *timer,
                                   0, 0, LARGURA, ALTURA, 0);
             al_draw_filled_rectangle(0, 950, LARGURA, ALTURA, al_map_rgba(0, 0, 0, 210));
 
-            /* botão JOGAR */
+            /* botao JOGAR */
             {
                 int sel = (opcao == MENU_JOGAR);
                 float cx = LARGURA / 2.4f, cy = 990.0f;
@@ -73,7 +73,7 @@ OpcaoMenu executar_menu(ALLEGRO_EVENT_QUEUE *queue, ALLEGRO_TIMER *timer,
                     al_draw_text(fonte, al_map_rgba(180, 180, 180, 200), cx, cy, ALLEGRO_ALIGN_CENTER, "JOGAR");
             }
 
-            /* botão SAIR */
+            /* botao SAIR */
             {
                 int sel = (opcao == MENU_SAIR);
                 float cx = LARGURA / 1.6f, cy = 990.0f;
@@ -345,33 +345,27 @@ void desenhar_roda_habilidade(ALLEGRO_BITMAP *at1, ALLEGRO_BITMAP *at2, ALLEGRO_
 }
 
 /* ================================================================== */
-/*  ÍCONES DE ÁUDIO (mute SFX / mute Música)                            */
+/*  ICONES DE AUDIO (mute SFX / mute Musica)                           */
 /* ================================================================== */
 
-/* Verifica se o mouse está sobre um quadrado de lado ICONE_AUDIO_TAM
-   com canto superior esquerdo em (ix, iy). Usado tanto para hover
-   quanto para detectar clique. */
 static int mouse_sobre_icone(float mx, float my, float ix, float iy)
 {
     return (mx >= ix && mx <= ix + ICONE_AUDIO_TAM &&
             my >= iy && my <= iy + ICONE_AUDIO_TAM);
 }
-
-/* Desenha um único ícone de "alto-falante" dentro do quadrado (x,y).
-   mutado = 1 desenha o ícone "cortado" (com X), 0 desenha normal
-   (com ondas sonoras). hover = realça levemente o fundo. */
-static void desenhar_icone_speaker(float x, float y, int mutado, int hover,
-                                   ALLEGRO_FONT *fonte_hud, const char *rotulo)
-{
+static void __attribute__((unused)) desenhar_icone_speaker(float x, float y, int mutado, int hover,
+                                   ALLEGRO_FONT *fonte_hud, const char *rotulo){
     (void)fonte_hud;
     (void)rotulo;
 
     float cx = x + ICONE_AUDIO_TAM / 2.0f;
     float cy = y + ICONE_AUDIO_TAM / 2.0f;
 
-    ALLEGRO_COLOR fundo =
-        hover ? al_map_rgba(120, 80, 30, 240)
-              : al_map_rgba(35, 20, 8, 210);
+    ALLEGRO_COLOR fundo;
+    if (hover)
+        fundo = al_map_rgba(120, 80, 30, 240);
+    else
+        fundo = al_map_rgba(35, 20, 8, 210);
 
     al_draw_filled_rounded_rectangle(
         x, y,
@@ -380,20 +374,26 @@ static void desenhar_icone_speaker(float x, float y, int mutado, int hover,
         10, 10,
         fundo);
 
+    int borda;
+    if (hover)
+        borda = 3;
+    else
+        borda = 2;
+
     al_draw_rounded_rectangle(
         x, y,
         x + ICONE_AUDIO_TAM,
         y + ICONE_AUDIO_TAM,
         10, 10,
-        al_map_rgb(218,165,32),
-        hover ? 3 : 2);
+        al_map_rgb(218, 165, 32),
+        borda);
 
-    ALLEGRO_COLOR cor =
-        mutado ?
-        al_map_rgb(220,70,70) :
-        al_map_rgb(255,230,180);
+    ALLEGRO_COLOR cor;
+    if (mutado)
+        cor = al_map_rgb(220, 70, 70);
+    else
+        cor = al_map_rgb(255, 230, 180);
 
-    /* corpo do alto-falante */
     float sx = cx - 14;
     float sy = cy - 10;
 
@@ -415,13 +415,13 @@ static void desenhar_icone_speaker(float x, float y, int mutado, int hover,
         al_draw_line(
             cx + 6, cy - 10,
             cx + 20, cy + 10,
-            al_map_rgb(255,80,80),
+            al_map_rgb(255, 80, 80),
             4);
 
         al_draw_line(
             cx + 20, cy - 10,
             cx + 6, cy + 10,
-            al_map_rgb(255,80,80),
+            al_map_rgb(255, 80, 80),
             4);
     }
     else
@@ -472,10 +472,11 @@ void desenhar_icones_audio(Sons *sons, ALLEGRO_FONT *fonte_hud,
     float x = ICONE_SFX_X;
     float y = ICONE_SFX_Y;
 
-    ALLEGRO_COLOR fundo =
-        hover_sfx ?
-        al_map_rgba(120,80,30,230) :
-        al_map_rgba(35,20,8,210);
+    ALLEGRO_COLOR fundo;
+    if (hover_sfx)
+        fundo = al_map_rgba(120, 80, 30, 230);
+    else
+        fundo = al_map_rgba(35, 20, 8, 210);
 
     al_draw_filled_rounded_rectangle(
         x, y,
@@ -484,21 +485,28 @@ void desenhar_icones_audio(Sons *sons, ALLEGRO_FONT *fonte_hud,
         10, 10,
         fundo);
 
+    int borda_sfx;
+    if (hover_sfx)
+        borda_sfx = 3;
+    else
+        borda_sfx = 2;
+
     al_draw_rounded_rectangle(
         x, y,
         x + ICONE_AUDIO_TAM,
         y + ICONE_AUDIO_TAM,
         10, 10,
-        al_map_rgb(218,165,32),
-        hover_sfx ? 3 : 2);
+        al_map_rgb(218, 165, 32),
+        borda_sfx);
 
-    float cx = x + ICONE_AUDIO_TAM/2.0f;
-    float cy = y + ICONE_AUDIO_TAM/2.0f;
+    float cx = x + ICONE_AUDIO_TAM / 2.0f;
+    float cy = y + ICONE_AUDIO_TAM / 2.0f;
 
-    ALLEGRO_COLOR cor_sfx =
-        sons->mudo_sfx ?
-        al_map_rgb(220,70,70) :
-        al_map_rgb(255,230,180);
+    ALLEGRO_COLOR cor_sfx;
+    if (sons->mudo_sfx)
+        cor_sfx = al_map_rgb(220, 70, 70);
+    else
+        cor_sfx = al_map_rgb(255, 230, 180);
 
     al_draw_filled_rectangle(
         cx - 16, cy - 8,
@@ -516,13 +524,13 @@ void desenhar_icones_audio(Sons *sons, ALLEGRO_FONT *fonte_hud,
         al_draw_line(
             cx + 8, cy - 10,
             cx + 20, cy + 10,
-            al_map_rgb(255,70,70),
+            al_map_rgb(255, 70, 70),
             4);
 
         al_draw_line(
             cx + 20, cy - 10,
             cx + 8, cy + 10,
-            al_map_rgb(255,70,70),
+            al_map_rgb(255, 70, 70),
             4);
     }
     else
@@ -553,10 +561,10 @@ void desenhar_icones_audio(Sons *sons, ALLEGRO_FONT *fonte_hud,
     x = ICONE_MUSICA_X;
     y = ICONE_MUSICA_Y;
 
-    fundo =
-        hover_musica ?
-        al_map_rgba(120,80,30,230) :
-        al_map_rgba(35,20,8,210);
+    if (hover_musica)
+        fundo = al_map_rgba(120, 80, 30, 230);
+    else
+        fundo = al_map_rgba(35, 20, 8, 210);
 
     al_draw_filled_rounded_rectangle(
         x, y,
@@ -565,21 +573,28 @@ void desenhar_icones_audio(Sons *sons, ALLEGRO_FONT *fonte_hud,
         10, 10,
         fundo);
 
+    int borda_mus;
+    if (hover_musica)
+        borda_mus = 3;
+    else
+        borda_mus = 2;
+
     al_draw_rounded_rectangle(
         x, y,
         x + ICONE_AUDIO_TAM,
         y + ICONE_AUDIO_TAM,
         10, 10,
-        al_map_rgb(218,165,32),
-        hover_musica ? 3 : 2);
+        al_map_rgb(218, 165, 32),
+        borda_mus);
 
-    cx = x + ICONE_AUDIO_TAM/2.0f;
-    cy = y + ICONE_AUDIO_TAM/2.0f;
+    cx = x + ICONE_AUDIO_TAM / 2.0f;
+    cy = y + ICONE_AUDIO_TAM / 2.0f;
 
-    ALLEGRO_COLOR cor_mus =
-        sons->mudo_musica ?
-        al_map_rgb(220,70,70) :
-        al_map_rgb(255,230,180);
+    ALLEGRO_COLOR cor_mus;
+    if (sons->mudo_musica)
+        cor_mus = al_map_rgb(220, 70, 70);
+    else
+        cor_mus = al_map_rgb(255, 230, 180);
 
     /* haste */
     al_draw_filled_rectangle(
@@ -608,23 +623,21 @@ void desenhar_icones_audio(Sons *sons, ALLEGRO_FONT *fonte_hud,
         al_draw_line(
             cx - 14, cy - 14,
             cx + 14, cy + 14,
-            al_map_rgb(255,70,70),
+            al_map_rgb(255, 70, 70),
             4);
 
         al_draw_line(
             cx + 14, cy - 14,
             cx - 14, cy + 14,
-            al_map_rgb(255,70,70),
+            al_map_rgb(255, 70, 70),
             4);
     }
 }
 
 /* ================================================================== */
-/*  PAUSA COM CONTROLE DE VOLUME (sliders arrastáveis)                  */
+/*  PAUSA COM CONTROLE DE VOLUME (sliders arrastaveis)                  */
 /* ================================================================== */
 
-/* Desenha um slider horizontal e devolve, via ponteiros, a posição
-   da bolinha (cx_bola), útil para o main.c testar clique/arrasto. */
 static void desenhar_slider(float x, float y, float valor01,
                             const char *rotulo, ALLEGRO_FONT *fonte_hud,
                             int mudo)

@@ -27,7 +27,7 @@
 #include "modulos/interface/game_over/game_over.h"
 
 /* ================================================================== */
-/*  Globais de colisão                                                  */
+/*  Globais de colisï¿½o                                                  */
 /* ================================================================== */
 unsigned char colisao[ALTURA][3000];
 static ALLEGRO_BITMAP *jog_mapa_ptr = NULL;
@@ -36,7 +36,7 @@ ALLEGRO_BITMAP *get_jog_mapa(void)
     return jog_mapa_ptr;
 }
 
-/*  PROTÓTIPOS                                                          */
+/*  PROTï¿½TIPOS                                                          */
 /* ================================================================== */
 void perder_vida(VidaStatus *vidas);
 int contar_vidas(VidaStatus *vidas);
@@ -64,9 +64,9 @@ void explosoes_acidas_desenhar(ALLEGRO_BITMAP *frames[]);
 /*  Helpers para sliders de volume                                      */
 /* ================================================================== */
 
-/* Retorna 1 se o ponto (mx,my) está sobre o slider cujo trilho começa
+/* Retorna 1 se o ponto (mx,my) estï¿½ sobre o slider cujo trilho comeï¿½a
    em (sx, sy) e tem SLIDER_LARGURA x SLIDER_ALTURA pixels.
-   A zona de clique é ampliada verticalmente para facilitar o arrasto. */
+   A zona de clique ï¿½ ampliada verticalmente para facilitar o arrasto. */
 static int mouse_sobre_slider(float mx, float my, float sx, float sy)
 {
     float margem = SLIDER_BOLA_RAIO + 4.0f;
@@ -74,7 +74,7 @@ static int mouse_sobre_slider(float mx, float my, float sx, float sy)
             my >= sy - margem && my <= sy + SLIDER_ALTURA + margem);
 }
 
-/* Converte posição X do mouse em valor 0..1 dentro do slider. */
+/* Converte posiï¿½ï¿½o X do mouse em valor 0..1 dentro do slider. */
 static float slider_valor_de_x(float mx, float sx)
 {
     float v = (mx - sx) / SLIDER_LARGURA;
@@ -83,7 +83,7 @@ static float slider_valor_de_x(float mx, float sx)
     return v;
 }
 
-/* Retorna 1 se (mx,my) está sobre um ícone de áudio de tamanho ICONE_AUDIO_TAM. */
+/* Retorna 1 se (mx,my) estï¿½ sobre um ï¿½cone de ï¿½udio de tamanho ICONE_AUDIO_TAM. */
 static int mouse_sobre_icone_audio(float mx, float my, float ix, float iy)
 {
     return (mx >= ix && mx <= ix + ICONE_AUDIO_TAM &&
@@ -112,7 +112,7 @@ int main(void)
         puts("Erro keyboard");
         return 1;
     }
-    /* Mouse necessário para os ícones/sliders de áudio */
+    /* Mouse necessï¿½rio para os ï¿½cones/sliders de ï¿½udio */
     if (!al_install_mouse())
     {
         puts("Erro al_install_mouse");
@@ -216,7 +216,7 @@ int main(void)
     zum_spr.dead = al_load_bitmap("assets/sprites/Zombies/Dead.png");
     zum_spr.idle = al_load_bitmap("assets/sprites/Zombies/Idle.png");
 
-    /* Zumbi ácido */
+    /* Zumbi ï¿½cido */
     ZumbiAcidoSprites zum_acido_spr;
     zum_acido_spr.walk = al_load_bitmap("assets/sprites/Zumbi-acido/Walk.png");
     zum_acido_spr.attack = al_load_bitmap("assets/sprites/Zumbi-acido/Attack.png");
@@ -224,10 +224,10 @@ int main(void)
     zum_acido_spr.dead = al_load_bitmap("assets/sprites/Zumbi-acido/Dead.png");
     zum_acido_spr.idle = al_load_bitmap("assets/sprites/Zumbi-acido/Idle.png");
 
-    /* Projétil de ácido */
+    /* Projï¿½til de ï¿½cido */
     ALLEGRO_BITMAP *spr_acido_projetil = al_load_bitmap("assets/itens/acido.png");
 
-    /* Frames da explosão ácida */
+    /* Frames da explosï¿½o ï¿½cida */
     ALLEGRO_BITMAP *explosao_acida_frames[FRAMES_EXPLOSAO_ACIDA];
     for (int i = 0; i < FRAMES_EXPLOSAO_ACIDA; i++)
     {
@@ -282,7 +282,7 @@ int main(void)
     for (int iz = 0; iz < MAX_ZUMBIS_TELA; iz++)
         horda.pool[iz].ja_stunado_no_dash = 0;
 
-    /* Zera projéteis e explosões */
+    /* Zera projï¿½teis e explosï¿½es */
     for (int ip = 0; ip < MAX_PROJETEIS_ACIDO; ip++)
         g_projeteis_acido[ip].ativo = 0;
     for (int ie = 0; ie < MAX_EXPLOSOES_ACIDAS; ie++)
@@ -317,7 +317,7 @@ int main(void)
 
     /* Estado do mouse */
     float mouse_x = 0.0f, mouse_y = 0.0f;
-    int mouse_btn1_pressionado = 0; /* botão esquerdo segurado */
+    int mouse_btn1_pressionado = 0; /* botï¿½o esquerdo segurado */
     int arrastando_slider_sfx   = 0;
     int arrastando_slider_musica = 0;
 
@@ -362,19 +362,19 @@ int main(void)
             mouse_btn1_pressionado = 1;
             float mx = (float)ev.mouse.x, my = (float)ev.mouse.y;
 
-            /* Ícone de mute SFX ? clicável sempre */
+            /* ï¿½cone de mute SFX  clicï¿½vel sempre */
             if (mouse_sobre_icone_audio(mx, my, ICONE_SFX_X, ICONE_SFX_Y))
             {
                 sons.mudo_sfx = !sons.mudo_sfx;
             }
-            /* Ícone de mute Música ? clicável sempre */
+            /* ï¿½cone de mute Mï¿½sica  clicï¿½vel sempre */
             else if (mouse_sobre_icone_audio(mx, my, ICONE_MUSICA_X, ICONE_MUSICA_Y))
             {
                 sons.mudo_musica = !sons.mudo_musica;
                 aplicar_volume_musica(&sons);
             }
 
-            /* Sliders ? apenas durante a pausa */
+            /* Sliders apenas durante a pausa */
             if (pausado)
             {
                 if (mouse_sobre_slider(mx, my, SLIDER_SFX_X, SLIDER_SFX_Y))
@@ -519,7 +519,7 @@ int main(void)
                         jogador.mov.x = nx_f;
                     jogador.dash_fuga_dist -= move;
 
-                    /* stun em zumbis próximos */
+                    /* stun em zumbis prï¿½ximos */
                     double agora_dash = al_get_time();
                     for (int iz = 0; iz < MAX_ZUMBIS_TELA; iz++)
                     {
@@ -547,7 +547,7 @@ int main(void)
                         }
                     }
 
-                    /* dash destrói projéteis de ácido próximos */
+                    /* dash destrï¿½i projï¿½teis de ï¿½cido prï¿½ximos */
                     for (int ip = 0; ip < MAX_PROJETEIS_ACIDO; ip++)
                     {
                         ProjetilAcido *p = &g_projeteis_acido[ip];
@@ -580,7 +580,7 @@ int main(void)
             else
                 delay_atual = DELAY_ATAQUE_12;
 
-            /* início da carga do ataque 2 */
+            /* inï¿½cio da carga do ataque 2 */
             if (jogador.tipo_ataque == 2 &&
                 j_now && !j_ant && !jogador.atacando && !roda_aberta &&
                 !jogador.dash_fuga_ativo && !jogador.carregando_atk2 &&
@@ -646,7 +646,7 @@ int main(void)
                 }
             }
 
-            /* ataques 1 e 3: comportamento original (instantâneo) */
+            /* ataques 1 e 3: comportamento original (instantï¿½neo) */
             if (jogador.tipo_ataque != 2 &&
                 j_now && !j_ant && !jogador.atacando && !roda_aberta &&
                 !jogador.dash_fuga_ativo &&
@@ -792,11 +792,11 @@ int main(void)
             horda_verificar_ataque(&horda, &jogador, &sanidade, &sons, mapa);
             horda_verificar_dano_jogador(&horda, &jogador, vetor_vidas, &sons);
 
-            /* projéteis e explosões ácidas */
+            /* projï¿½teis e explosï¿½es ï¿½cidas */
             projeteis_acido_atualizar(mapa, &jogador, vetor_vidas, &sons);
             explosoes_acidas_atualizar(&horda, &jogador, vetor_vidas, &sanidade, &sons);
 
-            /* poção */
+            /* poï¿½ï¿½o */
             {
                 double agora_poc = al_get_time();
                 if (!pocao.ativa && (agora_poc - pocao_ultimo_check) >= 3.0)
@@ -832,7 +832,7 @@ int main(void)
             }
         }
 
-        /* física durante animação de morte */
+        /* fï¿½sica durante animaï¿½ï¿½o de morte */
         if (!pausado && jogador.estado == SAM_DEAD && jogador.morte_animando && !sanidade.game_over)
         {
             jogador.mov.vel_y += GRAVIDADE * 0.30f;
@@ -874,7 +874,7 @@ int main(void)
         desenhar_hud_dash_fuga(&jogador, fonte_hud);
         desenhar_hud_carga_atk2(&jogador, fonte_hud);
 
-        /* Ícones de áudio ? visíveis sempre (fora e dentro da pausa) */
+        /* ï¿½cones de ï¿½udio visï¿½veis sempre (fora e dentro da pausa) */
         desenhar_icones_audio(&sons, fonte_hud, mouse_x, mouse_y);
 
         if (pausado)
@@ -889,7 +889,7 @@ int main(void)
 
         al_flip_display();
 
-        /* game over / vitória */
+        /* game over / vitï¿½ria */
         morte_pronta = (jogador.estado == SAM_DEAD && !jogador.morte_animando);
         if (morte_pronta || sanidade.game_over)
         {
@@ -925,7 +925,7 @@ int main(void)
 
                 horda_init(&horda);
 
-                /* zera projéteis e explosões ácidas */
+                /* zera projï¿½teis e explosï¿½es ï¿½cidas */
                 for (int ip = 0; ip < MAX_PROJETEIS_ACIDO; ip++)
                     g_projeteis_acido[ip].ativo = 0;
                 for (int ie = 0; ie < MAX_EXPLOSOES_ACIDAS; ie++)
