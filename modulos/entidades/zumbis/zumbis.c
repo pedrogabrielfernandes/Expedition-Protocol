@@ -1082,11 +1082,13 @@ void horda_desenhar(Horda *h, ZumbiSprites *spr,
                 break;
             }
         }
-        if (!sheet)
+        if (!sheet){
             if (z->tipo == 2)
                 sheet = spr_acido->walk;
             else
                 sheet = spr->walk;
+            
+        }
 
         int fz = (int)z->frame % max_f;
 
