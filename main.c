@@ -145,7 +145,7 @@ int main(void)
     }
     al_flush_event_queue(queue);
 
-    /* ===== [CUTSCENE] ? roda logo após o menu ====================== */
+    /* ===== [CUTSCENE] roda logo apos o menu ========================= */
     parar_musica_fundo(&sons);   /* para a musica do menu            */
 
     Cutscene cutscene;
@@ -481,8 +481,18 @@ int main(void)
                 float passo_fuga = 14.0f;
                 if (jogador.dash_fuga_dist > 0.0f)
                 {
-                    float move = (jogador.dash_fuga_dist < passo_fuga) ? jogador.dash_fuga_dist : passo_fuga;
-                    float dx_fuga = (jogador.direcao == 0) ? move : -move;
+                    float move;
+                    if (jogador.dash_fuga_dist < passo_fuga)
+                        move = jogador.dash_fuga_dist;
+                    else
+                        move = passo_fuga;
+
+                    float dx_fuga;
+                    if (jogador.direcao == 0)
+                        dx_fuga = move;
+                    else
+                        dx_fuga = -move;
+
                     float nx_f = jogador.mov.x + dx_fuga;
                     if (!colide_mapa(mapa, nx_f, jogador.mov.y)) jogador.mov.x = nx_f;
                     jogador.dash_fuga_dist -= move;
@@ -496,7 +506,12 @@ int main(void)
                         float dist_y = fabsf((z->y + ZUMBI_HBX_OFFSET_Y + ZUMBI_HBX_H / 2.0f) - (jogador.mov.y + HITBOX_H / 2.0f));
                         if (dist_x < 70.0f && dist_y < 70.0f)
                         {
-                            float kb_dir = (z->x > jogador.mov.x) ? 1.0f : -1.0f;
+                            float kb_dir;
+                            if (z->x > jogador.mov.x)
+                                kb_dir = 1.0f;
+                            else
+                                kb_dir = -1.0f;
+
                             z->x += kb_dir * 18.0f;
                             z->stunado = 1; z->tempo_stun = agora_dash;
                             z->estado = ZUM_HURT; z->frame = 0;
@@ -522,7 +537,11 @@ int main(void)
 
             int j_now = al_key_down(&state, ALLEGRO_KEY_J);
             double agora_atk = al_get_time();
-            double delay_atual = (jogador.tipo_ataque == 3) ? DELAY_ATAQUE_3 : DELAY_ATAQUE_12;
+            double delay_atual;
+            if (jogador.tipo_ataque == 3)
+                delay_atual = DELAY_ATAQUE_3;
+            else
+                delay_atual = DELAY_ATAQUE_12;
 
             if (jogador.tipo_ataque == 2 &&
                 j_now && !j_ant && !jogador.atacando && !roda_aberta &&
@@ -582,7 +601,12 @@ int main(void)
                 jogador.estado != SAM_HURT && jogador.estado != SAM_DEAD &&
                 (agora_atk - jogador.ultimo_ataque) >= delay_atual)
             {
-                int custo_est = (jogador.tipo_ataque == 3) ? (int)CUSTO_ATK3 : 1;
+                int custo_est;
+                if (jogador.tipo_ataque == 3)
+                    custo_est = (int)CUSTO_ATK3;
+                else
+                    custo_est = 1;
+
                 if (jogador.estamina >= custo_est)
                 {
                     jogador.atacando         = 1;
@@ -614,8 +638,18 @@ int main(void)
                 float passo = 8.0f;
                 if (jogador.dash_dist > 0.0f)
                 {
-                    float move   = (jogador.dash_dist < passo) ? jogador.dash_dist : passo;
-                    float dx_dash = (jogador.direcao == 0) ? move : -move;
+                    float move;
+                    if (jogador.dash_dist < passo)
+                        move = jogador.dash_dist;
+                    else
+                        move = passo;
+
+                    float dx_dash;
+                    if (jogador.direcao == 0)
+                        dx_dash = move;
+                    else
+                        dx_dash = -move;
+
                     float nx_d = jogador.mov.x + dx_dash;
                     if (!colide_mapa(mapa, nx_d, jogador.mov.y)) jogador.mov.x = nx_d;
                     jogador.dash_dist -= move;
@@ -771,9 +805,11 @@ int main(void)
             }
             al_rest(0.8);
 
-            const char *motivo = sanidade.game_over
-                ? "Sua sanidade chegou ao limite..."
-                : "Voce foi derrotado pelos zumbis!";
+            const char *motivo;
+            if (sanidade.game_over)
+                motivo = "Sua sanidade chegou ao limite...";
+            else
+                motivo = "Voce foi derrotado pelos zumbis!";
 
             int reiniciar = tela_game_over(queue, timer, fonte, fonte_hud, motivo);
             if (reiniciar)
