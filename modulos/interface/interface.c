@@ -10,30 +10,102 @@
 /* ================================================================== */
 /*  MENU PRINCIPAL                                                      */
 /* ================================================================== */
+
+/* Posições reais dos botões na tela (corrigido de cy=990 para cy dentro
+   da resolução 1920x1080 ou 1280x720 ? usamos coordenadas relativas) */
+#define MENU_BTN_JOGAR_CX (LARGURA / 2.4f)
+#define MENU_BTN_JOGAR_CY (ALTURA - 90.0f)   /* ~630 em 720p, ~990 em 1080p */
+#define MENU_BTN_JOGAR_W  260.0f
+#define MENU_BTN_JOGAR_H  52.0f
+
+#define MENU_BTN_SAIR_CX  (LARGURA / 1.6f)
+#define MENU_BTN_SAIR_CY  (ALTURA - 90.0f)
+#define MENU_BTN_SAIR_W   220.0f
+#define MENU_BTN_SAIR_H   52.0f
+
+static int mouse_em_botao_menu(float mx, float my,
+                               float cx, float cy, float hw, float hh)
+{
+    return (mx >= cx - hw && mx <= cx + hw &&
+            my >= cy - hh  && my <= cy + hh);
+}
+
 OpcaoMenu executar_menu(ALLEGRO_EVENT_QUEUE *queue, ALLEGRO_TIMER *timer,
                         ALLEGRO_BITMAP *bg_menu, ALLEGRO_FONT *fonte,
                         ALLEGRO_FONT *fonte_hud, Sons *sons)
 {
     ALLEGRO_EVENT ev;
-    OpcaoMenu opcao = MENU_JOGAR;
+    OpcaoMenu opcao     = MENU_JOGAR;
     OpcaoMenu opcao_ant = (OpcaoMenu)-1;
+
+    float mouse_x = 0.0f, mouse_y = 0.0f;
 
     while (1)
     {
         al_wait_for_event(queue, &ev);
+
         if (ev.type == ALLEGRO_EVENT_DISPLAY_CLOSE)
             return MENU_SAIR;
 
+        /* ---- Mouse: movimento (hover) -------------------------------- */
+        if (ev.type == ALLEGRO_EVENT_MOUSE_AXES)
+        {
+            mouse_x = (float)ev.mouse.x;
+            mouse_y = (float)ev.mouse.y;
+
+            OpcaoMenu antes = opcao;
+            if (mouse_em_botao_menu(mouse_x, mouse_y,
+                                    MENU_BTN_JOGAR_CX, MENU_BTN_JOGAR_CY,
+                                    MENU_BTN_JOGAR_W / 2.0f, MENU_BTN_JOGAR_H / 2.0f))
+                opcao = MENU_JOGAR;
+            else if (mouse_em_botao_menu(mouse_x, mouse_y,
+                                         MENU_BTN_SAIR_CX, MENU_BTN_SAIR_CY,
+                                         MENU_BTN_SAIR_W / 2.0f, MENU_BTN_SAIR_H / 2.0f))
+                opcao = MENU_SAIR;
+
+            if (opcao != antes)
+                tocar(sons->selecao_som);
+        }
+
+        /* ---- Mouse: clique ------------------------------------------ */
+        if (ev.type == ALLEGRO_EVENT_MOUSE_BUTTON_DOWN && ev.mouse.button == 1)
+        {
+            float mx = (float)ev.mouse.x, my = (float)ev.mouse.y;
+            if (mouse_em_botao_menu(mx, my,
+                                    MENU_BTN_JOGAR_CX, MENU_BTN_JOGAR_CY,
+                                    MENU_BTN_JOGAR_W / 2.0f, MENU_BTN_JOGAR_H / 2.0f))
+            {
+                opcao = MENU_JOGAR;
+                tocar(sons->jogar);
+                al_rest(0.3);
+                return MENU_JOGAR;
+            }
+            if (mouse_em_botao_menu(mx, my,
+                                    MENU_BTN_SAIR_CX, MENU_BTN_SAIR_CY,
+                                    MENU_BTN_SAIR_W / 2.0f, MENU_BTN_SAIR_H / 2.0f))
+            {
+                opcao = MENU_SAIR;
+                tocar(sons->sair_som);
+                al_rest(0.3);
+                return MENU_SAIR;
+            }
+        }
+
+        /* ---- Teclado ------------------------------------------------- */
         if (ev.type == ALLEGRO_EVENT_KEY_DOWN)
         {
             OpcaoMenu antes = opcao;
-            if (ev.keyboard.keycode == ALLEGRO_KEY_A || ev.keyboard.keycode == ALLEGRO_KEY_LEFT)
+            if (ev.keyboard.keycode == ALLEGRO_KEY_A ||
+                ev.keyboard.keycode == ALLEGRO_KEY_LEFT)
                 opcao = MENU_JOGAR;
-            if (ev.keyboard.keycode == ALLEGRO_KEY_D || ev.keyboard.keycode == ALLEGRO_KEY_RIGHT)
+            if (ev.keyboard.keycode == ALLEGRO_KEY_D ||
+                ev.keyboard.keycode == ALLEGRO_KEY_RIGHT)
                 opcao = MENU_SAIR;
             if (opcao != antes)
                 tocar(sons->selecao_som);
-            if (ev.keyboard.keycode == ALLEGRO_KEY_ENTER || ev.keyboard.keycode == ALLEGRO_KEY_SPACE)
+
+            if (ev.keyboard.keycode == ALLEGRO_KEY_ENTER ||
+                ev.keyboard.keycode == ALLEGRO_KEY_SPACE)
             {
                 if (opcao == MENU_JOGAR)
                     tocar(sons->jogar);
@@ -44,58 +116,86 @@ OpcaoMenu executar_menu(ALLEGRO_EVENT_QUEUE *queue, ALLEGRO_TIMER *timer,
             }
         }
 
-        if (ev.type == ALLEGRO_EVENT_TIMER)
+        if (ev.type != ALLEGRO_EVENT_TIMER)
+            continue;
+
+        /* ---- Desenho ------------------------------------------------- */
+        double t = al_get_time();
+        al_clear_to_color(al_map_rgb(0, 0, 0));
+        al_draw_scaled_bitmap(bg_menu, 0, 0,
+                              al_get_bitmap_width(bg_menu),
+                              al_get_bitmap_height(bg_menu),
+                              0, 0, LARGURA, ALTURA, 0);
+
+        /* Faixa escura na parte de baixo onde ficam os botões */
+        al_draw_filled_rectangle(0, ALTURA - 140.0f, LARGURA, ALTURA,
+                                 al_map_rgba(0, 0, 0, 210));
+
+        /* ------ Botão JOGAR ------------------------------------------ */
         {
-            double t = al_get_time();
-            al_clear_to_color(al_map_rgb(0, 0, 0));
-            al_draw_scaled_bitmap(bg_menu, 0, 0,
-                                  al_get_bitmap_width(bg_menu), al_get_bitmap_height(bg_menu),
-                                  0, 0, LARGURA, ALTURA, 0);
-            al_draw_filled_rectangle(0, 950, LARGURA, ALTURA, al_map_rgba(0, 0, 0, 210));
+            int sel     = (opcao == MENU_JOGAR);
+            int hover_m = mouse_em_botao_menu(mouse_x, mouse_y,
+                                              MENU_BTN_JOGAR_CX, MENU_BTN_JOGAR_CY,
+                                              MENU_BTN_JOGAR_W / 2.0f, MENU_BTN_JOGAR_H / 2.0f);
+            float cx = MENU_BTN_JOGAR_CX;
+            float cy = MENU_BTN_JOGAR_CY;
+            float hw = MENU_BTN_JOGAR_W / 2.0f;
+            float hh = MENU_BTN_JOGAR_H / 2.0f;
 
-            
+            if (sel || hover_m)
             {
-                int sel = (opcao == MENU_JOGAR);
-                float cx = LARGURA / 2.4f, cy = 990.0f;
-                if (sel)
-                {
-                    float pulso = 0.7f + 0.3f * sinf((float)t * 6.0f);
-                    unsigned char ga = (unsigned char)(180.0f + 75.0f * pulso);
-                    al_draw_filled_rounded_rectangle(cx - 130, cy - 6, cx + 130, cy + 46, 10, 10, al_map_rgba(255, 215, 0, (unsigned char)(60.0f * pulso)));
-                    al_draw_rounded_rectangle(cx - 130, cy - 6, cx + 130, cy + 46, 10, 10, al_map_rgba(255, 215, 0, ga), 3);
-                    al_draw_text(fonte, al_map_rgb(255, 255, 255), cx - 2, cy, ALLEGRO_ALIGN_CENTER, "JOGAR");
-                    al_draw_text(fonte, al_map_rgb(255, 255, 255), cx + 2, cy, ALLEGRO_ALIGN_CENTER, "JOGAR");
-                    al_draw_text(fonte, al_map_rgb(255, 255, 255), cx, cy - 2, ALLEGRO_ALIGN_CENTER, "JOGAR");
-                    al_draw_text(fonte, al_map_rgb(255, 255, 255), cx, cy + 2, ALLEGRO_ALIGN_CENTER, "JOGAR");
-                    al_draw_text(fonte, al_map_rgb(0, 0, 0), cx, cy, ALLEGRO_ALIGN_CENTER, "JOGAR");
-                }
-                else
-                    al_draw_text(fonte, al_map_rgba(180, 180, 180, 200), cx, cy, ALLEGRO_ALIGN_CENTER, "JOGAR");
+                float pulso = 0.7f + 0.3f * sinf((float)t * 6.0f);
+                unsigned char ga = (unsigned char)(180.0f + 75.0f * pulso);
+                al_draw_filled_rounded_rectangle(cx - hw, cy - hh, cx + hw, cy + hh,
+                                                 10, 10,
+                                                 al_map_rgba(255, 215, 0, (unsigned char)(60.0f * pulso)));
+                al_draw_rounded_rectangle(cx - hw, cy - hh, cx + hw, cy + hh,
+                                          10, 10, al_map_rgba(255, 215, 0, ga), 3);
+                /* sombra do texto */
+                al_draw_text(fonte, al_map_rgb(255, 255, 255), cx - 2, cy - 18, ALLEGRO_ALIGN_CENTER, "JOGAR");
+                al_draw_text(fonte, al_map_rgb(255, 255, 255), cx + 2, cy - 18, ALLEGRO_ALIGN_CENTER, "JOGAR");
+                al_draw_text(fonte, al_map_rgb(255, 255, 255), cx, cy - 20, ALLEGRO_ALIGN_CENTER, "JOGAR");
+                al_draw_text(fonte, al_map_rgb(255, 255, 255), cx, cy - 16, ALLEGRO_ALIGN_CENTER, "JOGAR");
+                al_draw_text(fonte, al_map_rgb(0, 0, 0), cx, cy - 18, ALLEGRO_ALIGN_CENTER, "JOGAR");
             }
-
-            
-            {
-                int sel = (opcao == MENU_SAIR);
-                float cx = LARGURA / 1.6f, cy = 990.0f;
-                if (sel)
-                {
-                    float pulso = 0.7f + 0.3f * sinf((float)t * 6.0f);
-                    unsigned char ga = (unsigned char)(180.0f + 75.0f * pulso);
-                    al_draw_filled_rounded_rectangle(cx - 110, cy - 6, cx + 110, cy + 46, 10, 10, al_map_rgba(255, 60, 60, (unsigned char)(60.0f * pulso)));
-                    al_draw_rounded_rectangle(cx - 110, cy - 6, cx + 110, cy + 46, 10, 10, al_map_rgba(255, 80, 80, ga), 3);
-                    al_draw_text(fonte, al_map_rgb(255, 255, 255), cx - 2, cy, ALLEGRO_ALIGN_CENTER, "SAIR");
-                    al_draw_text(fonte, al_map_rgb(255, 255, 255), cx + 2, cy, ALLEGRO_ALIGN_CENTER, "SAIR");
-                    al_draw_text(fonte, al_map_rgb(255, 255, 255), cx, cy - 2, ALLEGRO_ALIGN_CENTER, "SAIR");
-                    al_draw_text(fonte, al_map_rgb(255, 255, 255), cx, cy + 2, ALLEGRO_ALIGN_CENTER, "SAIR");
-                    al_draw_text(fonte, al_map_rgb(0, 0, 0), cx, cy, ALLEGRO_ALIGN_CENTER, "SAIR");
-                }
-                else
-                    al_draw_text(fonte, al_map_rgba(180, 180, 180, 200), cx, cy, ALLEGRO_ALIGN_CENTER, "SAIR");
-            }
-
-            al_flip_display();
-            opcao_ant = opcao;
+            else
+                al_draw_text(fonte, al_map_rgba(180, 180, 180, 200),
+                             cx, cy - 18, ALLEGRO_ALIGN_CENTER, "JOGAR");
         }
+
+        /* ------ Botão SAIR ------------------------------------------- */
+        {
+            int sel     = (opcao == MENU_SAIR);
+            int hover_m = mouse_em_botao_menu(mouse_x, mouse_y,
+                                              MENU_BTN_SAIR_CX, MENU_BTN_SAIR_CY,
+                                              MENU_BTN_SAIR_W / 2.0f, MENU_BTN_SAIR_H / 2.0f);
+            float cx = MENU_BTN_SAIR_CX;
+            float cy = MENU_BTN_SAIR_CY;
+            float hw = MENU_BTN_SAIR_W / 2.0f;
+            float hh = MENU_BTN_SAIR_H / 2.0f;
+
+            if (sel || hover_m)
+            {
+                float pulso = 0.7f + 0.3f * sinf((float)t * 6.0f);
+                unsigned char ga = (unsigned char)(180.0f + 75.0f * pulso);
+                al_draw_filled_rounded_rectangle(cx - hw, cy - hh, cx + hw, cy + hh,
+                                                 10, 10,
+                                                 al_map_rgba(255, 60, 60, (unsigned char)(60.0f * pulso)));
+                al_draw_rounded_rectangle(cx - hw, cy - hh, cx + hw, cy + hh,
+                                          10, 10, al_map_rgba(255, 80, 80, ga), 3);
+                al_draw_text(fonte, al_map_rgb(255, 255, 255), cx - 2, cy - 18, ALLEGRO_ALIGN_CENTER, "SAIR");
+                al_draw_text(fonte, al_map_rgb(255, 255, 255), cx + 2, cy - 18, ALLEGRO_ALIGN_CENTER, "SAIR");
+                al_draw_text(fonte, al_map_rgb(255, 255, 255), cx, cy - 20, ALLEGRO_ALIGN_CENTER, "SAIR");
+                al_draw_text(fonte, al_map_rgb(255, 255, 255), cx, cy - 16, ALLEGRO_ALIGN_CENTER, "SAIR");
+                al_draw_text(fonte, al_map_rgb(0, 0, 0), cx, cy - 18, ALLEGRO_ALIGN_CENTER, "SAIR");
+            }
+            else
+                al_draw_text(fonte, al_map_rgba(180, 180, 180, 200),
+                             cx, cy - 18, ALLEGRO_ALIGN_CENTER, "SAIR");
+        }
+
+        al_flip_display();
+        opcao_ant = opcao;
     }
     (void)opcao_ant;
 }
@@ -345,7 +445,7 @@ void desenhar_roda_habilidade(ALLEGRO_BITMAP *at1, ALLEGRO_BITMAP *at2, ALLEGRO_
 }
 
 /* ================================================================== */
-/*  ICONES DE AUDIO (mute SFX / mute Musica)                          */
+/*  ICONES DE AUDIO                                                    */
 /* ================================================================== */
 
 static int mouse_sobre_icone(float mx, float my, float ix, float iy)
@@ -353,325 +453,78 @@ static int mouse_sobre_icone(float mx, float my, float ix, float iy)
     return (mx >= ix && mx <= ix + ICONE_AUDIO_TAM &&
             my >= iy && my <= iy + ICONE_AUDIO_TAM);
 }
-static void __attribute__((unused)) desenhar_icone_speaker(float x, float y, int mutado, int hover,
-                                   ALLEGRO_FONT *fonte_hud, const char *rotulo){
-    (void)fonte_hud;
-    (void)rotulo;
-
-    float cx = x + ICONE_AUDIO_TAM / 2.0f;
-    float cy = y + ICONE_AUDIO_TAM / 2.0f;
-
-    ALLEGRO_COLOR fundo;
-    if (hover)
-        fundo = al_map_rgba(120, 80, 30, 240);
-    else
-        fundo = al_map_rgba(35, 20, 8, 210);
-
-    al_draw_filled_rounded_rectangle(
-        x, y,
-        x + ICONE_AUDIO_TAM,
-        y + ICONE_AUDIO_TAM,
-        10, 10,
-        fundo);
-
-    int borda;
-    if (hover)
-        borda = 3;
-    else
-        borda = 2;
-
-    al_draw_rounded_rectangle(
-        x, y,
-        x + ICONE_AUDIO_TAM,
-        y + ICONE_AUDIO_TAM,
-        10, 10,
-        al_map_rgb(218, 165, 32),
-        borda);
-
-    ALLEGRO_COLOR cor;
-    if (mutado)
-        cor = al_map_rgb(220, 70, 70);
-    else
-        cor = al_map_rgb(255, 230, 180);
-
-    float sx = cx - 14;
-    float sy = cy - 10;
-
-    al_draw_filled_rectangle(
-        sx,
-        sy + 4,
-        sx + 8,
-        sy + 16,
-        cor);
-
-    al_draw_filled_triangle(
-        sx + 8, sy,
-        sx + 20, sy - 6,
-        sx + 20, sy + 22,
-        cor);
-
-    if (mutado)
-    {
-        al_draw_line(
-            cx + 6, cy - 10,
-            cx + 20, cy + 10,
-            al_map_rgb(255, 80, 80),
-            4);
-
-        al_draw_line(
-            cx + 20, cy - 10,
-            cx + 6, cy + 10,
-            al_map_rgb(255, 80, 80),
-            4);
-    }
-    else
-    {
-        al_draw_arc(
-            cx + 12, cy,
-            7,
-            -0.8f,
-            1.6f,
-            cor,
-            2);
-
-        al_draw_arc(
-            cx + 12, cy,
-            12,
-            -0.8f,
-            1.6f,
-            cor,
-            2);
-
-        al_draw_arc(
-            cx + 12, cy,
-            17,
-            -0.8f,
-            1.6f,
-            cor,
-            2);
-    }
-}
 
 void desenhar_icones_audio(Sons *sons, ALLEGRO_FONT *fonte_hud,
                            float mouse_x, float mouse_y)
 {
     (void)fonte_hud;
 
-    int hover_sfx =
-        mouse_sobre_icone(mouse_x, mouse_y,
-                          ICONE_SFX_X, ICONE_SFX_Y);
+    int hover_sfx    = mouse_sobre_icone(mouse_x, mouse_y, ICONE_SFX_X,    ICONE_SFX_Y);
+    int hover_musica = mouse_sobre_icone(mouse_x, mouse_y, ICONE_MUSICA_X, ICONE_MUSICA_Y);
 
-    int hover_musica =
-        mouse_sobre_icone(mouse_x, mouse_y,
-                          ICONE_MUSICA_X, ICONE_MUSICA_Y);
-
-    /* ========================= */
-    /* SFX - SPEAKER             */
-    /* ========================= */
-
-    float x = ICONE_SFX_X;
-    float y = ICONE_SFX_Y;
-
-    ALLEGRO_COLOR fundo;
-    if (hover_sfx)
-        fundo = al_map_rgba(120, 80, 30, 230);
-    else
-        fundo = al_map_rgba(35, 20, 8, 210);
-
-    al_draw_filled_rounded_rectangle(
-        x, y,
-        x + ICONE_AUDIO_TAM,
-        y + ICONE_AUDIO_TAM,
-        10, 10,
-        fundo);
-
-    int borda_sfx;
-    if (hover_sfx)
-        borda_sfx = 3;
-    else
-        borda_sfx = 2;
-
-    al_draw_rounded_rectangle(
-        x, y,
-        x + ICONE_AUDIO_TAM,
-        y + ICONE_AUDIO_TAM,
-        10, 10,
-        al_map_rgb(218, 165, 32),
-        borda_sfx);
-
-    float cx = x + ICONE_AUDIO_TAM / 2.0f;
-    float cy = y + ICONE_AUDIO_TAM / 2.0f;
-
-    ALLEGRO_COLOR cor_sfx;
-    if (sons->mudo_sfx)
-        cor_sfx = al_map_rgb(220, 70, 70);
-    else
-        cor_sfx = al_map_rgb(255, 230, 180);
-
-    al_draw_filled_rectangle(
-        cx - 16, cy - 8,
-        cx - 8,  cy + 8,
-        cor_sfx);
-
-    al_draw_filled_triangle(
-        cx - 8,  cy - 12,
-        cx + 5,  cy - 20,
-        cx + 5,  cy + 20,
-        cor_sfx);
-
+    /* === SFX === */
+    float x = ICONE_SFX_X, y = ICONE_SFX_Y;
+    ALLEGRO_COLOR fundo = hover_sfx ? al_map_rgba(120, 80, 30, 230) : al_map_rgba(35, 20, 8, 210);
+    al_draw_filled_rounded_rectangle(x, y, x + ICONE_AUDIO_TAM, y + ICONE_AUDIO_TAM, 10, 10, fundo);
+    al_draw_rounded_rectangle(x, y, x + ICONE_AUDIO_TAM, y + ICONE_AUDIO_TAM, 10, 10,
+                              al_map_rgb(218, 165, 32), hover_sfx ? 3 : 2);
+    float cx = x + ICONE_AUDIO_TAM / 2.0f, cy = y + ICONE_AUDIO_TAM / 2.0f;
+    ALLEGRO_COLOR cor_sfx = sons->mudo_sfx ? al_map_rgb(220, 70, 70) : al_map_rgb(255, 230, 180);
+    al_draw_filled_rectangle(cx - 16, cy - 8, cx - 8, cy + 8, cor_sfx);
+    al_draw_filled_triangle(cx - 8, cy - 12, cx + 5, cy - 20, cx + 5, cy + 20, cor_sfx);
     if (sons->mudo_sfx)
     {
-        al_draw_line(
-            cx + 8, cy - 10,
-            cx + 20, cy + 10,
-            al_map_rgb(255, 70, 70),
-            4);
-
-        al_draw_line(
-            cx + 20, cy - 10,
-            cx + 8, cy + 10,
-            al_map_rgb(255, 70, 70),
-            4);
+        al_draw_line(cx + 8, cy - 10, cx + 20, cy + 10, al_map_rgb(255, 70, 70), 4);
+        al_draw_line(cx + 20, cy - 10, cx + 8, cy + 10, al_map_rgb(255, 70, 70), 4);
     }
     else
     {
-        al_draw_arc(
-            cx + 6, cy,
-            7,
-            -0.8f, 1.6f,
-            cor_sfx, 2);
-
-        al_draw_arc(
-            cx + 6, cy,
-            12,
-            -0.8f, 1.6f,
-            cor_sfx, 2);
-
-        al_draw_arc(
-            cx + 6, cy,
-            17,
-            -0.8f, 1.6f,
-            cor_sfx, 2);
+        al_draw_arc(cx + 6, cy, 7,  -0.8f, 1.6f, cor_sfx, 2);
+        al_draw_arc(cx + 6, cy, 12, -0.8f, 1.6f, cor_sfx, 2);
+        al_draw_arc(cx + 6, cy, 17, -0.8f, 1.6f, cor_sfx, 2);
     }
 
-    /* ========================= */
-    /* MUSICA - NOTA MUSICAL     */
-    /* ========================= */
-
-    x = ICONE_MUSICA_X;
-    y = ICONE_MUSICA_Y;
-
-    if (hover_musica)
-        fundo = al_map_rgba(120, 80, 30, 230);
-    else
-        fundo = al_map_rgba(35, 20, 8, 210);
-
-    al_draw_filled_rounded_rectangle(
-        x, y,
-        x + ICONE_AUDIO_TAM,
-        y + ICONE_AUDIO_TAM,
-        10, 10,
-        fundo);
-
-    int borda_mus;
-    if (hover_musica)
-        borda_mus = 3;
-    else
-        borda_mus = 2;
-
-    al_draw_rounded_rectangle(
-        x, y,
-        x + ICONE_AUDIO_TAM,
-        y + ICONE_AUDIO_TAM,
-        10, 10,
-        al_map_rgb(218, 165, 32),
-        borda_mus);
-
-    cx = x + ICONE_AUDIO_TAM / 2.0f;
-    cy = y + ICONE_AUDIO_TAM / 2.0f;
-
-    ALLEGRO_COLOR cor_mus;
-    if (sons->mudo_musica)
-        cor_mus = al_map_rgb(220, 70, 70);
-    else
-        cor_mus = al_map_rgb(255, 230, 180);
-
-    
-    al_draw_filled_rectangle(
-        cx - 2,
-        cy - 16,
-        cx + 2,
-        cy + 6,
-        cor_mus);
-
-    
-    al_draw_filled_triangle(
-        cx + 2, cy - 16,
-        cx + 16, cy - 12,
-        cx + 2, cy - 6,
-        cor_mus);
-
-    
-    al_draw_filled_circle(
-        cx - 5,
-        cy + 10,
-        6,
-        cor_mus);
-
+    /* === MUSICA === */
+    x = ICONE_MUSICA_X; y = ICONE_MUSICA_Y;
+    fundo = hover_musica ? al_map_rgba(120, 80, 30, 230) : al_map_rgba(35, 20, 8, 210);
+    al_draw_filled_rounded_rectangle(x, y, x + ICONE_AUDIO_TAM, y + ICONE_AUDIO_TAM, 10, 10, fundo);
+    al_draw_rounded_rectangle(x, y, x + ICONE_AUDIO_TAM, y + ICONE_AUDIO_TAM, 10, 10,
+                              al_map_rgb(218, 165, 32), hover_musica ? 3 : 2);
+    cx = x + ICONE_AUDIO_TAM / 2.0f; cy = y + ICONE_AUDIO_TAM / 2.0f;
+    ALLEGRO_COLOR cor_mus = sons->mudo_musica ? al_map_rgb(220, 70, 70) : al_map_rgb(255, 230, 180);
+    al_draw_filled_rectangle(cx - 2, cy - 16, cx + 2, cy + 6, cor_mus);
+    al_draw_filled_triangle(cx + 2, cy - 16, cx + 16, cy - 12, cx + 2, cy - 6, cor_mus);
+    al_draw_filled_circle(cx - 5, cy + 10, 6, cor_mus);
     if (sons->mudo_musica)
     {
-        al_draw_line(
-            cx - 14, cy - 14,
-            cx + 14, cy + 14,
-            al_map_rgb(255, 70, 70),
-            4);
-
-        al_draw_line(
-            cx + 14, cy - 14,
-            cx - 14, cy + 14,
-            al_map_rgb(255, 70, 70),
-            4);
+        al_draw_line(cx - 14, cy - 14, cx + 14, cy + 14, al_map_rgb(255, 70, 70), 4);
+        al_draw_line(cx + 14, cy - 14, cx - 14, cy + 14, al_map_rgb(255, 70, 70), 4);
     }
 }
 
 /* ================================================================== */
-/*  PAUSA COM CONTROLE DE VOLUME (sliders arrastaveis)                */
+/*  PAUSA COM CONTROLE DE VOLUME                                       */
 /* ================================================================== */
 
 static void desenhar_slider(float x, float y, float valor01,
-                            const char *rotulo, ALLEGRO_FONT *fonte_hud,
-                            int mudo)
+                            const char *rotulo, ALLEGRO_FONT *fonte_hud, int mudo)
 {
     al_draw_text(fonte_hud, al_map_rgb(255, 215, 0), x, y - 26, 0, rotulo);
-
-    ALLEGRO_COLOR cor_trilho_fundo = al_map_rgb(40, 40, 40);
-    ALLEGRO_COLOR cor_trilho_preenchido;
-    if (mudo)
-        cor_trilho_preenchido = al_map_rgb(120, 60, 60);
-    else
-        cor_trilho_preenchido = al_map_rgb(30, 144, 255);
-
-    float cy = y + SLIDER_ALTURA / 2.0f;
-
+    ALLEGRO_COLOR cor_trilho_preenchido = mudo ? al_map_rgb(120, 60, 60) : al_map_rgb(30, 144, 255);
+    float cy_s = y + SLIDER_ALTURA / 2.0f;
     al_draw_filled_rounded_rectangle(x, y, x + SLIDER_LARGURA, y + SLIDER_ALTURA,
-                                     SLIDER_ALTURA / 2.0f, SLIDER_ALTURA / 2.0f, cor_trilho_fundo);
-
-    float largura_preenchida = SLIDER_LARGURA * valor01;
-    if (largura_preenchida > 0.0f)
-        al_draw_filled_rounded_rectangle(x, y, x + largura_preenchida, y + SLIDER_ALTURA,
+                                     SLIDER_ALTURA / 2.0f, SLIDER_ALTURA / 2.0f, al_map_rgb(40, 40, 40));
+    float lp = SLIDER_LARGURA * valor01;
+    if (lp > 0.0f)
+        al_draw_filled_rounded_rectangle(x, y, x + lp, y + SLIDER_ALTURA,
                                          SLIDER_ALTURA / 2.0f, SLIDER_ALTURA / 2.0f, cor_trilho_preenchido);
-
     al_draw_rounded_rectangle(x, y, x + SLIDER_LARGURA, y + SLIDER_ALTURA,
                               SLIDER_ALTURA / 2.0f, SLIDER_ALTURA / 2.0f, al_map_rgb(218, 165, 32), 2);
-
-    float bola_x = x + largura_preenchida;
-    al_draw_filled_circle(bola_x, cy, SLIDER_BOLA_RAIO, al_map_rgb(255, 235, 180));
-    al_draw_circle(bola_x, cy, SLIDER_BOLA_RAIO, al_map_rgb(218, 165, 32), 2);
-
+    al_draw_filled_circle(x + lp, cy_s, SLIDER_BOLA_RAIO, al_map_rgb(255, 235, 180));
+    al_draw_circle(x + lp, cy_s, SLIDER_BOLA_RAIO, al_map_rgb(218, 165, 32), 2);
     char pct_txt[16];
     sprintf(pct_txt, "%d%%", (int)(valor01 * 100.0f + 0.5f));
     al_draw_text(fonte_hud, al_map_rgb(255, 255, 255), x + SLIDER_LARGURA + 16, y - 2, 0, pct_txt);
-
     if (mudo)
         al_draw_text(fonte_hud, al_map_rgb(255, 120, 120), x + SLIDER_LARGURA + 70, y - 2, 0, "(mudo)");
 }
@@ -681,26 +534,17 @@ void desenhar_pausa_com_volume(Sons *sons, ALLEGRO_FONT *fonte,
                                float mouse_x, float mouse_y)
 {
     al_draw_filled_rectangle(0, 0, LARGURA, ALTURA, al_map_rgba(0, 0, 0, 160));
-
-    float painel_x0 = LARGURA / 2.0f - 360, painel_y0 = ALTURA / 2.0f - 160;
-    float painel_x1 = LARGURA / 2.0f + 360, painel_y1 = ALTURA / 2.0f + 160;
-
-    al_draw_filled_rounded_rectangle(painel_x0, painel_y0, painel_x1, painel_y1,
-                                     12, 12, al_map_rgb(101, 60, 20));
-    al_draw_rounded_rectangle(painel_x0, painel_y0, painel_x1, painel_y1,
-                              12, 12, al_map_rgb(218, 165, 32), 3);
-
+    float px0 = LARGURA / 2.0f - 360, py0 = ALTURA / 2.0f - 160;
+    float px1 = LARGURA / 2.0f + 360, py1 = ALTURA / 2.0f + 160;
+    al_draw_filled_rounded_rectangle(px0, py0, px1, py1, 12, 12, al_map_rgb(101, 60, 20));
+    al_draw_rounded_rectangle(px0, py0, px1, py1, 12, 12, al_map_rgb(218, 165, 32), 3);
     al_draw_text(fonte, al_map_rgb(255, 215, 0),
-                 LARGURA / 2.0f, painel_y0 + 20, ALLEGRO_ALIGN_CENTER, "PAUSADO");
-
+                 LARGURA / 2.0f, py0 + 20, ALLEGRO_ALIGN_CENTER, "PAUSADO");
     desenhar_slider(SLIDER_SFX_X, SLIDER_SFX_Y, sons->volume_sfx,
                     "Volume Efeitos (SFX)", fonte_hud, sons->mudo_sfx);
     desenhar_slider(SLIDER_MUSICA_X, SLIDER_MUSICA_Y, sons->volume_musica,
                     "Volume Musica", fonte_hud, sons->mudo_musica);
-
     desenhar_icones_audio(sons, fonte_hud, mouse_x, mouse_y);
-
     al_draw_text(fonte_hud, al_map_rgb(255, 255, 255),
-                 LARGURA / 2.0f, painel_y1 - 40, ALLEGRO_ALIGN_CENTER,
-                 "ESC para continuar");
+                 LARGURA / 2.0f, py1 - 40, ALLEGRO_ALIGN_CENTER, "ESC para continuar");
 }

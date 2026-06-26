@@ -29,7 +29,7 @@
 #define ATTACK_DRAW_H DRAW_H
 
 /* ================================================================== */
-/*  Fï¿½SICA DO SAMURAI                                                   */
+/*  FÍSICA DO SAMURAI                                                   */
 /* ================================================================== */
 #define VELOCIDADE 4.0f
 #define GRAVIDADE 0.7f
@@ -53,13 +53,13 @@
 #define ZUMBI_OFFSET_Y 0
 
 /* ================================================================== */
-/*  Fï¿½SICA DO ZUMBI                                                     */
+/*  FÍSICA DO ZUMBI                                                     */
 /* ================================================================== */
 #define GRAVIDADE_ZUMBI 0.55f
 #define MAX_QUEDA_ZUMBI 14.0f
 
 /* ================================================================== */
-/*  FRAMES DE ANIMAï¿½ï¿½O  SAMURAI                                        */
+/*  FRAMES DE ANIMAÇÃO  SAMURAI                                        */
 /* ================================================================== */
 #define FRAMES_IDLE 6
 #define FRAMES_RUN 8
@@ -68,7 +68,7 @@
 #define FRAMES_DEAD 3
 
 /* ================================================================== */
-/*  FRAMES DE ANIMAï¿½ï¿½O  ZUMBI NORMAL                                   */
+/*  FRAMES DE ANIMAÇÃO  ZUMBI NORMAL                                   */
 /* ================================================================== */
 #define FRAMES_ZUMBI_WALK 8
 #define FRAMES_ZUMBI_RUN 7
@@ -81,7 +81,7 @@
 #define FRAMES_ZUMBI_IDLE 8
 
 /* ================================================================== */
-/*  ZUMBI ï¿½CIDO                                                         */
+/*  ZUMBI ÁCIDO                                                         */
 /* ================================================================== */
 #define ACIDO_HBX_OFFSET_X 60
 #define ACIDO_HBX_OFFSET_Y 48
@@ -106,7 +106,7 @@
 #define ZUMBI_ACIDO_FRAME_DISPARO 3
 
 /* ================================================================== */
-/*  PROJï¿½TIL ï¿½CIDO                                                      */
+/*  PROJÉTIL ÁCIDO                                                      */
 /* ================================================================== */
 #define MAX_PROJETEIS_ACIDO 12
 #define FRAMES_ACIDO_PROJETIL 9
@@ -120,7 +120,7 @@
 #define ACIDO_PROJETIL_HBX_H 24
 
 /* ================================================================== */
-/*  EXPLOSï¿½O ï¿½CIDA                                                      */
+/*  EXPLOSÃO ÁCIDA                                                      */
 /* ================================================================== */
 #define MAX_EXPLOSOES_ACIDAS 8
 #define FRAMES_EXPLOSAO_ACIDA 10
@@ -140,13 +140,15 @@
 #define RECARGA_ESTAMINA 0.03f
 
 /* ================================================================== */
-/*  ATAQUE 2 CARREGï¿½VEL                                                 */
+/*  ATAQUE 2 CARREGÁVEL                                                 */
 /* ================================================================== */
 #define CARGA_ATK2_TEMPO_MAX 1.2
 #define CUSTO_ATK2_MIN 1.0f
 #define CUSTO_ATK2_MAX 4.0f
 #define DANO_ATK2_MIN 1
 #define DANO_ATK2_MAX 3
+#define DANO_ATK1 1
+#define DANO_ATK3 2
 
 /* ================================================================== */
 /*  SANIDADE                                                            */
@@ -167,22 +169,12 @@
 #define ZUMBIS_POR_ONDA 5
 #define INTERVALO_ONDA 230
 
-#define SPAWN_DIR_X_MIN 1700
-#define SPAWN_DIR_X_MAX 1800
-#define SPAWN_DIR_Y 655
-
-#define SPAWN_TOP_LEFT_X 15
-#define SPAWN_TOP_LEFT_Y 210
-
 #define SPAWN_MIN_JOGADOR_Y 300
 #define SPAWN_TOP_Y_THRESHOLD 300
 
 /* ================================================================== */
-/*  PATRULHA E PERCEPï¿½ï¿½O                                                */
+/*  PATRULHA E PERCEPÇÃO                                                */
 /* ================================================================== */
-#define PATROL_AREA_X_MIN 10
-#define PATROL_AREA_X_MAX 1800
-#define NIVEL_ALTO_Y 380
 #define PATRULHA_VEL 1.0f
 #define PATRULHA_DIST 80.0f
 #define ZUMBI_ABAIXO_MARGEM 55
@@ -228,7 +220,7 @@
 #define DASH_FUGA_FRAMES_RUN 8
 
 /* ================================================================== */
-/*  POï¿½ï¿½O DE VIDA                                                       */
+/*  POÇÃO DE VIDA                                                       */
 /* ================================================================== */
 #define POCAO_SPAWN_X_MIN 480
 #define POCAO_SPAWN_X_MAX 1870
@@ -242,12 +234,12 @@
 #define POCAO_HITBOX_H 40
 
 /* ================================================================== */
-/*  SONS INTERVALO Mï¿½NIMO ENTRE REPRODUï¿½ï¿½ES                            */
+/*  SONS INTERVALO MÍNIMO ENTRE REPRODUÇÕES                            */
 /* ================================================================== */
 #define SOM_WALK_SAM_INTERVALO 0.30f
 
 /* ================================================================== */
-/*  VOLUME PADRï¿½O                                                       */
+/*  VOLUME PADRÃO                                                       */
 /* ================================================================== */
 #define VOLUME_PADRAO 0.5f
 
@@ -333,12 +325,10 @@ typedef struct
     double dash_fuga_ultimo;
     float dash_fuga_frame;
 
-
     int carregando_atk2;
     double carga_atk2_inicio;
     float carga_atk2_pct;
     int dano_atk2_atual;
-
 
     int som_ataque_tocado;
     int dash_som_tocado;
@@ -357,7 +347,7 @@ typedef struct
     int direcao;
     int vivo;
     int vida;
-    int tipo; 
+    int tipo;
 
     EstadoZumbi estado;
 
@@ -382,11 +372,9 @@ typedef struct
     int explodiu;
     int mutante;
 
-
     int ataque_som_tocado;
     int ataque_resultado;
 } Inimigo;
-
 
 typedef struct
 {
@@ -398,14 +386,12 @@ typedef struct
     int impactou;
 } ProjetilAcido;
 
-
 typedef struct
 {
     float x, y;
     float frame;
     int ativo;
 } ExplosaoAcida;
-
 
 typedef struct
 {
@@ -419,7 +405,6 @@ typedef struct
     int spawns_esq;
     int spawns_dir;
 } Horda;
-
 
 typedef struct
 {
@@ -440,7 +425,6 @@ typedef struct
     int coletada;
 } Pocao;
 
-
 typedef struct
 {
     double inicio;
@@ -451,7 +435,6 @@ typedef struct
     int quantidade_scores;
 } Temporizador;
 
-
 typedef struct
 {
     float x, y;
@@ -460,7 +443,6 @@ typedef struct
     float escala;
     float y_origem;
 } Particula;
-
 
 typedef struct
 {
@@ -481,10 +463,8 @@ typedef struct
     ALLEGRO_BITMAP *walk, *attack, *hurt, *dead, *idle;
 } ZumbiAcidoSprites;
 
-
 typedef struct
 {
-  
     ALLEGRO_SAMPLE *katana12;
     ALLEGRO_SAMPLE *katana_attack3;
     ALLEGRO_SAMPLE *dash;
@@ -496,20 +476,17 @@ typedef struct
     ALLEGRO_SAMPLE *caindo;
     ALLEGRO_SAMPLE *dash_fuga;
 
- 
     ALLEGRO_SAMPLE *dano;
     ALLEGRO_SAMPLE *dano_miss;
     ALLEGRO_SAMPLE *morte_zumbi;
     ALLEGRO_SAMPLE *dano_zumbi;
     ALLEGRO_SAMPLE *zumbi_knockback;
 
-   
     ALLEGRO_SAMPLE *som_velocista;
     ALLEGRO_SAMPLE *ataque_velocista;
     ALLEGRO_SAMPLE *dano_velocista;
     ALLEGRO_SAMPLE *morte_velocista;
     ALLEGRO_SAMPLE *dano_sofrido_velocista;
-
 
     ALLEGRO_SAMPLE *acido_impacto;
     ALLEGRO_SAMPLE *cuspindo_acido;
@@ -519,7 +496,6 @@ typedef struct
     ALLEGRO_SAMPLE *morte_acido;
     ALLEGRO_SAMPLE *impacto_espada;
 
-  
     ALLEGRO_SAMPLE *padrao;
     ALLEGRO_SAMPLE *jogar;
     ALLEGRO_SAMPLE *esc_som;
@@ -535,8 +511,23 @@ typedef struct
 
     float volume_sfx;
     float volume_musica;
-    int   mudo_sfx;
-    int   mudo_musica;
+    int mudo_sfx;
+    int mudo_musica;
+
+    /* ---- Música do boss ---- */
+    ALLEGRO_SAMPLE *boss_fight_music;
+    ALLEGRO_SAMPLE_INSTANCE *boss_inst;
+    int boss_tocando;
+
+    /* ---- Efeitos sonoros exclusivos do boss ---- */
+    ALLEGRO_SAMPLE *boss_spawn;         /* toca ao boss entrar em cena      */
+    ALLEGRO_SAMPLE *boss_furioso;       /* transição fase 2 e fase 3        */
+    ALLEGRO_SAMPLE *boss_ataque;        /* boss inicia um ataque            */
+    ALLEGRO_SAMPLE *boss_espada;        /* espada do boss acerta o jogador  */
+    ALLEGRO_SAMPLE *boss_ataque_errou;  /* swing do boss erra               */
+    ALLEGRO_SAMPLE *boss_morte;         /* boss morre                       */
+    ALLEGRO_SAMPLE *boss_dano;          /* boss recebe dano                 */
+    ALLEGRO_SAMPLE *boss_dano_sofrido;  /* jogador leva dano do boss        */
 } Sons;
 
-#endif 
+#endif

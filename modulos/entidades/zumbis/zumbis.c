@@ -11,13 +11,14 @@
 #include "../../sistemas/sons/sons.h"
 #include "../../sistemas/sanidade/sanidade.h"
 #include "../../sistemas/vida/vida.h"
+#include "../../mapa/mapa.h"
 
 ProjetilAcido g_projeteis_acido[MAX_PROJETEIS_ACIDO];
 ExplosaoAcida g_explosoes_acidas[MAX_EXPLOSOES_ACIDAS];
 unsigned char g_explosao_acida_hit[MAX_EXPLOSOES_ACIDAS][MAX_ZUMBIS_TELA];
 
 /* ================================================================== */
-/*  Fun√ß√µes internas (static)                                          */
+/*  FunÁıes internas (static)                                          */
 /* ================================================================== */
 static int zumbis_vivos_na_tela(Horda *h)
 {
@@ -124,54 +125,66 @@ void horda_init(Horda *h)
 /* ================================================================== */
 /*  HORDA  SPAWN                                                       */
 /* ================================================================== */
-void horda_atualizar_spawn(Horda *h, Sons *sons, float jogador_y)
+void horda_atualizar_spawn(Horda *h, Sons *sons, float jogador_y, const ConfigMapa *cfg)
 {
     if (h->fase_concluida || h->total_spawned >= TOTAL_ZUMBIS_FASE)
         return;
     if (jogador_y < SPAWN_MIN_JOGADOR_Y)
         return;
-
+ 
+    /* Se cfg for NULL por acidente, usa o mapa 0 como fallback seguro */
+    if (!cfg)
+        cfg = mapa_obter(0);
+ 
     int acido_vivo = 0;
     for (int i = 0; i < MAX_ZUMBIS_TELA; i++)
         if (h->pool[i].vivo && h->pool[i].tipo == 2)
             acido_vivo = 1;
     if (acido_vivo)
         return;
-
+ 
     if (zumbis_vivos_na_tela(h) > 2)
         return;
+ 
     if (--h->timer_onda <= 0)
     {
         int restam = TOTAL_ZUMBIS_FASE - h->total_spawned;
-        int para_spawn;
-        if (restam < 5)
-            para_spawn = restam;
-        else
-            para_spawn = 5;
+        int para_spawn = (restam < 5) ? restam : 5;
+ 
         tocar(sons->horda_som);
+ 
         for (int n = 0; n < para_spawn; n++)
         {
             int s = slot_livre(h);
             if (s < 0)
                 break;
+ 
             float sx_, sy_;
             int lado = rand() % 2;
-            if (h->spawns_esq >= 25)
-                lado = 1;
-            if (h->spawns_dir >= 25)
-                lado = 0;
+ 
+            /* Limites de spawn vindos do ConfigMapa, n„o de #defines */
+            if (h->spawns_esq >= cfg->max_spawns_esq)
+                lado = 1;   /* forÁa spawn direito */
+            if (h->spawns_dir >= cfg->max_spawns_dir)
+                lado = 0;   /* forÁa spawn esquerdo */
+ 
             if (lado == 0)
             {
-                sx_ = SPAWN_TOP_LEFT_X + (float)(rand() % 180);
-                sy_ = SPAWN_TOP_LEFT_Y;
+                /* Spawn esquerdo/topo ? regi„o definida pelo mapa */
+                float range = cfg->spawn_esq.x_max - cfg->spawn_esq.x_min;
+                sx_ = cfg->spawn_esq.x_min + (float)(rand() % (int)range);
+                sy_ = cfg->spawn_esq.y;
                 h->spawns_esq++;
             }
             else
             {
-                sx_ = SPAWN_DIR_X_MIN + (float)(rand() % (SPAWN_DIR_X_MAX - SPAWN_DIR_X_MIN));
-                sy_ = SPAWN_DIR_Y;
+                /* Spawn direito ? regi„o definida pelo mapa */
+                float range = cfg->spawn_dir.x_max - cfg->spawn_dir.x_min;
+                sx_ = cfg->spawn_dir.x_min + (float)(rand() % (int)range);
+                sy_ = cfg->spawn_dir.y;
                 h->spawns_dir++;
             }
+ 
             spawnar_zumbi(h, sons, s, sx_, sy_, 0);
             h->total_spawned++;
         }
@@ -180,7 +193,7 @@ void horda_atualizar_spawn(Horda *h, Sons *sons, float jogador_y)
 }
 
 /* ================================================================== */
-/*  HORDA  FÔøΩSICA                                                      */
+/*  HORDA  FÕSICA                                                      */
 /* ================================================================== */
 void horda_atualizar_fisica(Horda *h, ALLEGRO_BITMAP *mapa)
 {
@@ -222,10 +235,13 @@ void horda_atualizar_fisica(Horda *h, ALLEGRO_BITMAP *mapa)
 /*  HORDA  MOVIMENTO / IA                                              */
 /* ================================================================== */
 void horda_atualizar_movimento(Horda *h, Jogador *j, Sons *sons,
-                               ALLEGRO_BITMAP *mapa)
+                               ALLEGRO_BITMAP *mapa, const ConfigMapa *cfg)
 {
     double agora = al_get_time();
     (void)sons;
+
+    if (!cfg)
+        cfg = mapa_obter(0);
 
     for (int i = 0; i < MAX_ZUMBIS_TELA; i++)
     {
@@ -386,10 +402,10 @@ void horda_atualizar_movimento(Horda *h, Jogador *j, Sons *sons,
         else
             jy_ref = j->y_chao;
         int zumbi_abaixo = (z->y > jy_ref + ZUMBI_ABAIXO_MARGEM);
-        int jogador_alto = (jy_ref < NIVEL_ALTO_Y);
+        int jogador_alto = (jy_ref < cfg->nivel_alto_y);
 
     
-        if (!jogador_morto && z->y < NIVEL_ALTO_Y && jy_ref >= NIVEL_ALTO_Y)
+        if (!jogador_morto && z->y < cfg->nivel_alto_y && jy_ref >= cfg->nivel_alto_y)
         {
             float passo;
 
@@ -510,7 +526,7 @@ void horda_atualizar_movimento(Horda *h, Jogador *j, Sons *sons,
                 else
                     vel_patrulha = PATRULHA_VEL;
                 float nx_z = z->x + vel_patrulha * z->patrol_dir;
-                if (nx_z < PATROL_AREA_X_MIN || nx_z > PATROL_AREA_X_MAX)
+                if (nx_z < cfg->patrol_x_min || nx_z > cfg->patrol_x_max)
                     z->patrol_dir = -z->patrol_dir;
                 else if (!zumbi_colide_horizontal(mapa, nx_z, z->y))
                     z->x = nx_z;
@@ -562,7 +578,7 @@ void horda_atualizar_movimento(Horda *h, Jogador *j, Sons *sons,
                 {
                     float vel_patrulha = z->velocidade * 0.4f;
                     float nx_z = z->x + vel_patrulha * z->patrol_dir;
-                    if (nx_z < PATROL_AREA_X_MIN || nx_z > PATROL_AREA_X_MAX)
+                    if (nx_z < cfg->patrol_x_min || nx_z > cfg->patrol_x_max)
                         z->patrol_dir = -z->patrol_dir;
                     else if (!zumbi_colide_horizontal(mapa, nx_z, z->y))
                         z->x = nx_z;
@@ -625,8 +641,8 @@ void horda_atualizar_movimento(Horda *h, Jogador *j, Sons *sons,
                     nx_z = z->x + passo;
 
                 int bloqueado = zumbi_colide_horizontal(mapa, nx_z, z->y) ||
-                                nx_z < PATROL_AREA_X_MIN ||
-                                nx_z > PATROL_AREA_X_MAX;
+                                nx_z < cfg->patrol_x_min ||
+                                nx_z > cfg->patrol_x_max;
 
                 if (!bloqueado)
                 {
@@ -1160,7 +1176,7 @@ void horda_desenhar(Horda *h, ZumbiSprites *spr,
 }
 
 /* ================================================================== */
-/*  PROJ√âTIL DE √ÅCIDO                                                  */
+/*  PROJ…TIL DE ¡CIDO                                                  */
 /* ================================================================== */
 void projetil_acido_spawn(float x, float y, int direcao)
 {
@@ -1295,7 +1311,7 @@ void projeteis_acido_desenhar(ALLEGRO_BITMAP *spr)
 }
 
 /* ================================================================== */
-/*  EXPLOS√ÉO DE √ÅCIDO                                                  */
+/*  EXPLOS√O DE ¡CIDO                                                  */
 /* ================================================================== */
 void explosao_acida_spawn(float x, float y)
 {

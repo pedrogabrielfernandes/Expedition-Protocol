@@ -3,27 +3,20 @@
 
 #include "../../tipos.h"
 
-
 void tocar(ALLEGRO_SAMPLE *s);
-
-
 void tocar_pitch(ALLEGRO_SAMPLE *s, float pitch);
 
-
 void tocar_musica_fundo(Sons *s);
-
-
 void parar_musica_fundo(Sons *s);
-
-
 void aplicar_volume_musica(Sons *s);
 
+void tocar_musica_boss(Sons *s);
+void parar_musica_boss(Sons *s);
+void aplicar_volume_musica_boss(Sons *s);
 
 Sons carregar_sons(void);
-
-
 void destruir_sons(Sons *s);
 
 extern Sons *g_sons_ativo;
 
-#endif 
+#endif

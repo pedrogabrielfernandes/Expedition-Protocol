@@ -6,7 +6,7 @@
 #include "../../tipos.h"
 
 ALLEGRO_BITMAP *get_jog_mapa(void);
-void pocao_tentar_spawn(Pocao *p, VidaStatus *vidas);
+void pocao_tentar_spawn(Pocao *p, VidaStatus *vidas, int mapa_id);
 void pocao_atualizar(Pocao *p, Jogador *jog, VidaStatus *vidas, Sons *sons);
 void pocao_desenhar(Pocao *p, ALLEGRO_BITMAP *spr);
 
