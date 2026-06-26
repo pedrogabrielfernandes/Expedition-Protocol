@@ -31,7 +31,7 @@
 /* ===== [CUTSCENE] ================================================== */
 #include "modulos/cutciene/cutciene.h"
 
-/* ===== [SELEÇÃO DE FASE + PROGRESSO] =============================== */
+/* ===== [SELEÃ‡ÃƒO DE FASE + PROGRESSO] =============================== */
 #include "modulos/interface/selecao_fase/selecao_fase.h"
 /* =================================================================== */
 
@@ -259,7 +259,7 @@ int main(void)
     progresso_carregar(&prog);
 
     /* ================================================================
-       LOOP EXTERNO: Menu -> Seleção de fase -> Jogo -> (repete)
+       LOOP EXTERNO: Menu -> SeleÃ§Ã£o de fase -> Jogo -> (repete)
        ================================================================ */
     int rodando_global = 1;
 
@@ -272,14 +272,14 @@ int main(void)
 
         al_flush_event_queue(queue);
 
-        /* ---- Tela de seleção de fases ---- */
+        /* ---- Tela de seleÃ§Ã£o de fases ---- */
         int fase_escolhida = tela_selecao_fase(queue, timer, fonte, fonte_hud, &prog, &sons);
         if (fase_escolhida < 0)
             continue; /* volta ao menu principal */
 
         al_flush_event_queue(queue);
 
-        /* ===== [CUTSCENE] ? só exibe antes da fase 0 =============== */
+        /* ===== [CUTSCENE] â€“ sÃ³ exibe antes da fase 0 =============== */
         if (fase_escolhida == 0)
         {
             parar_musica_fundo(&sons);
@@ -331,7 +331,7 @@ int main(void)
         /* ===== [/CUTSCENE] ========================================== */
 
         /* ----------------------------------------------------------------
-           Inicializa cenário da fase escolhida
+           Inicializa cenÃ¡rio da fase escolhida
         ---------------------------------------------------------------- */
         int mapa_idx = fase_escolhida;
         const ConfigMapa *cfg = mapa_obter(mapa_idx);
@@ -342,7 +342,7 @@ int main(void)
         gerar_mapa_colisao(mapa);
         jog_mapa_ptr = mapa;
 
-        /* ---- Música da fase ---- */
+        /* ---- MÃºsica da fase ---- */
         if (mapa_idx == 3)
         {
             parar_musica_fundo(&sons);
@@ -430,7 +430,7 @@ int main(void)
         jogador.ultimo_ataque = -999.0;
         jogador.dash_fuga_ultimo = -999.0;
 
-        /* ---- [BOSS] Inicialização ---------------------------------- */
+        /* ---- [BOSS] InicializaÃ§Ã£o ---------------------------------- */
         Boss boss = {0};
         BossSprites boss_spr = {0};
         int boss_ativo_nessa_fase = (mapa_idx == 3);
@@ -482,7 +482,6 @@ int main(void)
         sanidade.ultimo_abate = al_get_time();
 
         int esc_ant = 0, k_ant = 0, j_ant = 0, q_ant = 0, e_ant = 0;
-        int f2_ant = 0;
         int som_finish_tocado = 0, som_gameover_tocado = 0;
         int rodando = 1;
 
@@ -495,7 +494,7 @@ int main(void)
         ALLEGRO_KEYBOARD_STATE state;
 
         /* ============================================================
-           LOOP PRINCIPAL (desta sessão / conjunto de fases)
+           LOOP PRINCIPAL (desta sessÃ£o / conjunto de fases)
            ============================================================ */
         while (rodando)
         {
@@ -584,23 +583,6 @@ int main(void)
                 }
             }
             esc_ant = esc_now;
-
-            /* ===== [DEBUG TEMP] F2 = pular fase atual =============== */
-            int f2_now = al_key_down(&state, ALLEGRO_KEY_F2);
-            if (f2_now && !f2_ant &&
-                !pausado && !sanidade.game_over && !horda.fase_concluida &&
-                jogador.estado != SAM_DEAD)
-            {
-                horda.fase_concluida = 1;
-                if (tempo.ativo)
-                {
-                    tempo.fim = al_get_time();
-                    tempo.atual = tempo.fim - tempo.inicio;
-                    tempo.ativo = 0;
-                }
-            }
-            f2_ant = f2_now;
-            /* ===== [/DEBUG TEMP] ==================================== */
 
             int morte_pronta = (jogador.estado == SAM_DEAD && !jogador.morte_animando);
             int em_game_over = sanidade.game_over || morte_pronta;
@@ -912,7 +894,7 @@ int main(void)
                 projeteis_acido_atualizar(mapa, &jogador, vetor_vidas, &sons);
                 explosoes_acidas_atualizar(&horda, &jogador, vetor_vidas, &sanidade, &sons);
 
-                /* ---- [BOSS] Lógica --------------------------------- */
+                /* ---- [BOSS] LÃ³gica --------------------------------- */
                 if (boss_ativo_nessa_fase && boss.ativo)
                 {
                     boss_atualizar(&boss, &jogador, &sons, mapa, vetor_vidas);
@@ -941,7 +923,7 @@ int main(void)
                         }
                     }
 
-                    /* Boss derrotado ? conclui fase */
+                    /* Boss derrotado â†’ conclui fase */
                     if (boss_derrotado(&boss) && !horda.fase_concluida)
                     {
                         horda.fase_concluida = 1;
@@ -1091,7 +1073,7 @@ int main(void)
                     preparar_nova_fase(&jogador, &horda, &pocao, &pocao_ultimo_check, &tempo, cfg);
                     restaurar_todas_vidas(vetor_vidas);
 
-                    /* ---- [BOSS] Reiniciar após game over ----------- */
+                    /* ---- [BOSS] Reiniciar apÃ³s game over ----------- */
                     boss_ativo_nessa_fase = (mapa_idx == 3);
                     if (boss_ativo_nessa_fase)
                     {
@@ -1109,7 +1091,6 @@ int main(void)
                     j_ant = 0;
                     q_ant = 0;
                     e_ant = 0;
-                    f2_ant = 0;
                     som_finish_tocado = 0;
                     som_gameover_tocado = 0;
                     mouse_btn1_pressionado = 0;
@@ -1129,13 +1110,13 @@ int main(void)
                     al_flush_event_queue(queue);
                     continue;
                 }
-                /* Não reiniciou: volta ao menu principal */
+                /* NÃ£o reiniciou: volta ao menu principal */
                 rodando = 0;
                 continue;
             }
 
             /* ============================================================
-               FASE CONCLUÍDA (horda derrotada nesse mapa)
+               FASE CONCLUÃDA (horda derrotada nesse mapa)
                ============================================================ */
             if (horda.fase_concluida && !sanidade.game_over)
             {
@@ -1147,18 +1128,18 @@ int main(void)
                     som_finish_tocado = 1;
                 }
 
-                /* Flash de vitória */
+                /* Flash de vitÃ³ria */
                 al_draw_filled_rectangle(0, 0, LARGURA, ALTURA, al_map_rgba(0, 120, 40, 30));
                 al_draw_text(fonte, al_map_rgb(255, 215, 0),
                              LARGURA / 2.0f, ALTURA / 2.0f - 60, ALLEGRO_ALIGN_CENTER,
-                             "50 ZUMBIS ELIMINADOS!");
+                             boss_ativo_nessa_fase ? "BOSS DERROTADO!" : "50 ZUMBIS ELIMINADOS!");
                 al_draw_text(fonte_hud, al_map_rgb(255, 255, 255),
                              LARGURA / 2.0f, ALTURA / 2.0f, ALLEGRO_ALIGN_CENTER,
                              "Abrindo ranking...");
                 al_flip_display();
                 al_rest(1.5);
 
-                /* ---- Salva progresso (desbloqueia próxima fase) ---- */
+                /* ---- Salva progresso (desbloqueia prÃ³xima fase) ---- */
                 progresso_avancar_fase(&prog, mapa_idx);
 
                 /* ---- Ranking da fase ---- */
@@ -1174,7 +1155,7 @@ int main(void)
                     tela_proxima_fase(queue, timer, fonte, fonte_hud,
                                       mapa_idx, proximo_idx, cfg_prox);
 
-                    /* ---- [BOSS] Transição de fase ------------------ */
+                    /* ---- [BOSS] TransiÃ§Ã£o de fase ------------------ */
                     /* Destroi sprites do boss ao sair da fase 4 */
                     if (boss_ativo_nessa_fase)
                     {
@@ -1212,7 +1193,6 @@ int main(void)
                     j_ant = 0;
                     q_ant = 0;
                     e_ant = 0;
-                    f2_ant = 0;
                     mouse_btn1_pressionado = 0;
                     arrastando_slider_sfx = 0;
                     arrastando_slider_musica = 0;
@@ -1231,13 +1211,13 @@ int main(void)
                     continue;
                 }
 
-                /* Era o último mapa: encerra essa sessão, volta ao menu */
+                /* Era o Ãºltimo mapa: encerra essa sessÃ£o, volta ao menu */
                 rodando = 0;
                 continue;
             }
-        } /* fim loop principal desta sessão */
+        } /* fim loop principal desta sessÃ£o */
 
-        /* ---- Cleanup de bitmaps da sessão ---- */
+        /* ---- Cleanup de bitmaps da sessÃ£o ---- */
         if (bg)
             al_destroy_bitmap(bg);
         if (mapa)
@@ -1278,7 +1258,7 @@ int main(void)
         al_destroy_bitmap(habilidade2);
         al_destroy_bitmap(habilidade3);
 
-        /* ---- [BOSS] Cleanup final da sessão ----------------------- */
+        /* ---- [BOSS] Cleanup final da sessÃ£o ----------------------- */
         if (boss_ativo_nessa_fase)
             boss_sprites_destruir(&boss_spr);
         /* ---- [/BOSS] ----------------------------------------------- */

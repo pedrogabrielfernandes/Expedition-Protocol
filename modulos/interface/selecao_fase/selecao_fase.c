@@ -1,6 +1,6 @@
 /* ================================================================== */
 /* selecao_fase.c                                                     */
-/* Tela de seleção de fases + progresso persistente                   */
+/* Tela de sele&#65533;&#65533;o de fases + progresso persistente                   */
 /* ================================================================== */
 #include "selecao_fase.h"
 
@@ -18,7 +18,7 @@
 #include "../../sistemas/sons/sons.h"
 
 /* ================================================================== */
-/* Dimensões/layout                                                   */
+/* Dimens&#65533;es/layout                                                   */
 /* ================================================================== */
 #ifndef LARGURA
 #define LARGURA 1280
@@ -27,14 +27,14 @@
 #define ALTURA 720
 #endif
 
-/* Botões de fase */
+/* Bot&#65533;es de fase */
 #define BTN_W 200
 #define BTN_H 60
 #define BTN_PAD_X 8
 #define BTN_PAD_Y 10
 #define COLS 5
 
-/* Botão "Voltar" centralizado na parte inferior */
+/* Bot&#65533;o "Voltar" centralizado na parte inferior */
 #define VOLTAR_W 160
 #define VOLTAR_H 50
 #define VOLTAR_X ((LARGURA - VOLTAR_W) / 2)
@@ -310,7 +310,7 @@ static void desenhar_barra_progresso(float x, float y, float w, float h,
 }
 
 /* ================================================================== */
-/* Fundo próprio da tela de seleção                                   */
+/* Fundo pr&#65533;prio da tela de sele&#65533;&#65533;o                                   */
 /* ================================================================== */
 static ALLEGRO_BITMAP *criar_fundo_selecao(void)
 {
@@ -357,7 +357,7 @@ static ALLEGRO_BITMAP *criar_fundo_selecao(void)
 /* ================================================================== */
 /* tela_selecao_fase                                                  */
 /* ================================================================== */
-#define CURSOR_VOLTAR total   /* sentinel: cursor aponta pro botão Voltar */
+#define CURSOR_VOLTAR total   /* sentinel: cursor aponta pro bot&#65533;o Voltar */
 
 int tela_selecao_fase(ALLEGRO_EVENT_QUEUE *queue,
                       ALLEGRO_TIMER *timer,
@@ -379,7 +379,7 @@ int tela_selecao_fase(ALLEGRO_EVENT_QUEUE *queue,
     float grade_w = total_cols * (BTN_W + BTN_PAD_X) - BTN_PAD_X;
     float grade_h = total_rows * (BTN_H + BTN_PAD_Y) - BTN_PAD_Y;
 
-    /* Alturas fixas dos elementos de cabeçalho */
+    /* Alturas fixas dos elementos de cabe&#65533;alho */
     float bloco_titulo_h = 32.0f;
     float bloco_sub_h    = 18.0f;
     float bloco_gap1     = 16.0f;  /* titulo -> subtitulo  */
@@ -400,8 +400,8 @@ int tela_selecao_fase(ALLEGRO_EVENT_QUEUE *queue,
     float sub_top    = bloco_y + bloco_titulo_h + bloco_gap1;
 
     /* Painel envolvendo tudo com margem interna.
-     * pad_h maior que pad_v para acomodar o subtítulo que é mais largo
-     * que a grade de botões (ex: "A / D  ou  Setas para navegar | Enter"). */
+     * pad_h maior que pad_v para acomodar o subt&#65533;tulo que &#65533; mais largo
+     * que a grade de bot&#65533;es (ex: "A / D  ou  Setas para navegar | Enter"). */
     float painel_pad_v = 36.0f;
     float painel_pad_h = 60.0f;   /* horizontal extra para o texto caber */
     float painel_x   = origin_x - painel_pad_h;
@@ -451,7 +451,7 @@ int tela_selecao_fase(ALLEGRO_EVENT_QUEUE *queue,
             {
                 if (cursor == CURSOR_VOLTAR)
                 {
-                    /* Do botão Voltar volta para a última fase disponível */
+                    /* Do bot&#65533;o Voltar volta para a &#65533;ltima fase dispon&#65533;vel */
                     int novo = prog->fases_desbloqueadas;
                     if (novo >= total) novo = total - 1;
                     cursor = novo;
@@ -487,7 +487,7 @@ int tela_selecao_fase(ALLEGRO_EVENT_QUEUE *queue,
             {
                 if (cursor == CURSOR_VOLTAR)
                 {
-                    /* De Voltar sobe para a última linha de fases */
+                    /* De Voltar sobe para a &#65533;ltima linha de fases */
                     int ultima_linha_inicio = ((total - 1) / COLS) * COLS;
                     int destino = ultima_linha_inicio + (prog->fases_desbloqueadas % COLS);
                     if (destino > prog->fases_desbloqueadas) destino = prog->fases_desbloqueadas;
@@ -575,14 +575,14 @@ int tela_selecao_fase(ALLEGRO_EVENT_QUEUE *queue,
             }
         }
 
-        /* ---- RENDERIZAÇÃO: só no tick do timer; descarta outros ----- *
+        /* ---- RENDERIZA&#65533;&#65533;O: s&#65533; no tick do timer; descarta outros ----- *
          * FIX LAG: drena todos os eventos pendentes antes de desenhar,  *
-         * assim um burst de eventos de mouse não atrasa o frame.        */
+         * assim um burst de eventos de mouse n&#65533;o atrasa o frame.        */
         if (ev.type != ALLEGRO_EVENT_TIMER)
             continue;
         if (!al_is_event_queue_empty(queue))
-            continue;   /* ainda há eventos para processar; não perde o frame, *
-                         * pois o timer vai disparar novamente no próximo tick  */
+            continue;   /* ainda h&#65533; eventos para processar; n&#65533;o perde o frame, *
+                         * pois o timer vai disparar novamente no pr&#65533;ximo tick  */
 
         /* ---------- desenho ----------------------------------------- */
         if (fundo)
@@ -598,7 +598,7 @@ int tela_selecao_fase(ALLEGRO_EVENT_QUEUE *queue,
 
         desenhar_painel(painel_x, painel_y, painel_w, painel_h, PAINEL_R);
 
-        /* Título centralizado */
+        /* T&#65533;tulo centralizado */
         al_draw_text(fonte, al_map_rgb(210, 185, 60),
                      titulo_cx, titulo_top,
                      ALLEGRO_ALIGN_CENTER, "SELECIONAR FASE");
@@ -612,7 +612,7 @@ int tela_selecao_fase(ALLEGRO_EVENT_QUEUE *queue,
                      ALLEGRO_ALIGN_CENTER,
                      "Selecione a Fase para Jogar");
 
-        /* ---------- botões de fase ---------------------------------- */
+        /* ---------- bot&#65533;es de fase ---------------------------------- */
         for (int i = 0; i < total; i++)
         {
             int col = i % COLS, row = i / COLS;
@@ -622,9 +622,9 @@ int tela_selecao_fase(ALLEGRO_EVENT_QUEUE *queue,
             int bloqueado = (i > prog->fases_desbloqueadas);
 
             /* hover = cursor teclado OU mouse em cima (nunca bloqueado).
-             * destaque REMOVIDO: era a causa do botão mais claro ?
+             * destaque REMOVIDO: era a causa do bot&#65533;o mais claro ?
              * ultima_fase_jogada ficava com estado visual diferente
-             * dos demais desbloqueados sem o usuário querer.          */
+             * dos demais desbloqueados sem o usu&#65533;rio querer.          */
             int hover = (!bloqueado &&
                          (cursor == i ||
                           ponto_em_rect(mouse_x, mouse_y, bx, by, BTN_W, BTN_H)));
@@ -658,13 +658,13 @@ int tela_selecao_fase(ALLEGRO_EVENT_QUEUE *queue,
                          ALLEGRO_ALIGN_CENTER, txt_prog);
         }
 
-        /* ---------- botão Voltar ------------------------------------ */
+        /* ---------- bot&#65533;o Voltar ------------------------------------ */
         {
             /*
-             * FIX COR botão Voltar: hover quando cursor==CURSOR_VOLTAR
-             * (teclado) OU quando o mouse está em cima.
+             * FIX COR bot&#65533;o Voltar: hover quando cursor==CURSOR_VOLTAR
+             * (teclado) OU quando o mouse est&#65533; em cima.
              * Antes o `cursor == CURSOR_VOLTAR` estava embutido numa
-             * expressão OR que usava a macro não-definida neste escopo.
+             * express&#65533;o OR que usava a macro n&#65533;o-definida neste escopo.
              */
             int hover_v = (cursor == CURSOR_VOLTAR ||
                            ponto_em_rect(mouse_x, mouse_y,
@@ -750,14 +750,18 @@ void tela_proxima_fase(ALLEGRO_EVENT_QUEUE *queue,
         float cx = LARGURA / 2.0f;
         al_draw_text(fonte, al_map_rgb(255, 210, 50),
                      cx, py + 28.0f, ALLEGRO_ALIGN_CENTER,
-                     "?  FASE CONCLUIDA  ?");
+                     "FASE CONCLUIDA");
 
         al_draw_line(cx - 200, py + 76.0f, cx + 200, py + 76.0f,
                      al_map_rgba(150, 200, 80, 100), 1.0f);
 
         char txt_prox[80];
-        snprintf(txt_prox, sizeof(txt_prox),
-                 "Proxima: Fase %d ? %s", proximo_idx + 1, cfg->nome);
+        if (cfg && cfg->nome && cfg->nome[0] != '\0')
+            snprintf(txt_prox, sizeof(txt_prox),
+                     "Proxima: Fase %d - %s", proximo_idx + 1, cfg->nome);
+        else
+            snprintf(txt_prox, sizeof(txt_prox),
+                     "Proxima: Fase %d", proximo_idx + 1);
         al_draw_text(fonte, al_map_rgb(200, 230, 140),
                      cx, py + 96.0f, ALLEGRO_ALIGN_CENTER, txt_prox);
 

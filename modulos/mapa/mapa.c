@@ -8,6 +8,7 @@ static const ConfigMapa g_mapas[TOTAL_MAPAS] = {
     /* ---------------------------------------------------------------- */
     {
         .id              = 0,
+        .nome            = "Vila Abandonada",
         .arquivo_colisao = "assets/cenarios/colisao2.png",
         .arquivo_visual  = "assets/cenarios/background2.png",
 
@@ -24,7 +25,7 @@ static const ConfigMapa g_mapas[TOTAL_MAPAS] = {
         .max_spawns_esq = 25,
         .max_spawns_dir = 25,
 
-        /* poção aleatória (padrão) */
+        /* po&#65533;&#65533;o aleat&#65533;ria (padr&#65533;o) */
         .pocao_spawn_fixo = 0,
         .pocao_spawn_x    = 0.0f,
         .pocao_spawn_y    = 0.0f,
@@ -32,10 +33,11 @@ static const ConfigMapa g_mapas[TOTAL_MAPAS] = {
 
     /* ---------------------------------------------------------------- */
     /*  MAPA 1 ? background3 / colisao3                                  */
-    /*  Poção nasce em posição fixa: X=1310, Y=10                       */
+    /*  Po&#65533;&#65533;o nasce em posi&#65533;&#65533;o fixa: X=1310, Y=10                       */
     /* ---------------------------------------------------------------- */
     {
         .id              = 1,
+        .nome            = "Floresta Sombria",
         .arquivo_colisao = "assets/cenarios/colisao3.png",
         .arquivo_visual  = "assets/cenarios/background3.png",
 
@@ -52,7 +54,7 @@ static const ConfigMapa g_mapas[TOTAL_MAPAS] = {
         .max_spawns_esq = 20,
         .max_spawns_dir = 30,
 
-        /* poção em posição fixa */
+        /* po&#65533;&#65533;o em posi&#65533;&#65533;o fixa */
         .pocao_spawn_fixo = 1,
         .pocao_spawn_x    = 1310.0f,
         .pocao_spawn_y    = 10.0f,
@@ -63,6 +65,7 @@ static const ConfigMapa g_mapas[TOTAL_MAPAS] = {
     /* ---------------------------------------------------------------- */
     {
         .id              = 2,
+        .nome            = "Ruinas Antigas",
         .arquivo_colisao = "assets/cenarios/colisao4.png",
         .arquivo_visual  = "assets/cenarios/background4.png",
 
@@ -79,7 +82,7 @@ static const ConfigMapa g_mapas[TOTAL_MAPAS] = {
         .max_spawns_esq = 25,
         .max_spawns_dir = 25,
 
-        /* poção aleatória (padrão) */
+        /* po&#65533;&#65533;o aleat&#65533;ria (padr&#65533;o) */
         .pocao_spawn_fixo = 0,
         .pocao_spawn_x    = 0.0f,
         .pocao_spawn_y    = 0.0f,
@@ -88,10 +91,11 @@ static const ConfigMapa g_mapas[TOTAL_MAPAS] = {
     /* ---------------------------------------------------------------- */
     /*  MAPA 3 ? background5 / colisao5                                  */
     /*  Fase do BOSS: spawns de zumbis zerados.                          */
-    /*  O boss é instanciado diretamente no main.c.                      */
+    /*  O boss &#65533; instanciado diretamente no main.c.                      */
     /* ---------------------------------------------------------------- */
     {
         .id              = 3,
+        .nome            = "Covil do Boss",
         .arquivo_colisao = "assets/cenarios/colisao5.png",
         .arquivo_visual  = "assets/cenarios/background5.png",
 
@@ -105,11 +109,11 @@ static const ConfigMapa g_mapas[TOTAL_MAPAS] = {
         .patrol_x_max  = 1750.0f,
         .nivel_alto_y  = 520.0f,
 
-        /* Spawns zerados: a horda não gera zumbis nessa fase */
+        /* Spawns zerados: a horda n&#65533;o gera zumbis nessa fase */
         .max_spawns_esq = 0,
         .max_spawns_dir = 0,
 
-        /* poção aleatória (padrão) */
+        /* po&#65533;&#65533;o aleat&#65533;ria (padr&#65533;o) */
         .pocao_spawn_fixo = 0,
         .pocao_spawn_x    = 0.0f,
         .pocao_spawn_y    = 0.0f,
@@ -117,7 +121,7 @@ static const ConfigMapa g_mapas[TOTAL_MAPAS] = {
 };
 
 /* ================================================================== */
-/*  Implementação das funções públicas                                  */
+/*  Implementa&#65533;&#65533;o das fun&#65533;&#65533;es p&#65533;blicas                                  */
 /* ================================================================== */
 
 const ConfigMapa *mapa_obter(int id)
