@@ -4,7 +4,7 @@
 static const ConfigMapa g_mapas[TOTAL_MAPAS] = {
 
     /* ---------------------------------------------------------------- */
-    /*  MAPA 0 ? background2 / colisao2                                  */
+    /*  MAPA 0  background2 / colisao2                                  */
     /* ---------------------------------------------------------------- */
     {
         .id              = 0,
@@ -32,7 +32,7 @@ static const ConfigMapa g_mapas[TOTAL_MAPAS] = {
     },
 
     /* ---------------------------------------------------------------- */
-    /*  MAPA 1 ? background3 / colisao3                                  */
+    /*  MAPA 1  background3 / colisao3                                  */
     /*  Po&#65533;&#65533;o nasce em posi&#65533;&#65533;o fixa: X=1310, Y=10                       */
     /* ---------------------------------------------------------------- */
     {
@@ -61,7 +61,7 @@ static const ConfigMapa g_mapas[TOTAL_MAPAS] = {
     },
 
     /* ---------------------------------------------------------------- */
-    /*  MAPA 2 ? background4 / colisao4                                  */
+    /*  MAPA 2  background4 / colisao4                                  */
     /* ---------------------------------------------------------------- */
     {
         .id              = 2,
@@ -89,7 +89,7 @@ static const ConfigMapa g_mapas[TOTAL_MAPAS] = {
     },
 
     /* ---------------------------------------------------------------- */
-    /*  MAPA 3 ? background5 / colisao5                                  */
+    /*  MAPA 3  background5 / colisao5                                  */
     /*  Fase do BOSS: spawns de zumbis zerados.                          */
     /*  O boss &#65533; instanciado diretamente no main.c.                      */
     /* ---------------------------------------------------------------- */

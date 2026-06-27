@@ -12,7 +12,7 @@
 /* ================================================================== */
 
 /* Posições reais dos botões na tela (corrigido de cy=990 para cy dentro
-   da resolução 1920x1080 ou 1280x720 ? usamos coordenadas relativas) */
+   da resolução 1920x1080 ou 1280x720  usamos coordenadas relativas) */
 #define MENU_BTN_JOGAR_CX (LARGURA / 2.4f)
 #define MENU_BTN_JOGAR_CY (ALTURA - 90.0f)   /* ~630 em 720p, ~990 em 1080p */
 #define MENU_BTN_JOGAR_W  260.0f
@@ -151,7 +151,6 @@ OpcaoMenu executar_menu(ALLEGRO_EVENT_QUEUE *queue, ALLEGRO_TIMER *timer,
                                                  al_map_rgba(255, 215, 0, (unsigned char)(60.0f * pulso)));
                 al_draw_rounded_rectangle(cx - hw, cy - hh, cx + hw, cy + hh,
                                           10, 10, al_map_rgba(255, 215, 0, ga), 3);
-                /* sombra do texto */
                 al_draw_text(fonte, al_map_rgb(255, 255, 255), cx - 2, cy - 18, ALLEGRO_ALIGN_CENTER, "JOGAR");
                 al_draw_text(fonte, al_map_rgb(255, 255, 255), cx + 2, cy - 18, ALLEGRO_ALIGN_CENTER, "JOGAR");
                 al_draw_text(fonte, al_map_rgb(255, 255, 255), cx, cy - 20, ALLEGRO_ALIGN_CENTER, "JOGAR");
@@ -464,12 +463,29 @@ void desenhar_icones_audio(Sons *sons, ALLEGRO_FONT *fonte_hud,
 
     /* === SFX === */
     float x = ICONE_SFX_X, y = ICONE_SFX_Y;
-    ALLEGRO_COLOR fundo = hover_sfx ? al_map_rgba(120, 80, 30, 230) : al_map_rgba(35, 20, 8, 210);
+    ALLEGRO_COLOR fundo;
+    if (hover_sfx)
+        fundo = al_map_rgba(120, 80, 30, 230);
+    else
+        fundo = al_map_rgba(35, 20, 8, 210);
+
     al_draw_filled_rounded_rectangle(x, y, x + ICONE_AUDIO_TAM, y + ICONE_AUDIO_TAM, 10, 10, fundo);
-    al_draw_rounded_rectangle(x, y, x + ICONE_AUDIO_TAM, y + ICONE_AUDIO_TAM, 10, 10,
-                              al_map_rgb(218, 165, 32), hover_sfx ? 3 : 2);
+    {
+        int espessura_sfx;
+        if (hover_sfx)
+            espessura_sfx = 3;
+        else
+            espessura_sfx = 2;
+        al_draw_rounded_rectangle(x, y, x + ICONE_AUDIO_TAM, y + ICONE_AUDIO_TAM, 10, 10,
+                                  al_map_rgb(218, 165, 32), espessura_sfx);
+    }
     float cx = x + ICONE_AUDIO_TAM / 2.0f, cy = y + ICONE_AUDIO_TAM / 2.0f;
-    ALLEGRO_COLOR cor_sfx = sons->mudo_sfx ? al_map_rgb(220, 70, 70) : al_map_rgb(255, 230, 180);
+    ALLEGRO_COLOR cor_sfx;
+    if (sons->mudo_sfx)
+        cor_sfx = al_map_rgb(220, 70, 70);
+    else
+        cor_sfx = al_map_rgb(255, 230, 180);
+
     al_draw_filled_rectangle(cx - 16, cy - 8, cx - 8, cy + 8, cor_sfx);
     al_draw_filled_triangle(cx - 8, cy - 12, cx + 5, cy - 20, cx + 5, cy + 20, cor_sfx);
     if (sons->mudo_sfx)
@@ -486,12 +502,28 @@ void desenhar_icones_audio(Sons *sons, ALLEGRO_FONT *fonte_hud,
 
     /* === MUSICA === */
     x = ICONE_MUSICA_X; y = ICONE_MUSICA_Y;
-    fundo = hover_musica ? al_map_rgba(120, 80, 30, 230) : al_map_rgba(35, 20, 8, 210);
+    if (hover_musica)
+        fundo = al_map_rgba(120, 80, 30, 230);
+    else
+        fundo = al_map_rgba(35, 20, 8, 210);
+
     al_draw_filled_rounded_rectangle(x, y, x + ICONE_AUDIO_TAM, y + ICONE_AUDIO_TAM, 10, 10, fundo);
-    al_draw_rounded_rectangle(x, y, x + ICONE_AUDIO_TAM, y + ICONE_AUDIO_TAM, 10, 10,
-                              al_map_rgb(218, 165, 32), hover_musica ? 3 : 2);
+    {
+        int espessura_mus;
+        if (hover_musica)
+            espessura_mus = 3;
+        else
+            espessura_mus = 2;
+        al_draw_rounded_rectangle(x, y, x + ICONE_AUDIO_TAM, y + ICONE_AUDIO_TAM, 10, 10,
+                                  al_map_rgb(218, 165, 32), espessura_mus);
+    }
     cx = x + ICONE_AUDIO_TAM / 2.0f; cy = y + ICONE_AUDIO_TAM / 2.0f;
-    ALLEGRO_COLOR cor_mus = sons->mudo_musica ? al_map_rgb(220, 70, 70) : al_map_rgb(255, 230, 180);
+    ALLEGRO_COLOR cor_mus;
+    if (sons->mudo_musica)
+        cor_mus = al_map_rgb(220, 70, 70);
+    else
+        cor_mus = al_map_rgb(255, 230, 180);
+
     al_draw_filled_rectangle(cx - 2, cy - 16, cx + 2, cy + 6, cor_mus);
     al_draw_filled_triangle(cx + 2, cy - 16, cx + 16, cy - 12, cx + 2, cy - 6, cor_mus);
     al_draw_filled_circle(cx - 5, cy + 10, 6, cor_mus);
@@ -510,7 +542,12 @@ static void desenhar_slider(float x, float y, float valor01,
                             const char *rotulo, ALLEGRO_FONT *fonte_hud, int mudo)
 {
     al_draw_text(fonte_hud, al_map_rgb(255, 215, 0), x, y - 26, 0, rotulo);
-    ALLEGRO_COLOR cor_trilho_preenchido = mudo ? al_map_rgb(120, 60, 60) : al_map_rgb(30, 144, 255);
+    ALLEGRO_COLOR cor_trilho_preenchido;
+    if (mudo)
+        cor_trilho_preenchido = al_map_rgb(120, 60, 60);
+    else
+        cor_trilho_preenchido = al_map_rgb(30, 144, 255);
+
     float cy_s = y + SLIDER_ALTURA / 2.0f;
     al_draw_filled_rounded_rectangle(x, y, x + SLIDER_LARGURA, y + SLIDER_ALTURA,
                                      SLIDER_ALTURA / 2.0f, SLIDER_ALTURA / 2.0f, al_map_rgb(40, 40, 40));

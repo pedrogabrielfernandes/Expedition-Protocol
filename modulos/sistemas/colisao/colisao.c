@@ -98,7 +98,7 @@ bool zumbi_colide_horizontal(ALLEGRO_BITMAP *mapa, float x, float y)
 }
 
 /* ------------------------------------------------------------------ */
-/*  Boss ? vertical                                                     */
+/*  Boss  vertical                                                     */
 /*  BUG CORRIGIDO: era >= 0, bloqueava queda quando vel_y == 0         */
 /* ------------------------------------------------------------------ */
 bool boss_colide_vertical(ALLEGRO_BITMAP *mapa, float x, float y, float vel_y)
@@ -132,7 +132,7 @@ bool boss_no_chao(ALLEGRO_BITMAP *mapa, float x, float y)
 }
 
 /* ------------------------------------------------------------------ */
-/*  Boss ? horizontal (NOVO)                                            */
+/*  Boss  horizontal (NOVO)                                            */
 /*  Usada no BOSS_WALK para checar paredes laterais                    */
 /* ------------------------------------------------------------------ */
 bool boss_colide_horizontal(ALLEGRO_BITMAP *mapa, float x, float y)

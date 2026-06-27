@@ -131,28 +131,39 @@ int tela_game_over(ALLEGRO_EVENT_QUEUE *queue, ALLEGRO_TIMER *timer,
                      al_map_rgb(120, 20, 20), 1);
 
         /* Botão REINICIAR */
-        {
-            int hover = (opcao == 0);
-            al_draw_text(fonte, hover ? al_map_rgb(255, 215, 0) : al_map_rgb(180, 180, 180),
-                         btn_rei_cx, btn_y,
-                         ALLEGRO_ALIGN_CENTER,
-                         hover ? "> REINICIAR <" : "REINICIAR");
+                {
+                    int hover = (opcao == 0);
+                    ALLEGRO_COLOR cor_rei;
+                    const char *txt_rei;
+                    if (hover)
+                        cor_rei = al_map_rgb(255, 215, 0);
+                    else
+                        cor_rei = al_map_rgb(180, 180, 180);
+                    if (hover)
+                        txt_rei = "> REINICIAR <";
+                    else
+                        txt_rei = "REINICIAR";
+                    al_draw_text(fonte, cor_rei, btn_rei_cx, btn_y, ALLEGRO_ALIGN_CENTER, txt_rei);
+                }
+                /* Botão SAIR */
+                {
+                    int hover = (opcao == 1);
+                    ALLEGRO_COLOR cor_sai;
+                    const char *txt_sai;
+                    if (hover)
+                        cor_sai = al_map_rgb(255, 215, 0);
+                    else
+                        cor_sai = al_map_rgb(180, 180, 180);
+                    if (hover)
+                        txt_sai = "> SAIR <";
+                    else
+                        txt_sai = "SAIR";
+                    al_draw_text(fonte, cor_sai, btn_sai_cx, btn_y, ALLEGRO_ALIGN_CENTER, txt_sai);
+                }
+                al_draw_text(fonte_hud, al_map_rgb(130, 130, 130),
+                             LARGURA / 2.0f, py_ + ph - 46,
+                             ALLEGRO_ALIGN_CENTER,
+                             "A/D ou Setas para navegar  |  ENTER para confirmar");
+                al_flip_display();
+            }
         }
-
-        /* Botão SAIR */
-        {
-            int hover = (opcao == 1);
-            al_draw_text(fonte, hover ? al_map_rgb(255, 215, 0) : al_map_rgb(180, 180, 180),
-                         btn_sai_cx, btn_y,
-                         ALLEGRO_ALIGN_CENTER,
-                         hover ? "> SAIR <" : "SAIR");
-        }
-
-        al_draw_text(fonte_hud, al_map_rgb(130, 130, 130),
-                     LARGURA / 2.0f, py_ + ph - 46,
-                     ALLEGRO_ALIGN_CENTER,
-                     "A/D ou Setas para navegar  |  ENTER para confirmar");
-
-        al_flip_display();
-    }
-}

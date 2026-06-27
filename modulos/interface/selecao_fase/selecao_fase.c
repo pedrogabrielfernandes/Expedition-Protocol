@@ -40,7 +40,7 @@
 #define VOLTAR_X ((LARGURA - VOLTAR_W) / 2)
 #define VOLTAR_Y (ALTURA - 90)
 
-/* Painel central ? usa quase toda a tela */
+/* Painel central  usa quase toda a tela */
 #define PAINEL_MARGEM_H 40
 #define PAINEL_MARGEM_V 30
 #define PAINEL_X PAINEL_MARGEM_H
@@ -373,7 +373,13 @@ int tela_selecao_fase(ALLEGRO_EVENT_QUEUE *queue,
 
     float mouse_x = 0.0f, mouse_y = 0.0f;
 
-    int total_cols = (total < COLS) ? total : COLS;
+    int total_cols;
+    
+    if (total < COLS)
+        total_cols = total;
+    else
+        total_cols = COLS;
+    
     int total_rows = (total + COLS - 1) / COLS;
 
     float grade_w = total_cols * (BTN_W + BTN_PAD_X) - BTN_PAD_X;
@@ -622,7 +628,7 @@ int tela_selecao_fase(ALLEGRO_EVENT_QUEUE *queue,
             int bloqueado = (i > prog->fases_desbloqueadas);
 
             /* hover = cursor teclado OU mouse em cima (nunca bloqueado).
-             * destaque REMOVIDO: era a causa do bot&#65533;o mais claro ?
+             * destaque REMOVIDO: era a causa do bot&#65533;o mais claro 
              * ultima_fase_jogada ficava com estado visual diferente
              * dos demais desbloqueados sem o usu&#65533;rio querer.          */
             int hover = (!bloqueado &&
@@ -638,7 +644,13 @@ int tela_selecao_fase(ALLEGRO_EVENT_QUEUE *queue,
 
         /* ---------- barra de progresso ------------------------------ */
         {
-            int total_f = (total > 0) ? total : 1;
+            int total_f;
+            
+            if (total > 0)
+                total_f = total;
+            else
+                total_f = 1;
+            
             float pct   = (float)prog->fases_desbloqueadas / (float)total_f;
 
             float barra_w = grade_w;

@@ -149,7 +149,11 @@ void horda_atualizar_spawn(Horda *h, Sons *sons, float jogador_y, const ConfigMa
     if (--h->timer_onda <= 0)
     {
         int restam = TOTAL_ZUMBIS_FASE - h->total_spawned;
-        int para_spawn = (restam < 5) ? restam : 5;
+        int para_spawn;
+        if (restam < 5)
+            para_spawn = restam;
+        else
+            para_spawn = 5;
  
         tocar(sons->horda_som);
  
@@ -170,7 +174,7 @@ void horda_atualizar_spawn(Horda *h, Sons *sons, float jogador_y, const ConfigMa
  
             if (lado == 0)
             {
-                /* Spawn esquerdo/topo ? região definida pelo mapa */
+                /* Spawn esquerdo/topo  região definida pelo mapa */
                 float range = cfg->spawn_esq.x_max - cfg->spawn_esq.x_min;
                 sx_ = cfg->spawn_esq.x_min + (float)(rand() % (int)range);
                 sy_ = cfg->spawn_esq.y;
@@ -178,7 +182,7 @@ void horda_atualizar_spawn(Horda *h, Sons *sons, float jogador_y, const ConfigMa
             }
             else
             {
-                /* Spawn direito ? região definida pelo mapa */
+                /* Spawn direito  região definida pelo mapa */
                 float range = cfg->spawn_dir.x_max - cfg->spawn_dir.x_min;
                 sx_ = cfg->spawn_dir.x_min + (float)(rand() % (int)range);
                 sy_ = cfg->spawn_dir.y;

@@ -7,7 +7,7 @@
 #include "../../sistemas/sons/sons.h"
 
 /* ================================================================== */
-/*  Dimensões e hitbox do boss (valores escalados ? sprite 512x512)    */
+/*  Dimensões e hitbox do boss (valores escalados  sprite 512x512)    */
 /* ================================================================== */
 #define BOSS_SPRITE_W        128
 #define BOSS_SPRITE_H        128

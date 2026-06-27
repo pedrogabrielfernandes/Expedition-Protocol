@@ -166,9 +166,6 @@ static void tocar_fase3(Boss *b, Sons *sons)
     }
 }
 
-/* Fator de velocidade usado no recuo lento (quando o jogador está
-   colado/dentro da hitbox do boss). Mantido bem abaixo de 1.0 para
-   que o recuo seja suave em vez do "teleporte" que existia antes. */
 #define BOSS_RECUO_FATOR 0.4f
 
 /* ================================================================== */
@@ -196,9 +193,13 @@ void boss_atualizar(Boss *b, Jogador *jogador, Sons *sons,
         }
     }
 
-    float vel_atual = (b->fase == 3) ? BOSS_VEL_FASE3
-                    : (b->fase == 2) ? BOSS_VEL_FASE2
-                                     : BOSS_VELOCIDADE;
+    float vel_atual;
+    if (b->fase == 3)
+        vel_atual = BOSS_VEL_FASE3;
+    else if (b->fase == 2)
+        vel_atual = BOSS_VEL_FASE2;
+    else
+        vel_atual = BOSS_VELOCIDADE;
 
     /* ---- Máquina de estados ---- */
     switch (b->estado)
@@ -223,10 +224,6 @@ void boss_atualizar(Boss *b, Jogador *jogador, Sons *sons,
         float jog_cx = jogador->mov.x + HITBOX_W / 2.0f;
         float bos_cx = b->x + BOSS_HBX_OFFSET_X + BOSS_HBX_W / 2.0f;
 
-        /* Se o jogador está colado/dentro da hitbox do boss, o boss
-           ataca em vez de simplesmente ser empurrado para fora.
-           Se o ataque ainda estiver em cooldown, ele recua, mas de
-           forma lenta (evita o "teleporte" que existia antes).      */
         if (jogador_dentro_do_boss(b, jogador))
         {
             if ((agora - b->ultimo_ataque) >= BOSS_DELAY_ATAQUE)
@@ -239,8 +236,12 @@ void boss_atualizar(Boss *b, Jogador *jogador, Sons *sons,
             }
             else
             {
-                float recuo = (jog_cx > bos_cx) ? -vel_atual * BOSS_RECUO_FATOR
-                                                 :  vel_atual * BOSS_RECUO_FATOR;
+                float recuo;
+                if (jog_cx > bos_cx)
+                    recuo = -vel_atual * BOSS_RECUO_FATOR;
+                else
+                    recuo =  vel_atual * BOSS_RECUO_FATOR;
+
                 float nx = b->x + recuo;
                 if (!boss_colide_horizontal(mapa_colisao, nx, b->y))
                     b->x = nx;
@@ -281,15 +282,17 @@ void boss_atualizar(Boss *b, Jogador *jogador, Sons *sons,
     {
         b->frame += BOSS_ANIM_ATAQUE_VEL;
 
-        /* Enquanto ataca, se o jogador ainda estiver colado/dentro da
-           hitbox do boss, recua devagar (recuo "atacando", e não um
-           empurrão instantâneo).                                     */
         if (jogador_dentro_do_boss(b, jogador))
         {
             float jog_cx = jogador->mov.x + HITBOX_W / 2.0f;
             float bos_cx = b->x + BOSS_HBX_OFFSET_X + BOSS_HBX_W / 2.0f;
-            float recuo  = (jog_cx > bos_cx) ? -vel_atual * BOSS_RECUO_FATOR
-                                              :  vel_atual * BOSS_RECUO_FATOR;
+
+            float recuo;
+            if (jog_cx > bos_cx)
+                recuo = -vel_atual * BOSS_RECUO_FATOR;
+            else
+                recuo =  vel_atual * BOSS_RECUO_FATOR;
+
             float nx = b->x + recuo;
             if (!boss_colide_horizontal(mapa_colisao, nx, b->y))
                 b->x = nx;
@@ -321,8 +324,12 @@ void boss_atualizar(Boss *b, Jogador *jogador, Sons *sons,
         b->frame += BOSS_ANIM_DANO_VEL;
         if (b->frame >= BOSS_FRAMES_DAMAGE)
         {
-            b->frame  = 0.0f;
-            b->estado = (b->hp > 0) ? BOSS_WALK : BOSS_DEATH;
+            b->frame = 0.0f;
+            if (b->hp > 0)
+                b->estado = BOSS_WALK;
+            else
+                b->estado = BOSS_DEATH;
+
             if (b->estado == BOSS_DEATH)
                 b->morte_animando = 1;
         }
@@ -384,8 +391,6 @@ int boss_receber_dano(Boss *b, int dano, Sons *sons)
 
     double agora = al_get_time();
 
-    /* Cooldown de 0.8s ? cobre a duração completa da animação de dano
-       e evita que ataques rápidos do jogador causem loop infinito      */
     if ((agora - b->ultimo_dano_recebido) < 0.8)
         return 0;
 
@@ -430,7 +435,12 @@ void boss_verificar_dano_jogador(Boss *b, Jogador *jogador,
 
     if (vidas) perder_vida(vidas);
 
-    float kb = (b->direcao == 0) ? 12.0f : -12.0f;
+    float kb;
+    if (b->direcao == 0)
+        kb =  12.0f;
+    else
+        kb = -12.0f;
+
     jogador->mov.x += kb;
 
     if (jogador->estado != SAM_HURT && jogador->estado != SAM_DEAD)
@@ -476,9 +486,17 @@ void boss_desenhar(const Boss *b, const BossSprites *spr)
     float sx = (float)(frame_idx * BOSS_SPRITE_W);
 
 #if BOSS_SPRITE_OLHA_DIREITA
-    int flags = (b->direcao == 1) ? ALLEGRO_FLIP_HORIZONTAL : 0;
+    int flags;
+    if (b->direcao == 1)
+        flags = ALLEGRO_FLIP_HORIZONTAL;
+    else
+        flags = 0;
 #else
-    int flags = (b->direcao == 0) ? ALLEGRO_FLIP_HORIZONTAL : 0;
+    int flags;
+    if (b->direcao == 0)
+        flags = ALLEGRO_FLIP_HORIZONTAL;
+    else
+        flags = 0;
 #endif
 
     al_draw_scaled_bitmap(sheet,
@@ -516,9 +534,13 @@ void boss_desenhar_hud(const Boss *b, ALLEGRO_FONT *fonte_hud)
                              barra_x + barra_w + 2, barra_y + barra_h + 2,
                              al_map_rgba(0, 0, 0, 200));
 
-    ALLEGRO_COLOR cor_hp = (b->fase == 3) ? al_map_rgb(220, 50,  50)
-                         : (b->fase == 2) ? al_map_rgb(220, 130, 20)
-                                          : al_map_rgb(80,  200, 80);
+    ALLEGRO_COLOR cor_hp;
+    if (b->fase == 3)
+        cor_hp = al_map_rgb(220, 50,  50);
+    else if (b->fase == 2)
+        cor_hp = al_map_rgb(220, 130, 20);
+    else
+        cor_hp = al_map_rgb(80,  200, 80);
 
     al_draw_filled_rectangle(barra_x, barra_y,
                              barra_x + preench, barra_y + barra_h,
