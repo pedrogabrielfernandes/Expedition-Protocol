@@ -13,9 +13,10 @@
 #define BOSS_SPRITE_H        128
 #define BOSS_ESCALA          4.0f
 
-#define BOSS_HBX_W           320.0f
+#define BOSS_HBX_W           180.0f
 #define BOSS_HBX_H           290.0f
-#define BOSS_HBX_OFFSET_X     96.0f
+
+#define BOSS_HBX_OFFSET_X    ((BOSS_SPRITE_W * BOSS_ESCALA - BOSS_HBX_W) / 2.0f)
 #define BOSS_HBX_OFFSET_Y    220.0f
 
 #define BOSS_SPRITE_OLHA_DIREITA 0
@@ -29,7 +30,8 @@
 #define BOSS_HP_MAX          60 
 #define BOSS_VELOCIDADE        1.8f
 #define BOSS_DANO_ATAQUE      25
-#define BOSS_ALCANCE_ATAQUE  380.0f  
+#define BOSS_ALCANCE_ATAQUE  80.0f  
+#define BOSS_DIST_MINIMA     40.0f
 #define BOSS_DELAY_ATAQUE      2.2
 #define BOSS_DELAY_DANO_JOGADOR 1.2
 

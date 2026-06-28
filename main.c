@@ -73,13 +73,15 @@ void explosoes_acidas_desenhar(ALLEGRO_BITMAP *frames[]);
 /* ================================================================== */
 /*  Helpers para sliders de volume                                      */
 /* ================================================================== */
-static int mouse_sobre_slider(float mx, float my, float sx, float sy) {
+static int mouse_sobre_slider(float mx, float my, float sx, float sy)
+{
   float margem = SLIDER_BOLA_RAIO + 4.0f;
   return (mx >= sx && mx <= sx + SLIDER_LARGURA && my >= sy - margem &&
           my <= sy + SLIDER_ALTURA + margem);
 }
 
-static float slider_valor_de_x(float mx, float sx) {
+static float slider_valor_de_x(float mx, float sx)
+{
   float v = (mx - sx) / SLIDER_LARGURA;
   if (v < 0.0f)
     v = 0.0f;
@@ -88,7 +90,8 @@ static float slider_valor_de_x(float mx, float sx) {
   return v;
 }
 
-static int mouse_sobre_icone_audio(float mx, float my, float ix, float iy) {
+static int mouse_sobre_icone_audio(float mx, float my, float ix, float iy)
+{
   return (mx >= ix && mx <= ix + ICONE_AUDIO_TAM && my >= iy &&
           my <= iy + ICONE_AUDIO_TAM);
 }
@@ -97,7 +100,8 @@ static int mouse_sobre_icone_audio(float mx, float my, float ix, float iy) {
 /*  Carrega bg e colisao de um mapa; libera os anteriores se existirem */
 /* ================================================================== */
 static void carregar_cenario(const ConfigMapa *cfg, ALLEGRO_BITMAP **bg_out,
-                             ALLEGRO_BITMAP **mapa_out) {
+                             ALLEGRO_BITMAP **mapa_out)
+{
   if (*bg_out)
     al_destroy_bitmap(*bg_out);
   if (*mapa_out)
@@ -106,7 +110,8 @@ static void carregar_cenario(const ConfigMapa *cfg, ALLEGRO_BITMAP **bg_out,
   *bg_out = al_load_bitmap(cfg->arquivo_visual);
   *mapa_out = al_load_bitmap(cfg->arquivo_colisao);
 
-  if (!*bg_out || !*mapa_out) {
+  if (!*bg_out || !*mapa_out)
+  {
     printf("Erro ao carregar cenario %d (%s)\n", cfg->id, cfg->nome);
   }
 }
@@ -116,7 +121,8 @@ static void carregar_cenario(const ConfigMapa *cfg, ALLEGRO_BITMAP **bg_out,
 /* ================================================================== */
 static void preparar_nova_fase(Jogador *jogador, Horda *horda, Pocao *pocao,
                                double *pocao_ultimo_check, Temporizador *tempo,
-                               const ConfigMapa *cfg) {
+                               const ConfigMapa *cfg)
+{
   jogador->mov.x = cfg->jogador_spawn_x;
   jogador->mov.y = cfg->jogador_spawn_y;
   jogador->mov.vel_y = 0.0f;
@@ -152,8 +158,10 @@ static void preparar_nova_fase(Jogador *jogador, Horda *horda, Pocao *pocao,
 /* ================================================================== */
 /*  Reseta TODAS as vidas para o estado inicial                       */
 /* ================================================================== */
-static void restaurar_todas_vidas(VidaStatus *vetor_vidas) {
-  for (int i = 0; i < MAX_VIDAS; i++) {
+static void restaurar_todas_vidas(VidaStatus *vetor_vidas)
+{
+  for (int i = 0; i < MAX_VIDAS; i++)
+  {
     vetor_vidas[i].ativa = 1;
     strcpy(vetor_vidas[i].status, "Inteira");
   }
@@ -162,40 +170,49 @@ static void restaurar_todas_vidas(VidaStatus *vetor_vidas) {
 /* ================================================================== */
 /*  MAIN                                                                */
 /* ================================================================== */
-int main(void) {
+int main(void)
+{
   srand((unsigned)time(NULL));
 
-  if (!al_init()) {
+  if (!al_init())
+  {
     puts("Erro al_init");
     return 1;
   }
-  if (!al_init_primitives_addon()) {
+  if (!al_init_primitives_addon())
+  {
     puts("Erro primitives");
     return 1;
   }
-  if (!al_install_keyboard()) {
+  if (!al_install_keyboard())
+  {
     puts("Erro keyboard");
     return 1;
   }
-  if (!al_install_mouse()) {
+  if (!al_install_mouse())
+  {
     puts("Erro al_install_mouse");
     return 1;
   }
-  if (!al_init_image_addon()) {
+  if (!al_init_image_addon())
+  {
     puts("Erro image");
     return 1;
   }
   al_init_font_addon();
   al_init_ttf_addon();
-  if (!al_install_audio()) {
+  if (!al_install_audio())
+  {
     puts("Erro al_install_audio");
     return 1;
   }
-  if (!al_init_acodec_addon()) {
+  if (!al_init_acodec_addon())
+  {
     puts("Erro al_init_acodec");
     return 1;
   }
-  if (!al_reserve_samples(32)) {
+  if (!al_reserve_samples(32))
+  {
     puts("Erro al_reserve_samples");
     return 1;
   }
@@ -203,7 +220,8 @@ int main(void) {
   ALLEGRO_DISPLAY *display = al_create_display(LARGURA, ALTURA);
   ALLEGRO_EVENT_QUEUE *queue = al_create_event_queue();
   ALLEGRO_TIMER *timer = al_create_timer(1.0 / FPS);
-  if (!display || !queue || !timer) {
+  if (!display || !queue || !timer)
+  {
     puts("Erro init");
     return 1;
   }
@@ -224,7 +242,8 @@ int main(void) {
   g_sons_ativo = &sons;
 
   ALLEGRO_BITMAP *bg_menu = al_load_bitmap("assets/cenarios/inicio.png");
-  if (!bg_menu) {
+  if (!bg_menu)
+  {
     puts("Erro bg_menu");
     return 1;
   }
@@ -243,7 +262,8 @@ int main(void) {
      ================================================================ */
   int rodando_global = 1;
 
-  while (rodando_global) {
+  while (rodando_global)
+  {
     /* ---- Menu principal ---- */
     OpcaoMenu escolha =
         executar_menu(queue, timer, bg_menu, fonte, fonte_hud, &sons);
@@ -261,7 +281,8 @@ int main(void) {
     al_flush_event_queue(queue);
 
     /* ===== [CUTSCENE] – só exibe antes da fase 0 =============== */
-    if (fase_escolhida == 0) {
+    if (fase_escolhida == 0)
+    {
       parar_musica_fundo(&sons);
 
       Cutscene cutscene;
@@ -270,11 +291,13 @@ int main(void) {
       bool em_cutscene = true;
       bool redraw_cut = false;
 
-      while (em_cutscene) {
+      while (em_cutscene)
+      {
         ALLEGRO_EVENT ev_cut;
         al_wait_for_event(queue, &ev_cut);
 
-        if (ev_cut.type == ALLEGRO_EVENT_DISPLAY_CLOSE) {
+        if (ev_cut.type == ALLEGRO_EVENT_DISPLAY_CLOSE)
+        {
           cutscene_destruir(&cutscene);
           rodando_global = 0;
           em_cutscene = false;
@@ -286,13 +309,15 @@ int main(void) {
         if (ev_cut.type == ALLEGRO_EVENT_KEY_DOWN &&
             ev_cut.keyboard.keycode == ALLEGRO_KEY_ESCAPE)
           cutscene_skip(&cutscene);
-        if (ev_cut.type == ALLEGRO_EVENT_TIMER) {
+        if (ev_cut.type == ALLEGRO_EVENT_TIMER)
+        {
           cutscene_update(&cutscene, 1.0f / FPS);
           redraw_cut = true;
           if (cutscene_finalizada(&cutscene))
             em_cutscene = false;
         }
-        if (redraw_cut && al_is_event_queue_empty(queue)) {
+        if (redraw_cut && al_is_event_queue_empty(queue))
+        {
           cutscene_draw(&cutscene);
           al_flip_display();
           redraw_cut = false;
@@ -320,10 +345,13 @@ int main(void) {
     jog_mapa_ptr = mapa;
 
     /* ---- Música da fase ---- */
-    if (mapa_idx == 3) {
+    if (mapa_idx == 3)
+    {
       parar_musica_fundo(&sons);
       tocar_musica_boss(&sons);
-    } else {
+    }
+    else
+    {
       parar_musica_boss(&sons);
       tocar_musica_fundo(&sons);
     }
@@ -362,7 +390,8 @@ int main(void) {
         al_load_bitmap("assets/itens/acido.png");
 
     ALLEGRO_BITMAP *explosao_acida_frames[FRAMES_EXPLOSAO_ACIDA];
-    for (int i = 0; i < FRAMES_EXPLOSAO_ACIDA; i++) {
+    for (int i = 0; i < FRAMES_EXPLOSAO_ACIDA; i++)
+    {
       char path[64];
       sprintf(path, "assets/itens/explosao_acida/Explosion_%d.png", i + 1);
       explosao_acida_frames[i] = al_load_bitmap(path);
@@ -387,7 +416,8 @@ int main(void) {
         !zum_acido_spr.walk || !zum_acido_spr.attack || !zum_acido_spr.hurt ||
         !zum_acido_spr.dead || !zum_acido_spr.idle || !spr_acido_projetil ||
         !coracao || !spr_estamina || !habilidade1 || !habilidade2 ||
-        !habilidade3) {
+        !habilidade3)
+    {
       puts("Erro ao carregar bitmaps");
       rodando_global = 0;
       break;
@@ -411,11 +441,15 @@ int main(void) {
     BossSprites boss_spr = {0};
     int boss_ativo_nessa_fase = (mapa_idx == 3);
 
-    if (boss_ativo_nessa_fase) {
-      if (!boss_sprites_carregar(&boss_spr)) {
+    if (boss_ativo_nessa_fase)
+    {
+      if (!boss_sprites_carregar(&boss_spr))
+      {
         puts("Aviso: falha ao carregar sprites do boss");
         boss_ativo_nessa_fase = 0;
-      } else {
+      }
+      else
+      {
         boss_init(&boss, 1350.0f, 100.0f);
       }
     }
@@ -468,43 +502,54 @@ int main(void) {
     /* ============================================================
        LOOP PRINCIPAL (desta sessão / conjunto de fases)
        ============================================================ */
-    while (rodando) {
+    while (rodando)
+    {
       al_wait_for_event(queue, &ev);
-      if (ev.type == ALLEGRO_EVENT_DISPLAY_CLOSE) {
+      if (ev.type == ALLEGRO_EVENT_DISPLAY_CLOSE)
+      {
         rodando = 0;
         rodando_global = 0;
         break;
       }
 
-      if (ev.type == ALLEGRO_EVENT_MOUSE_AXES) {
+      if (ev.type == ALLEGRO_EVENT_MOUSE_AXES)
+      {
         mouse_x = (float)ev.mouse.x;
         mouse_y = (float)ev.mouse.y;
-        if (pausado && mouse_btn1_pressionado) {
+        if (pausado && mouse_btn1_pressionado)
+        {
           if (arrastando_slider_sfx)
             sons.volume_sfx = slider_valor_de_x(mouse_x, SLIDER_SFX_X);
-          if (arrastando_slider_musica) {
+          if (arrastando_slider_musica)
+          {
             sons.volume_musica = slider_valor_de_x(mouse_x, SLIDER_MUSICA_X);
             aplicar_volume_musica(&sons);
           }
         }
       }
 
-      if (ev.type == ALLEGRO_EVENT_MOUSE_BUTTON_DOWN && ev.mouse.button == 1) {
+      if (ev.type == ALLEGRO_EVENT_MOUSE_BUTTON_DOWN && ev.mouse.button == 1)
+      {
         mouse_btn1_pressionado = 1;
         float mx = (float)ev.mouse.x, my = (float)ev.mouse.y;
         if (mouse_sobre_icone_audio(mx, my, ICONE_SFX_X, ICONE_SFX_Y))
           sons.mudo_sfx = !sons.mudo_sfx;
         else if (mouse_sobre_icone_audio(mx, my, ICONE_MUSICA_X,
-                                         ICONE_MUSICA_Y)) {
+                                         ICONE_MUSICA_Y))
+        {
           sons.mudo_musica = !sons.mudo_musica;
           aplicar_volume_musica(&sons);
         }
-        if (pausado) {
-          if (mouse_sobre_slider(mx, my, SLIDER_SFX_X, SLIDER_SFX_Y)) {
+        if (pausado)
+        {
+          if (mouse_sobre_slider(mx, my, SLIDER_SFX_X, SLIDER_SFX_Y))
+          {
             arrastando_slider_sfx = 1;
             sons.volume_sfx = slider_valor_de_x(mx, SLIDER_SFX_X);
-          } else if (mouse_sobre_slider(mx, my, SLIDER_MUSICA_X,
-                                        SLIDER_MUSICA_Y)) {
+          }
+          else if (mouse_sobre_slider(mx, my, SLIDER_MUSICA_X,
+                                      SLIDER_MUSICA_Y))
+          {
             arrastando_slider_musica = 1;
             sons.volume_musica = slider_valor_de_x(mx, SLIDER_MUSICA_X);
             aplicar_volume_musica(&sons);
@@ -512,7 +557,8 @@ int main(void) {
         }
       }
 
-      if (ev.type == ALLEGRO_EVENT_MOUSE_BUTTON_UP && ev.mouse.button == 1) {
+      if (ev.type == ALLEGRO_EVENT_MOUSE_BUTTON_UP && ev.mouse.button == 1)
+      {
         mouse_btn1_pressionado = 0;
         arrastando_slider_sfx = 0;
         arrastando_slider_musica = 0;
@@ -525,14 +571,18 @@ int main(void) {
 
       int esc_now = al_key_down(&state, ALLEGRO_KEY_ESCAPE);
       if (esc_now && !esc_ant && !sanidade.game_over && !horda.fase_concluida &&
-          jogador.estado != SAM_DEAD) {
+          jogador.estado != SAM_DEAD)
+      {
         pausado = !pausado;
-        if (pausado) {
+        if (pausado)
+        {
           pausa_inicio = al_get_time();
           tocar(sons.esc_som);
           arrastando_slider_sfx = 0;
           arrastando_slider_musica = 0;
-        } else {
+        }
+        else
+        {
           double dt = al_get_time() - pausa_inicio;
           tempo.inicio += dt;
           jogador.ultimo_dano += dt;
@@ -545,7 +595,8 @@ int main(void) {
           (jogador.estado == SAM_DEAD && !jogador.morte_animando);
       int em_game_over = sanidade.game_over || morte_pronta;
 
-      if (!pausado && !em_game_over && !horda.fase_concluida) {
+      if (!pausado && !em_game_over && !horda.fase_concluida)
+      {
         atualizar_sanidade(&sanidade);
         jogador.frame += 0.15f;
         jogador.movendo = 0;
@@ -553,23 +604,28 @@ int main(void) {
           tempo.atual = al_get_time() - tempo.inicio;
 
         int k_now = al_key_down(&state, ALLEGRO_KEY_K);
-        if (k_now && !k_ant) {
+        if (k_now && !k_ant)
+        {
           roda_aberta = 1;
           roda_selecao = jogador.tipo_ataque;
         }
-        if (!k_now && k_ant) {
+        if (!k_now && k_ant)
+        {
           jogador.tipo_ataque = roda_selecao;
           roda_aberta = 0;
         }
-        if (roda_aberta) {
+        if (roda_aberta)
+        {
           int q_now2 = al_key_down(&state, ALLEGRO_KEY_Q);
           int e_now2 = al_key_down(&state, ALLEGRO_KEY_E);
-          if (q_now2 && !q_ant) {
+          if (q_now2 && !q_ant)
+          {
             roda_selecao--;
             if (roda_selecao < 1)
               roda_selecao = 3;
           }
-          if (e_now2 && !e_ant) {
+          if (e_now2 && !e_ant)
+          {
             roda_selecao++;
             if (roda_selecao > 3)
               roda_selecao = 1;
@@ -580,12 +636,14 @@ int main(void) {
         k_ant = k_now;
 
         int e_now_dash = al_key_down(&state, ALLEGRO_KEY_E);
-        if (!roda_aberta) {
+        if (!roda_aberta)
+        {
           if (e_now_dash && !e_ant && !jogador.dash_fuga_ativo &&
               jogador.estado != SAM_HURT && jogador.estado != SAM_DEAD &&
               jogador.estado != SAM_ATTACK &&
               jogador.estamina >= DASH_FUGA_CUSTO &&
-              (al_get_time() - jogador.dash_fuga_ultimo) >= DASH_FUGA_DELAY) {
+              (al_get_time() - jogador.dash_fuga_ultimo) >= DASH_FUGA_DELAY)
+          {
             jogador.dash_fuga_ativo = 1;
             jogador.dash_fuga_dist = DASH_FUGA_DIST;
             jogador.dash_fuga_frame = 0.0f;
@@ -599,9 +657,11 @@ int main(void) {
           e_ant = e_now_dash;
         }
 
-        if (jogador.dash_fuga_ativo) {
+        if (jogador.dash_fuga_ativo)
+        {
           float passo_fuga = 14.0f;
-          if (jogador.dash_fuga_dist > 0.0f) {
+          if (jogador.dash_fuga_dist > 0.0f)
+          {
             float move;
             if (jogador.dash_fuga_dist < passo_fuga)
               move = jogador.dash_fuga_dist;
@@ -619,7 +679,8 @@ int main(void) {
               jogador.mov.x = nx_f;
             jogador.dash_fuga_dist -= move;
             double agora_dash = al_get_time();
-            for (int iz = 0; iz < MAX_ZUMBIS_TELA; iz++) {
+            for (int iz = 0; iz < MAX_ZUMBIS_TELA; iz++)
+            {
               Inimigo *z = &horda.pool[iz];
               if (!z->vivo || z->estado == ZUM_DEAD || z->stunado)
                 continue;
@@ -629,7 +690,8 @@ int main(void) {
               float dist_y =
                   fabsf((z->y + ZUMBI_HBX_OFFSET_Y + ZUMBI_HBX_H / 2.0f) -
                         (jogador.mov.y + HITBOX_H / 2.0f));
-              if (dist_x < 70.0f && dist_y < 70.0f) {
+              if (dist_x < 70.0f && dist_y < 70.0f)
+              {
                 float kb_dir;
                 if (z->x > jogador.mov.x)
                   kb_dir = 1.0f;
@@ -646,7 +708,8 @@ int main(void) {
               }
             }
           }
-          if (jogador.dash_fuga_dist <= 0.0f) {
+          if (jogador.dash_fuga_dist <= 0.0f)
+          {
             jogador.dash_fuga_ativo = 0;
             jogador.estado = SAM_IDLE;
           }
@@ -664,14 +727,16 @@ int main(void) {
             !roda_aberta && !jogador.dash_fuga_ativo &&
             !jogador.carregando_atk2 && jogador.estado != SAM_HURT &&
             jogador.estado != SAM_DEAD && jogador.estamina >= CUSTO_ATK2_MIN &&
-            (agora_atk - jogador.ultimo_ataque) >= delay_atual) {
+            (agora_atk - jogador.ultimo_ataque) >= delay_atual)
+        {
           jogador.carregando_atk2 = 1;
           jogador.carga_atk2_inicio = agora_atk;
           jogador.carga_atk2_pct = 0.0f;
           jogador.estado = SAM_CHARGING;
         }
 
-        if (jogador.carregando_atk2) {
+        if (jogador.carregando_atk2)
+        {
           double carregando_ha = agora_atk - jogador.carga_atk2_inicio;
           float pct = (float)(carregando_ha / CARGA_ATK2_TEMPO_MAX);
           if (pct > 1.0f)
@@ -683,8 +748,10 @@ int main(void) {
           int estamina_insuficiente = (jogador.estamina < custo_projetado);
           int soltou = (!j_now && j_ant);
 
-          if (soltou || estamina_insuficiente) {
-            if (estamina_insuficiente) {
+          if (soltou || estamina_insuficiente)
+          {
+            if (estamina_insuficiente)
+            {
               float pct_max = (jogador.estamina - CUSTO_ATK2_MIN) /
                               (CUSTO_ATK2_MAX - CUSTO_ATK2_MIN);
               if (pct_max < 0.0f)
@@ -720,13 +787,15 @@ int main(void) {
         if (jogador.tipo_ataque != 2 && j_now && !j_ant && !jogador.atacando &&
             !roda_aberta && !jogador.dash_fuga_ativo &&
             jogador.estado != SAM_HURT && jogador.estado != SAM_DEAD &&
-            (agora_atk - jogador.ultimo_ataque) >= delay_atual) {
+            (agora_atk - jogador.ultimo_ataque) >= delay_atual)
+        {
           int custo_est;
           if (jogador.tipo_ataque == 3)
             custo_est = (int)CUSTO_ATK3;
           else
             custo_est = 1;
-          if (jogador.estamina >= custo_est) {
+          if (jogador.estamina >= custo_est)
+          {
             jogador.atacando = 1;
             jogador.frame_ataque = 0;
             jogador.acertos_no_swing = 0;
@@ -739,21 +808,25 @@ int main(void) {
               jogador.estamina = 0;
             jogador.estado = SAM_ATTACK;
             jogador.ultimo_ataque = agora_atk;
-            if (jogador.tipo_ataque == 3) {
+            if (jogador.tipo_ataque == 3)
+            {
               tocar(sons.katana_attack3);
               jogador.dash_ativo = 1;
               jogador.dash_dist = DASH_ATK3_DIST;
               jogador.dash_som_tocado = 1;
               tocar(sons.dash);
-            } else
+            }
+            else
               tocar(sons.katana12);
           }
         }
         j_ant = j_now;
 
-        if (jogador.dash_ativo && jogador.atacando) {
+        if (jogador.dash_ativo && jogador.atacando)
+        {
           float passo = 8.0f;
-          if (jogador.dash_dist > 0.0f) {
+          if (jogador.dash_dist > 0.0f)
+          {
             float move;
             if (jogador.dash_dist < passo)
               move = jogador.dash_dist;
@@ -776,16 +849,19 @@ int main(void) {
         }
 
         if (jogador.estado != SAM_HURT && jogador.estado != SAM_DEAD &&
-            jogador.estado != SAM_CHARGING && !jogador.dash_fuga_ativo) {
+            jogador.estado != SAM_CHARGING && !jogador.dash_fuga_ativo)
+        {
           float nx = jogador.mov.x;
           if (al_key_down(&state, ALLEGRO_KEY_D) && !jogador.atacando &&
-              !roda_aberta) {
+              !roda_aberta)
+          {
             nx += VELOCIDADE;
             jogador.direcao = 0;
             jogador.movendo = 1;
           }
           if (al_key_down(&state, ALLEGRO_KEY_A) && !jogador.atacando &&
-              !roda_aberta) {
+              !roda_aberta)
+          {
             nx -= VELOCIDADE;
             jogador.direcao = ALLEGRO_FLIP_HORIZONTAL;
             jogador.movendo = 1;
@@ -795,7 +871,8 @@ int main(void) {
 
           if (al_key_down(&state, ALLEGRO_KEY_W) && jogador.no_chao &&
               !jogador.atacando && !roda_aberta &&
-              jogador.estamina >= CUSTO_PULO) {
+              jogador.estamina >= CUSTO_PULO)
+          {
             jogador.mov.vel_y = FORCA_PULO;
             jogador.estamina -= CUSTO_PULO;
             if (jogador.estamina < 0)
@@ -803,10 +880,12 @@ int main(void) {
             tocar(sons.pulo);
           }
 
-          if (jogador.no_chao && jogador.movendo && jogador.estado == SAM_RUN) {
+          if (jogador.no_chao && jogador.movendo && jogador.estado == SAM_RUN)
+          {
             double agora_sam = al_get_time();
             if ((agora_sam - jogador.ultimo_passo_sam) >=
-                SOM_WALK_SAM_INTERVALO) {
+                SOM_WALK_SAM_INTERVALO)
+            {
               jogador.ultimo_passo_sam = agora_sam;
               tocar(sons.walk_sam);
             }
@@ -822,13 +901,15 @@ int main(void) {
         else
           jogador.mov.vel_y = 0;
         jogador.no_chao = esta_no_chao(mapa, jogador.mov.x, jogador.mov.y);
-        if (jogador.no_chao) {
+        if (jogador.no_chao)
+        {
           jogador.y_chao = jogador.mov.y;
           jogador.estamina += RECARGA_ESTAMINA;
           if (jogador.estamina > MAX_ESTAMINA)
             jogador.estamina = MAX_ESTAMINA;
         }
-        if (jogador.mov.y > ALTURA + 200) {
+        if (jogador.mov.y > ALTURA + 200)
+        {
           tocar(sons.caindo);
           perder_vida(vetor_vidas);
           jogador.mov.x = cfg->jogador_spawn_x;
@@ -848,20 +929,37 @@ int main(void) {
                                    &sons);
 
         /* ---- [BOSS] Lógica --------------------------------- */
-        if (boss_ativo_nessa_fase && boss.ativo) {
+        if (boss_ativo_nessa_fase && boss.ativo)
+        {
           boss_atualizar(&boss, &jogador, &sons, mapa, vetor_vidas);
 
           /* Dano do samurai no boss */
-          if (jogador.atacando && !jogador.dash_fuga_ativo) {
+          if (jogador.atacando && !jogador.dash_fuga_ativo)
+          {
             float bx1 = boss.x + BOSS_HBX_OFFSET_X;
             float bx2 = bx1 + BOSS_HBX_W;
             float by1 = boss.y + BOSS_HBX_OFFSET_Y;
             float by2 = by1 + BOSS_HBX_H;
-            float jx1 = jogador.mov.x + HITBOX_OFFSET_X;
-            float jx2 = jx1 + HITBOX_W + 60.0f;
+
+            float jx1, jx2;
+            const float alcance = 60.0f;
+
+            if (jogador.direcao == 0) // olhando para a direita
+            {
+              jx1 = jogador.mov.x + HITBOX_OFFSET_X + HITBOX_W;
+              jx2 = jx1 + alcance;
+            }
+            else // olhando para a esquerda
+            {
+              jx2 = jogador.mov.x + HITBOX_OFFSET_X;
+              jx1 = jx2 - alcance;
+            }
+
             float jy1 = jogador.mov.y + HITBOX_OFFSET_Y;
             float jy2 = jy1 + HITBOX_H;
-            if (bx1 < jx2 && bx2 > jx1 && by1 < jy2 && by2 > jy1) {
+
+            if (bx1 < jx2 && bx2 > jx1 && by1 < jy2 && by2 > jy1)
+            {
               int dano_sam;
               if (jogador.tipo_ataque == 2)
                 dano_sam = jogador.dano_atk2_atual;
@@ -871,11 +969,12 @@ int main(void) {
                 dano_sam = DANO_ATK1;
               boss_receber_dano(&boss, dano_sam, &sons);
             }
-
           } /* Boss derrotado → conclui fase */
-          if (boss_derrotado(&boss) && !horda.fase_concluida) {
+          if (boss_derrotado(&boss) && !horda.fase_concluida)
+          {
             horda.fase_concluida = 1;
-            if (tempo.ativo) {
+            if (tempo.ativo)
+            {
               tempo.fim = al_get_time();
               tempo.atual = tempo.fim - tempo.inicio;
               tempo.ativo = 0;
@@ -886,7 +985,8 @@ int main(void) {
 
         {
           double agora_poc = al_get_time();
-          if (!pocao.ativa && (agora_poc - pocao_ultimo_check) >= 3.0) {
+          if (!pocao.ativa && (agora_poc - pocao_ultimo_check) >= 3.0)
+          {
             pocao_ultimo_check = agora_poc;
             pocao_tentar_spawn(&pocao, vetor_vidas, mapa_idx);
           }
@@ -895,7 +995,8 @@ int main(void) {
 
         {
           int vivas = contar_vidas(vetor_vidas);
-          if (vivas == 0 && jogador.estado != SAM_DEAD) {
+          if (vivas == 0 && jogador.estado != SAM_DEAD)
+          {
             jogador.estado = SAM_DEAD;
             jogador.frame_dead = 0;
             jogador.morte_animando = 1;
@@ -904,11 +1005,13 @@ int main(void) {
           }
         }
         if (jogador.estado == SAM_DEAD && jogador.morte_animando &&
-            !jogador.som_morrendo_tocado) {
+            !jogador.som_morrendo_tocado)
+        {
           tocar(sons.morrendo);
           jogador.som_morrendo_tocado = 1;
         }
-        if (horda.fase_concluida && tempo.ativo) {
+        if (horda.fase_concluida && tempo.ativo)
+        {
           tempo.fim = al_get_time();
           tempo.atual = tempo.fim - tempo.inicio;
           tempo.ativo = 0;
@@ -916,7 +1019,8 @@ int main(void) {
       }
 
       if (!pausado && jogador.estado == SAM_DEAD && jogador.morte_animando &&
-          !sanidade.game_over) {
+          !sanidade.game_over)
+      {
         jogador.mov.vel_y += GRAVIDADE * 0.30f;
         if (jogador.mov.vel_y > 3.5f)
           jogador.mov.vel_y = 3.5f;
@@ -939,7 +1043,8 @@ int main(void) {
       desenhar_samurai(&jogador, &sam_spr);
 
       /* ---- [BOSS] Desenho ------------------------------------ */
-      if (boss_ativo_nessa_fase && boss.ativo) {
+      if (boss_ativo_nessa_fase && boss.ativo)
+      {
         boss_desenhar(&boss, &boss_spr);
         boss_desenhar_hud(&boss, fonte_hud);
       }
@@ -981,8 +1086,10 @@ int main(void) {
       al_flip_display();
 
       morte_pronta = (jogador.estado == SAM_DEAD && !jogador.morte_animando);
-      if (morte_pronta || sanidade.game_over) {
-        if (!som_gameover_tocado) {
+      if (morte_pronta || sanidade.game_over)
+      {
+        if (!som_gameover_tocado)
+        {
           parar_musica_fundo(&sons);
           parar_musica_boss(&sons);
           tocar(sons.game_over_som);
@@ -998,7 +1105,8 @@ int main(void) {
 
         int reiniciar =
             tela_game_over(queue, timer, fonte, fonte_hud, motivo, &sons);
-        if (reiniciar) {
+        if (reiniciar)
+        {
           mapa_idx = prog.ultima_fase_jogada;
           cfg = mapa_obter(mapa_idx);
           carregar_cenario(cfg, &bg, &mapa);
@@ -1018,7 +1126,8 @@ int main(void) {
 
           /* ---- [BOSS] Reiniciar após game over ----------- */
           boss_ativo_nessa_fase = (mapa_idx == 3);
-          if (boss_ativo_nessa_fase) {
+          if (boss_ativo_nessa_fase)
+          {
             if (!boss_spr.idle)
               boss_sprites_carregar(&boss_spr);
             boss_init(&boss, 1350.0f, 100.0f);
@@ -1039,10 +1148,13 @@ int main(void) {
           arrastando_slider_sfx = 0;
           arrastando_slider_musica = 0;
 
-          if (mapa_idx == 3) {
+          if (mapa_idx == 3)
+          {
             parar_musica_fundo(&sons);
             tocar_musica_boss(&sons);
-          } else {
+          }
+          else
+          {
             parar_musica_boss(&sons);
             tocar_musica_fundo(&sons);
           }
@@ -1057,8 +1169,10 @@ int main(void) {
       /* ============================================================
          FASE CONCLUÍDA (horda derrotada nesse mapa)
          ============================================================ */
-      if (horda.fase_concluida && !sanidade.game_over) {
-        if (!som_finish_tocado) {
+      if (horda.fase_concluida && !sanidade.game_over)
+      {
+        if (!som_finish_tocado)
+        {
           parar_musica_fundo(&sons);
           parar_musica_boss(&sons);
           tocar(sons.finish_som);
@@ -1079,27 +1193,30 @@ int main(void) {
                      ALTURA / 2.0f, ALLEGRO_ALIGN_CENTER, "Abrindo ranking...");
         al_flip_display();
         al_rest(1.5);
-        
+
         /* ---- Salva progresso (desbloqueia próxima fase) ---- */
         progresso_avancar_fase(&prog, mapa_idx);
         /* ---- Ranking da fase ---- */
         tela_ranking(queue, timer, fonte, fonte_hud, &tempo, tempo.atual);
         int existe_proximo_mapa = (mapa_idx < mapa_total() - 1);
-        if (existe_proximo_mapa) {
+        if (existe_proximo_mapa)
+        {
           int proximo_idx = mapa_idx + 1;
           const ConfigMapa *cfg_prox = mapa_obter(proximo_idx);
           tela_proxima_fase(
               queue, timer, fonte, fonte_hud, mapa_idx, proximo_idx,
-              cfg_prox); 
+              cfg_prox);
 
           /* ---- [BOSS] Transição de fase ------------------ */
           /* Destroi sprites do boss ao sair da fase 4 */
-          if (boss_ativo_nessa_fase) {
+          if (boss_ativo_nessa_fase)
+          {
             boss_sprites_destruir(&boss_spr);
             boss_ativo_nessa_fase = 0;
           }
           /* Ativa boss se a nova fase for a fase do boss */
-          if (proximo_idx == 3) {
+          if (proximo_idx == 3)
+          {
             boss_ativo_nessa_fase = 1;
             boss_sprites_carregar(&boss_spr);
             boss_init(&boss, 1350.0f, 100.0f);
@@ -1133,10 +1250,13 @@ int main(void) {
           arrastando_slider_sfx = 0;
           arrastando_slider_musica = 0;
 
-          if (proximo_idx == 3) {
+          if (proximo_idx == 3)
+          {
             parar_musica_fundo(&sons);
             tocar_musica_boss(&sons);
-          } else {
+          }
+          else
+          {
             parar_musica_boss(&sons);
             tocar_musica_fundo(&sons);
           }

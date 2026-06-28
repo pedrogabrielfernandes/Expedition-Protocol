@@ -5,11 +5,11 @@
 #include <stdio.h>
 #include <string.h>
 
-extern bool pixel_solido          (ALLEGRO_BITMAP *mapa, int x, int y);
-extern bool boss_colide_vertical  (ALLEGRO_BITMAP *mapa, float x, float y, float vel_y);
+extern bool pixel_solido(ALLEGRO_BITMAP *mapa, int x, int y);
+extern bool boss_colide_vertical(ALLEGRO_BITMAP *mapa, float x, float y, float vel_y);
 extern bool boss_colide_horizontal(ALLEGRO_BITMAP *mapa, float x, float y);
-extern bool boss_no_chao          (ALLEGRO_BITMAP *mapa, float x, float y);
-extern void perder_vida           (VidaStatus *vs);
+extern bool boss_no_chao(ALLEGRO_BITMAP *mapa, float x, float y);
+extern void perder_vida(VidaStatus *vs);
 
 /* ------------------------------------------------------------------ */
 /*  montar_tira                                                         */
@@ -21,7 +21,8 @@ static ALLEGRO_BITMAP *montar_tira(const char *pasta, const char *nome,
     int tira_h = BOSS_SPRITE_H;
 
     ALLEGRO_BITMAP *tira = al_create_bitmap(tira_w, tira_h);
-    if (!tira) return NULL;
+    if (!tira)
+        return NULL;
 
     ALLEGRO_BITMAP *alvo_anterior = al_get_target_bitmap();
     al_set_target_bitmap(tira);
@@ -48,7 +49,7 @@ static ALLEGRO_BITMAP *montar_tira(const char *pasta, const char *nome,
         if (fw != BOSS_SPRITE_W || fh != BOSS_SPRITE_H)
         {
             ALLEGRO_BITMAP *escalado = al_create_bitmap(BOSS_SPRITE_W, BOSS_SPRITE_H);
-            ALLEGRO_BITMAP *prev2    = al_get_target_bitmap();
+            ALLEGRO_BITMAP *prev2 = al_get_target_bitmap();
             al_set_target_bitmap(escalado);
             al_clear_to_color(al_map_rgba(0, 0, 0, 0));
             al_draw_scaled_bitmap(frame, 0, 0, fw, fh,
@@ -73,23 +74,23 @@ void boss_init(Boss *b, float x, float y)
 {
     memset(b, 0, sizeof(Boss));
 
-    b->x       = x;
-    b->y       = y;
-    b->vel_y   = 0.0f;
+    b->x = x;
+    b->y = y;
+    b->vel_y = 0.0f;
     b->direcao = 1;
-    b->estado  = BOSS_IDLE;
-    b->fase    = 1;
-    b->hp      = BOSS_HP_MAX;
-    b->hp_max  = BOSS_HP_MAX;
-    b->ativo   = 1;
+    b->estado = BOSS_IDLE;
+    b->fase = 1;
+    b->hp = BOSS_HP_MAX;
+    b->hp_max = BOSS_HP_MAX;
+    b->ativo = 1;
     b->no_chao = 1;
     b->dano_aplicado = 0;
 
-    b->ultimo_ataque        = -999.0;
-    b->hurt_inicio          = -999.0;
+    b->ultimo_ataque = -999.0;
+    b->hurt_inicio = -999.0;
     b->ultimo_dano_recebido = -999.0;
 
-    b->morte_animando   = 0;
+    b->morte_animando = 0;
     b->som_morte_tocado = 0;
     b->som_spawn_tocado = 0;
     b->som_fase2_tocado = 0;
@@ -121,11 +122,38 @@ void boss_sprites_destruir(BossSprites *spr)
 }
 
 /* ================================================================== */
-/*  Helpers                                                             */
+/*  Helpers de hitbox                                                   */
 /* ================================================================== */
+static int boss_esta_espelhado(const Boss *b)
+{
+#if BOSS_SPRITE_OLHA_DIREITA
+    return (b->direcao == 1);
+#else
+    return (b->direcao == 0);
+#endif
+}
+
+/*
+ * Offset da hitbox corrigido por direção.
+ *
+ * O sprite original olha para a ESQUERDA (BOSS_SPRITE_OLHA_DIREITA=0).
+ * Quando espelhado (olhando direita), o offset precisa ser calculado
+ * como o espelho do offset original dentro do sprite escalado.
+ *
+ * esquerda : BOSS_HBX_OFFSET_X
+ * direita  : largura_tela - BOSS_HBX_OFFSET_X - BOSS_HBX_W
+ */
+static float boss_hbx_offset_x(const Boss *b)
+{
+    if (boss_esta_espelhado(b))
+        return (BOSS_SPRITE_W * BOSS_ESCALA) - BOSS_HBX_OFFSET_X - BOSS_HBX_W;
+
+    return BOSS_HBX_OFFSET_X;
+}
+
 static int hitboxes_sobrepoem(const Boss *b, const Jogador *j)
 {
-    float bx1 = b->x + BOSS_HBX_OFFSET_X,
+    float bx1 = b->x + boss_hbx_offset_x(b),
           bx2 = bx1 + BOSS_HBX_W;
     float by1 = b->y + BOSS_HBX_OFFSET_Y,
           by2 = by1 + BOSS_HBX_H;
@@ -138,14 +166,30 @@ static int hitboxes_sobrepoem(const Boss *b, const Jogador *j)
             by1 < jy2 && by2 > jy1);
 }
 
-/* Retorna 1 se o jogador está completamente dentro da hitbox do boss */
-static int jogador_dentro_do_boss(const Boss *b, const Jogador *j)
+static float dist_bordas(const Boss *b, const Jogador *j)
 {
-    float bx1 = b->x + BOSS_HBX_OFFSET_X;
-    float bx2 = bx1 + BOSS_HBX_W;
-    float jx1 = j->mov.x + HITBOX_OFFSET_X;
-    float jx2 = jx1 + HITBOX_W;
-    return (jx1 > bx1 && jx2 < bx2);
+    float bbx1 = b->x + boss_hbx_offset_x(b);
+    float bbx2 = bbx1 + BOSS_HBX_W;
+    float jbx1 = j->mov.x + HITBOX_OFFSET_X;
+    float jbx2 = jbx1 + HITBOX_W;
+
+    if (jbx1 > bbx2)
+        return jbx1 - bbx2;
+    else if (jbx2 < bbx1)
+        return bbx1 - jbx2;
+    else
+        return 0.0f;
+}
+
+static void boss_olhar_jogador(Boss *b, const Jogador *jogador)
+{
+    float jog_cx = jogador->mov.x + HITBOX_OFFSET_X + HITBOX_W / 2.0f;
+    float bos_cx = b->x + (BOSS_SPRITE_W * BOSS_ESCALA) / 2.0f;
+
+    if (jog_cx > bos_cx)
+        b->direcao = 0;
+    else
+        b->direcao = 1;
 }
 
 static void tocar_fase2(Boss *b, Sons *sons)
@@ -166,15 +210,14 @@ static void tocar_fase3(Boss *b, Sons *sons)
     }
 }
 
-#define BOSS_RECUO_FATOR 0.4f
-
 /* ================================================================== */
 /*  boss_atualizar                                                      */
 /* ================================================================== */
 void boss_atualizar(Boss *b, Jogador *jogador, Sons *sons,
                     ALLEGRO_BITMAP *mapa_colisao, VidaStatus *vidas)
 {
-    if (!b->ativo) return;
+    if (!b->ativo)
+        return;
 
     double agora = al_get_time();
 
@@ -206,27 +249,18 @@ void boss_atualizar(Boss *b, Jogador *jogador, Sons *sons,
     {
     /* ---- IDLE ---- */
     case BOSS_IDLE:
+    {
+        boss_olhar_jogador(b, jogador);
+
         b->frame += BOSS_ANIM_IDLE_VEL;
         if (b->frame >= BOSS_FRAMES_IDLE)
         {
-            b->frame  = 0.0f;
-            b->estado = BOSS_WALK;
-        }
-        break;
-
-    /* ---- WALK ---- */
-    case BOSS_WALK:
-    {
-        b->frame += BOSS_ANIM_WALK_VEL;
-        if (b->frame >= BOSS_FRAMES_WALK)
             b->frame = 0.0f;
 
-        float jog_cx = jogador->mov.x + HITBOX_W / 2.0f;
-        float bos_cx = b->x + BOSS_HBX_OFFSET_X + BOSS_HBX_W / 2.0f;
+            float dist = dist_bordas(b, jogador);
 
-        if (jogador_dentro_do_boss(b, jogador))
-        {
-            if ((agora - b->ultimo_ataque) >= BOSS_DELAY_ATAQUE)
+            if (dist <= BOSS_ALCANCE_ATAQUE &&
+                (agora - b->ultimo_ataque) >= BOSS_DELAY_ATAQUE)
             {
                 b->estado        = BOSS_ATTACK;
                 b->frame         = 0.0f;
@@ -236,36 +270,25 @@ void boss_atualizar(Boss *b, Jogador *jogador, Sons *sons,
             }
             else
             {
-                float recuo;
-                if (jog_cx > bos_cx)
-                    recuo = -vel_atual * BOSS_RECUO_FATOR;
-                else
-                    recuo =  vel_atual * BOSS_RECUO_FATOR;
-
-                float nx = b->x + recuo;
-                if (!boss_colide_horizontal(mapa_colisao, nx, b->y))
-                    b->x = nx;
+                b->estado = BOSS_WALK;
             }
-            break;
         }
+        break;
+    }
 
-        if (jog_cx > bos_cx)
-        {
-            b->direcao = 0;
-            float nx = b->x + vel_atual;
-            if (!boss_colide_horizontal(mapa_colisao, nx, b->y))
-                b->x = nx;
-        }
-        else
-        {
-            b->direcao = 1;
-            float nx = b->x - vel_atual;
-            if (!boss_colide_horizontal(mapa_colisao, nx, b->y))
-                b->x = nx;
-        }
+    /* ---- WALK ---- */
+    case BOSS_WALK:
+    {
+        b->frame += BOSS_ANIM_WALK_VEL;
+        if (b->frame >= BOSS_FRAMES_WALK)
+            b->frame = 0.0f;
 
-        float dist_x = fabsf(jog_cx - bos_cx);
-        if (dist_x <= BOSS_ALCANCE_ATAQUE &&
+        boss_olhar_jogador(b, jogador);
+
+        float dist = dist_bordas(b, jogador);
+
+        /* Jogador no alcance e cooldown zerado -> atacar */
+        if (dist <= BOSS_ALCANCE_ATAQUE &&
             (agora - b->ultimo_ataque) >= BOSS_DELAY_ATAQUE)
         {
             b->estado        = BOSS_ATTACK;
@@ -273,30 +296,65 @@ void boss_atualizar(Boss *b, Jogador *jogador, Sons *sons,
             b->dano_aplicado = 0;
             b->ultimo_ataque = agora;
             if (sons) tocar(sons->boss_ataque);
+            break;
         }
+
+        float jog_cx = jogador->mov.x + HITBOX_OFFSET_X + HITBOX_W / 2.0f;
+        float bos_cx = b->x + (BOSS_SPRITE_W * BOSS_ESCALA) / 2.0f;
+
+        /* Distância ideal: meio entre mínima e alcance de ataque */
+        float dist_ideal = (BOSS_DIST_MINIMA + BOSS_ALCANCE_ATAQUE) / 2.0f;
+
+        if (dist < BOSS_DIST_MINIMA)
+        {
+            /* Muito perto: recua para abrir espaço */
+            float nx;
+            if (jog_cx > bos_cx)
+                nx = b->x - vel_atual;
+            else
+                nx = b->x + vel_atual;
+
+            if (!boss_colide_horizontal(mapa_colisao, nx, b->y))
+                b->x = nx;
+        }
+        else if (dist > BOSS_ALCANCE_ATAQUE)
+        {
+            /* Longe demais: avança em direção ao jogador */
+            if (jog_cx > bos_cx)
+            {
+                float nx = b->x + vel_atual;
+                if (!boss_colide_horizontal(mapa_colisao, nx, b->y))
+                    b->x = nx;
+            }
+            else
+            {
+                float nx = b->x - vel_atual;
+                if (!boss_colide_horizontal(mapa_colisao, nx, b->y))
+                    b->x = nx;
+            }
+        }
+        else if (dist > dist_ideal)
+        {
+            /* Entre ideal e alcance: avança devagar para ficar na distância certa */
+            float nx;
+            if (jog_cx > bos_cx)
+                nx = b->x + vel_atual * 0.5f;
+            else
+                nx = b->x - vel_atual * 0.5f;
+
+            if (!boss_colide_horizontal(mapa_colisao, nx, b->y))
+                b->x = nx;
+        }
+        /* Entre minima e ideal: fica parado esperando cooldown */
         break;
     }
 
     /* ---- ATTACK ---- */
     case BOSS_ATTACK:
     {
+        boss_olhar_jogador(b, jogador);
+
         b->frame += BOSS_ANIM_ATAQUE_VEL;
-
-        if (jogador_dentro_do_boss(b, jogador))
-        {
-            float jog_cx = jogador->mov.x + HITBOX_W / 2.0f;
-            float bos_cx = b->x + BOSS_HBX_OFFSET_X + BOSS_HBX_W / 2.0f;
-
-            float recuo;
-            if (jog_cx > bos_cx)
-                recuo = -vel_atual * BOSS_RECUO_FATOR;
-            else
-                recuo =  vel_atual * BOSS_RECUO_FATOR;
-
-            float nx = b->x + recuo;
-            if (!boss_colide_horizontal(mapa_colisao, nx, b->y))
-                b->x = nx;
-        }
 
         if (!b->dano_aplicado && (int)b->frame >= 8)
         {
@@ -359,7 +417,7 @@ void boss_atualizar(Boss *b, Jogador *jogador, Sons *sons,
         break;
     }
 
-    /* ---- Física vertical ---- */
+    /* ---- Fisica vertical ---- */
     if (b->estado != BOSS_MORTO)
     {
         b->vel_y += GRAVIDADE;
@@ -396,7 +454,8 @@ int boss_receber_dano(Boss *b, int dano, Sons *sons)
 
     b->ultimo_dano_recebido = agora;
     b->hp -= dano;
-    if (b->hp < 0) b->hp = 0;
+    if (b->hp < 0)
+        b->hp = 0;
 
     if (sons) tocar(sons->boss_dano);
 
@@ -421,12 +480,16 @@ int boss_receber_dano(Boss *b, int dano, Sons *sons)
 void boss_verificar_dano_jogador(Boss *b, Jogador *jogador,
                                  VidaStatus *vidas, Sons *sons)
 {
-    if (!b->ativo || b->estado != BOSS_ATTACK) return;
-    if (jogador->estado == SAM_DEAD)           return;
+    if (!b->ativo || b->estado != BOSS_ATTACK)
+        return;
+    if (jogador->estado == SAM_DEAD)
+        return;
 
     double agora = al_get_time();
 
-    if (!hitboxes_sobrepoem(b, jogador)) return;
+    float dist = dist_bordas(b, jogador);
+    if (!hitboxes_sobrepoem(b, jogador) && dist > BOSS_ALCANCE_ATAQUE)
+        return;
 
     if ((agora - jogador->ultimo_dano) < BOSS_DELAY_DANO_JOGADOR)
         return;
@@ -457,7 +520,8 @@ void boss_verificar_dano_jogador(Boss *b, Jogador *jogador,
 /* ================================================================== */
 void boss_desenhar(const Boss *b, const BossSprites *spr)
 {
-    if (!b->ativo || b->estado == BOSS_MORTO) return;
+    if (!b->ativo || b->estado == BOSS_MORTO)
+        return;
 
     ALLEGRO_BITMAP *sheet = NULL;
     int n_frames = 1;
@@ -465,19 +529,20 @@ void boss_desenhar(const Boss *b, const BossSprites *spr)
     switch (b->estado)
     {
     case BOSS_IDLE:
-        sheet = spr->idle; n_frames = BOSS_FRAMES_IDLE;   break;
+        sheet = spr->idle;   n_frames = BOSS_FRAMES_IDLE;   break;
     case BOSS_WALK:
-        sheet = spr->walk; n_frames = BOSS_FRAMES_WALK;   break;
+        sheet = spr->walk;   n_frames = BOSS_FRAMES_WALK;   break;
     case BOSS_ATTACK:
         sheet = spr->attack; n_frames = BOSS_FRAMES_ATTACK; break;
     case BOSS_DAMAGE:
         sheet = spr->damage; n_frames = BOSS_FRAMES_DAMAGE; break;
     case BOSS_DEATH:
-        sheet = spr->death; n_frames = BOSS_FRAMES_DEATH;  break;
+        sheet = spr->death;  n_frames = BOSS_FRAMES_DEATH;  break;
     default: return;
     }
 
-    if (!sheet) return;
+    if (!sheet)
+        return;
 
     int frame_idx = (int)b->frame;
     if (frame_idx < 0)         frame_idx = 0;
@@ -486,17 +551,9 @@ void boss_desenhar(const Boss *b, const BossSprites *spr)
     float sx = (float)(frame_idx * BOSS_SPRITE_W);
 
 #if BOSS_SPRITE_OLHA_DIREITA
-    int flags;
-    if (b->direcao == 1)
-        flags = ALLEGRO_FLIP_HORIZONTAL;
-    else
-        flags = 0;
+    int flags = (b->direcao == 1) ? ALLEGRO_FLIP_HORIZONTAL : 0;
 #else
-    int flags;
-    if (b->direcao == 0)
-        flags = ALLEGRO_FLIP_HORIZONTAL;
-    else
-        flags = 0;
+    int flags = (b->direcao == 0) ? ALLEGRO_FLIP_HORIZONTAL : 0;
 #endif
 
     al_draw_scaled_bitmap(sheet,
@@ -508,11 +565,14 @@ void boss_desenhar(const Boss *b, const BossSprites *spr)
                           flags);
 
 #ifdef DEBUG_HITBOX
-    al_draw_rectangle(b->x + BOSS_HBX_OFFSET_X,
-                      b->y + BOSS_HBX_OFFSET_Y,
-                      b->x + BOSS_HBX_OFFSET_X + BOSS_HBX_W,
-                      b->y + BOSS_HBX_OFFSET_Y + BOSS_HBX_H,
-                      al_map_rgb(255, 0, 0), 2);
+    {
+        float hx1 = b->x + boss_hbx_offset_x(b);
+        al_draw_rectangle(hx1,
+                          b->y + BOSS_HBX_OFFSET_Y,
+                          hx1 + BOSS_HBX_W,
+                          b->y + BOSS_HBX_OFFSET_Y + BOSS_HBX_H,
+                          al_map_rgb(255, 0, 0), 2);
+    }
 #endif
 }
 
@@ -527,7 +587,7 @@ void boss_desenhar_hud(const Boss *b, ALLEGRO_FONT *fonte_hud)
     float barra_w = 500.0f;
     float barra_h = 22.0f;
     float barra_x = LARGURA / 2.0f - barra_w / 2.0f;
-    float barra_y = 60.0f;
+    float barra_y = 80.0f;
     float preench = barra_w * ((float)b->hp / (float)b->hp_max);
 
     al_draw_filled_rectangle(barra_x - 2, barra_y - 2,
@@ -553,7 +613,7 @@ void boss_desenhar_hud(const Boss *b, ALLEGRO_FONT *fonte_hud)
     if (fonte_hud)
         al_draw_text(fonte_hud, al_map_rgb(255, 220, 50),
                      LARGURA / 2.0f, barra_y + barra_h + 4,
-                     ALLEGRO_ALIGN_CENTER, "BOSS");
+                     ALLEGRO_ALIGN_CENTER, "DEVORADOR DE MUNDOS");
 }
 
 /* ================================================================== */
